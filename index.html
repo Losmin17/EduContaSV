@@ -374,7 +374,7 @@
 
         <div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide border-b border-slate-200 pb-2">
             <button onclick="setCatalogFilter('Todos')" class="cat-filter-btn active px-4 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition-colors">Todos</button>
-            <button onclick="setCatalogFilter('Ban')" class="cat-filter-btn px-4 py-2 rounded-lg text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 transition-colors">Banca y Seguros (SSF)</button>
+            <button onclick="setCatalogFilter('SSF')" class="cat-filter-btn px-4 py-2 rounded-lg text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 transition-colors">Banca y Seguros (SSF)</button>
             <button onclick="setCatalogFilter('Com')" class="cat-filter-btn px-4 py-2 rounded-lg text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 transition-colors">Comercio e Industria (NIC 2)</button>
             <button onclick="setCatalogFilter('Agr')" class="cat-filter-btn px-4 py-2 rounded-lg text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 transition-colors">Agrícola (NIC 41)</button>
             <button onclick="setCatalogFilter('Gub')" class="cat-filter-btn px-4 py-2 rounded-lg text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 transition-colors">Gubernamental (SAFI)</button>
@@ -4285,7 +4285,7 @@
                 const c = a.codigo;
                 const isResultado =
                     (a.cat === 'Com' && (c.startsWith('4') || c.startsWith('5') || c.startsWith('6'))) ||
-                    (a.cat === 'Ban' && (c.startsWith('4') || c.startsWith('5') || c.startsWith('6') || c.startsWith('7') || c.startsWith('8'))) ||
+                    (a.cat === 'SSF' && (c.startsWith('4') || c.startsWith('5') || c.startsWith('6') || c.startsWith('7') || c.startsWith('8'))) ||
                     (a.cat === 'Agr' && (c.startsWith('4') || c.startsWith('5'))) ||
                     (a.cat === 'Gub' && (c.startsWith('8') || c.startsWith('9')));
 
@@ -4294,9 +4294,9 @@
                 const val = Math.abs(a.saldoAcreedor - a.saldoDeudor);
                 if (val === 0) return;
 
-                if (c.startsWith('4101') || (c.startsWith('41') && a.cat==='Ban') || c.startsWith('91') || (c.startsWith('51') && a.cat==='Agr')) {
+                if (c.startsWith('4101') || (c.startsWith('41') && a.cat==='SSF') || c.startsWith('91') || (c.startsWith('51') && a.cat==='Agr')) {
                     ingresos.push({ ...a, val });
-                } else if (c.startsWith('5101') || c.startsWith('5102') || (c.startsWith('51') && a.cat==='Ban')) {
+                } else if (c.startsWith('5101') || c.startsWith('5102') || (c.startsWith('51') && a.cat==='SSF')) {
                     costos.push({ ...a, val });
                 } else if (c.startsWith('6101') || (c.startsWith('52') && a.cat==='Ban') || c.startsWith('81') || (c.startsWith('4105') && a.cat==='Agr')) {
                     gastosOp.push({ ...a, val });
