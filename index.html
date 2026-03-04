@@ -3292,7 +3292,6 @@
     { id: "99210", name: "Otras Garantías a Favor por Contra", cat: "Gub" }
         ];
 
-
         const NOMBRES_RANDOM = [
             "Auditoría Externa S.A.", "Consultores de Oriente", "Agroindustrias Cuscatlán", 
             "Comercializadora del Pacífico", "Inversiones Metapán", "Fomento Ganadero", 
@@ -3321,7 +3320,6 @@
         };
 
         // --- MOTOR DE REGLAS CONTABLES DINÁMICAS (MULTISECTORIAL) ---
-        // Evalúa inteligentemente cualquier cuenta, incluso si el usuario digitó un código manualmente
         function clasificarCuenta(a) {
             const c = a.codigo.toString().trim();
             const cat = a.cat || 'Com';
@@ -3490,7 +3488,7 @@
 
                         doc.autoTable({
                             startY: startY,
-                            pageBreak: 'avoid', // <--- NUEVA PROPIEDAD: Evita cortes de filas a la mitad de la página
+                            pageBreak: 'avoid', 
                             head: [[`${title} (${date})`, 'Cuenta / Detalle', 'Debe', 'Haber']],
                             body: rows,
                             theme: 'grid',
@@ -3502,9 +3500,8 @@
                                 2: { cellWidth: 30, halign: 'right', fontStyle: 'bold' },
                                 3: { cellWidth: 30, halign: 'right', fontStyle: 'bold' }
                             },
-                            margin: { top: 42, bottom: 20, left: 14, right: 14 }, // <--- NUEVO: Ajuste de margen superior e inferior
+                            margin: { top: 42, bottom: 20, left: 14, right: 14 }, 
                             didDrawPage: (data) => {
-                                // <--- NUEVO: Si se creó o saltó a una página nueva, dibujamos el header
                                 if (data.pageNumber > lastPage) {
                                     buildHeader('Libro Diario General (Continuación)');
                                     lastPage = data.pageNumber;
@@ -3512,7 +3509,7 @@
                             }
                         });
                         startY = doc.lastAutoTable.finalY + 10;
-                        lastPage = doc.internal.getNumberOfPages(); // <--- NUEVO: Sincroniza al final de cada tabla dibujada
+                        lastPage = doc.internal.getNumberOfPages(); 
                     });
                 } 
                 // === 2. LIBROS MAYORES (CUENTAS T EN GRID) ===
@@ -4681,8 +4678,11 @@
 
         function reconstructSheet(s) {
             const booksStack = document.getElementById('books-stack');
+            
+            // CORRECCIÓN PRINCIPAL: Forzar data-frozen="false" al crear el HTML
+            // para que addRow() pueda rellenar las filas correctamente.
             const html = `
-                <div id="${s.id}" class="glass-card p-4 sm:p-10 min-h-[400px] flex flex-col" data-frozen="${s.frozen}" onclick="selectSheet('${s.id}')">
+                <div id="${s.id}" class="glass-card p-4 sm:p-10 min-h-[400px] flex flex-col" data-frozen="false" onclick="selectSheet('${s.id}')">
                     <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div class="w-full sm:w-auto">
                             <h3 class="sheet-title font-extrabold text-xl sm:text-2xl text-slate-800 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${s.title}</h3>
@@ -4736,7 +4736,11 @@
                     inps[3].value = r.vals[3] || "";
                 }
             });
-            if (s.frozen === 'true' || s.frozen === true) { card.dataset.frozen = 'false'; toggleFreeze(s.id, false); }
+            
+            // CORRECCIÓN PRINCIPAL: Bloquear la hoja DESPUÉS de haber agregado todas las filas.
+            if (s.frozen === 'true' || s.frozen === true) { 
+                toggleFreeze(s.id, false); 
+            }
             calc(s.id);
         }
 
