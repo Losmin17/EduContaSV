@@ -794,10 +794,10 @@
     <div id="global-suggestions" class="suggestions-panel hidden no-print"></div>
 
     <script>
-        // --- CONSTANTES: CATÁLOGO MAESTRO  ---
+        // --- CONSTANTES: CATÁLOGO MAESTRO (MUESTRA REDUCIDA PARA FACILITAR EDICIÓN) ---
         const CATALOGO_MAESTRO = [
             // =========================================================================
-            // SECTOR: AGRÍCOLA Y GANADERO (NIC 41) - 
+            // SECTOR: AGRÍCOLA Y GANADERO (NIC 41) - [MUESTRA REDUCIDA]
             // =========================================================================
             { id: "1", name: "ACTIVO", cat: "Agr" },
     { id: "11", name: "ACTIVO CORRIENTE", cat: "Agr" },
@@ -3292,6 +3292,7 @@
     { id: "99210", name: "Otras Garantías a Favor por Contra", cat: "Gub" }
         ];
 
+
         const NOMBRES_RANDOM = [
             "Auditoría Externa S.A.", "Consultores de Oriente", "Agroindustrias Cuscatlán", 
             "Comercializadora del Pacífico", "Inversiones Metapán", "Fomento Ganadero", 
@@ -3449,6 +3450,7 @@
                 if (baseFilename === 'Libro_Diario') {
                     buildHeader('Libro Diario General');
                     let startY = 42;
+                    let lastPage = doc.internal.getNumberOfPages(); // Rastreamos la página actual
                     const cards = document.querySelectorAll('#books-stack .glass-card');
                     
                     cards.forEach((card, idx) => {
@@ -3488,6 +3490,7 @@
 
                         doc.autoTable({
                             startY: startY,
+                            pageBreak: 'avoid', // <--- NUEVA PROPIEDAD: Evita cortes de filas a la mitad de la página
                             head: [[`${title} (${date})`, 'Cuenta / Detalle', 'Debe', 'Haber']],
                             body: rows,
                             theme: 'grid',
@@ -3499,14 +3502,17 @@
                                 2: { cellWidth: 30, halign: 'right', fontStyle: 'bold' },
                                 3: { cellWidth: 30, halign: 'right', fontStyle: 'bold' }
                             },
-                            margin: { left: 14, right: 14 },
+                            margin: { top: 42, bottom: 20, left: 14, right: 14 }, // <--- NUEVO: Ajuste de margen superior e inferior
                             didDrawPage: (data) => {
-                                if(data.pageNumber > 1 && data.cursor.y === data.settings.startY) {
+                                // <--- NUEVO: Si se creó o saltó a una página nueva, dibujamos el header
+                                if (data.pageNumber > lastPage) {
                                     buildHeader('Libro Diario General (Continuación)');
+                                    lastPage = data.pageNumber;
                                 }
                             }
                         });
                         startY = doc.lastAutoTable.finalY + 10;
+                        lastPage = doc.internal.getNumberOfPages(); // <--- NUEVO: Sincroniza al final de cada tabla dibujada
                     });
                 } 
                 // === 2. LIBROS MAYORES (CUENTAS T EN GRID) ===
@@ -3953,12 +3959,14 @@
         }
 
         function showHomeScreen() {
+            if (!document.getElementById('app-screen').classList.contains('hidden')) { saveHistory(); }
             hideAllScreens();
             document.getElementById('home-screen').classList.remove('hidden');
             document.getElementById('home-screen').classList.add('fade-in');
         }
 
         function showProjectScreen() {
+            if (!document.getElementById('app-screen').classList.contains('hidden')) { saveHistory(); }
             hideAllScreens();
             document.getElementById('project-screen').classList.remove('hidden');
             document.getElementById('project-screen').classList.add('fade-in');
@@ -3967,6 +3975,7 @@
         }
 
         function showCatalogScreen() {
+            if (!document.getElementById('app-screen').classList.contains('hidden')) { saveHistory(); }
             hideAllScreens();
             document.getElementById('catalog-screen').classList.remove('hidden');
             document.getElementById('catalog-screen').classList.add('fade-in');
