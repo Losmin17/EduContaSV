@@ -716,8 +716,15 @@
         <div class="bg-white p-8 rounded-2xl max-w-sm w-full shadow-2xl">
             <h4 id="modal-title" class="text-xl font-bold text-slate-900 mb-2">Confirmación</h4>
             <p id="modal-msg" class="text-slate-500 text-sm mb-6"></p>
+            <div id="modal-password-container" class="hidden mb-6">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contraseña de
+                    Administrador</label>
+                <input type="password" id="modal-password-input"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
+                    placeholder="••••••••">
+            </div>
             <div class="flex gap-3">
-                <button onclick="closeModal()"
+                <button id="modal-cancel-btn" onclick="closeModal()"
                     class="flex-1 px-4 py-3 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs uppercase hover:bg-slate-200">Cancelar</button>
                 <button id="modal-confirm-btn"
                     class="flex-1 px-4 py-3 rounded-xl bg-rose-500 text-white font-bold text-xs uppercase shadow-lg hover:bg-rose-600">Confirmar</button>
@@ -2423,6 +2430,8 @@
             document.getElementById('app-screen').classList.add('hidden');
             document.getElementById('master-screen').classList.add('hidden');
             document.getElementById('btn-volver').classList.add('hidden');
+            const btnProj = document.getElementById('btn-nav-projects');
+            if (btnProj) btnProj.classList.add('hidden');
         }
 
         function showHomeScreen() {
@@ -2460,6 +2469,10 @@
             document.getElementById('app-screen').classList.remove('hidden');
             document.getElementById('app-screen').classList.add('fade-in');
             document.getElementById('btn-volver').classList.remove('hidden');
+            if (!isAuditMode) {
+                const btnProj = document.getElementById('btn-nav-projects');
+                if (btnProj) btnProj.classList.remove('hidden');
+            }
             const btnOffice = document.getElementById('btn-master-office');
             if (btnOffice) btnOffice.style.display = 'none';
             switchTab('diario');
@@ -3488,8 +3501,47 @@
         }
 
         // --- UTILIDADES DE UI ---
-        function showModal(t, m, c) { document.getElementById('modal-title').innerText = t; document.getElementById('modal-msg').innerText = m; document.getElementById('modal-confirm-btn').onclick = c; document.getElementById('custom-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
+        function showModal(t, m, c, requirePassword = false) {
+            document.getElementById('modal-title').innerText = t;
+            document.getElementById('modal-msg').innerText = m;
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            confirmBtn.onclick = c;
+            confirmBtn.innerText = "Confirmar"; // Reset texto por defecto
+
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            if (cancelBtn) cancelBtn.style.display = 'block';
+
+            const pwdContainer = document.getElementById('modal-password-container');
+            const pwdInput = document.getElementById('modal-password-input');
+            if (pwdContainer && pwdInput) {
+                if (requirePassword) {
+                    pwdContainer.classList.remove('hidden');
+                    pwdInput.value = '';
+                    setTimeout(() => pwdInput.focus(), 100);
+                } else {
+                    pwdContainer.classList.add('hidden');
+                }
+            }
+            document.getElementById('custom-modal').style.display = 'flex';
+        }
+
+        function showAlert(t, m, c = closeModal) {
+            showModal(t, m, c, false);
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            if (confirmBtn) confirmBtn.innerText = "Aceptar";
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').style.display = 'none';
+            const pwdInput = document.getElementById('modal-password-input');
+            if (pwdInput) pwdInput.value = '';
+        }
+
+        function isValidEmail(email) {
+            return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+        }
 
         function selectSheet(id) {
             document.querySelectorAll('.glass-card').forEach(c => c.classList.remove('active-sheet'));
@@ -3673,6 +3725,7 @@
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return showAuthError("Ingresa correo y contraseña.");
+            if (!isValidEmail(email)) return showAuthError("Formato de correo electrónico inválido.");
 
             const btn = document.getElementById('btn-auth-submit');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -3699,6 +3752,7 @@
             const password = document.getElementById('auth-password').value;
             const fullName = document.getElementById('auth-name').value;
             if (!email || !password || !fullName) return showAuthError("Completa todos los campos (Nombre, Correo, Auto).");
+            if (!isValidEmail(email)) return showAuthError("Formato de correo electrónico inválido.");
 
             const btn = document.getElementById('btn-auth-submit');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -3730,8 +3784,23 @@
         }
 
         async function logout() {
-            await supabaseClient.auth.signOut();
-            showHomeScreen();
+            showModal("Cerrar Sesión", "¿Estás seguro de que deseas salir? Por motivos de privacidad local, tus proyectos de esta máquina serán limpiados.", async () => {
+                closeModal();
+
+                const btn = document.querySelector('button[title="Cerrar sesión"]');
+                const originalHtml = btn ? btn.innerHTML : '';
+                if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                await supabaseClient.auth.signOut();
+
+                // Limpieza absoluta de la sesión de este equipo
+                localStorage.removeItem('educonta_projects_v38');
+                projects = []; // Limpieza de variables en memoria
+                history = []; historyPointer = -1;
+
+                // Reiniciar entorno
+                location.reload();
+            });
         }
 
         function showAuthError(msg) {
@@ -3892,7 +3961,7 @@
             });
 
             const usersArray = Object.values(usersMap).filter(u => {
-                // Buscador Dual: ID + Email 
+                // Buscador Dual: ID + Email
                 const searchStr1 = String(u.email || '').toLowerCase();
                 const searchStr2 = String(u.id || '').toLowerCase();
                 return searchStr1.includes(term) || searchStr2.includes(term);
@@ -3921,14 +3990,14 @@
                         </div>
                         <h3 class="text-lg font-black text-slate-800 truncate relative z-10" title="${u.email}">${u.email}</h3>
                         <p class="text-[10px] text-slate-400 font-medium mt-1 mb-4 select-all relative z-10">${u.id}</p>
-                        
+
                         <div class="flex items-center gap-2 mb-6">
                             <i class="fas fa-folder text-sky-500"></i>
                             <span class="text-sm font-bold text-slate-600">${u.projectsCount} Proyecto(s)</span>
                         </div>
                     </div>
-                    
-                    <button onclick="viewUserProjects('${u.email || u.id}')" 
+
+                    <button onclick="viewUserProjects('${u.email || u.id}')"
                         class="w-full relative z-10 py-3 bg-slate-900 text-white rounded-xl hover:bg-sky-500 transition-colors text-xs font-bold uppercase tracking-widest shadow-md">
                         <i class="fas fa-folder-open mr-2"></i> Abrir Bóveda
                     </button>
@@ -4012,20 +4081,24 @@
                         : '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] rounded-md font-bold uppercase tracking-widest shadow-sm"><i class="fas fa-check-circle mr-1"></i> Activo</span>'}
                         </div>
                         <h3 class="text-lg font-black ${isArchived ? 'text-rose-600' : 'text-sky-700'} relative z-10 mb-2">${pData.name || 'Sin Nombre'}</h3>
-                        
+
                         <div class="flex items-center gap-2 mb-6">
                             <i class="far fa-clock text-slate-400"></i>
                             <span class="text-[10px] font-medium text-slate-500">${pData.updatedAt ? new Date(pData.updatedAt).toLocaleString() : 'N/A'}</span>
                         </div>
                     </div>
-                    
+
                     <div class="flex flex-col gap-2 relative z-10">
                         ${isArchived ?
-                        `<button onclick="restoreMasterProject('${item.id}')" 
-                            class="w-full py-2 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-500 hover:text-white transition-all text-xs font-bold shadow-sm">
+                        `<button onclick="restoreMasterProject('${item.id}')"
+                            class="w-full py-2 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-500 hover:text-white transition-all text-xs font-bold shadow-sm mb-2">
                             <i class="fas fa-trash-restore mr-1"></i> Restaurar Archivo
+                        </button>
+                        <button onclick="hardDeleteMasterProject('${item.id}')"
+                            class="w-full py-2 bg-rose-100 text-rose-700 border border-rose-200 rounded-lg hover:bg-rose-600 hover:text-white transition-all text-xs font-bold shadow-sm">
+                            <i class="fas fa-biohazard mr-1"></i> Eliminar Definitivamente
                         </button>` : ''}
-                        <button onclick="auditMasterProject('${item.id}')" 
+                        <button onclick="auditMasterProject('${item.id}')"
                             class="w-full py-2 bg-slate-800 text-white rounded-lg hover:bg-sky-600 transition-all text-xs font-bold shadow-md hover:-translate-y-0.5">
                             <i class="fas fa-eye mr-1"></i> Auditar
                         </button>
@@ -4046,6 +4119,49 @@
                     loadMasterData();
                 } catch (e) { showModal("Error", "Error al restaurar: " + e.message, closeModal); }
             });
+        }
+
+        async function hardDeleteMasterProject(uuid) {
+            showModal("Eliminar Permanentemente", "Esta acción es irreversible y eliminará el proyecto y todos sus datos desde la raíz de Supabase. Ingresa tu contraseña de administrador para confirmar:", async () => {
+                const pwdInput = document.getElementById('modal-password-input');
+                const adminPassword = pwdInput ? pwdInput.value : '';
+
+                if (!adminPassword) {
+                    showAlert("Atención", "Debes ingresar tu contraseña para esta acción destructiva.");
+                    return;
+                }
+
+                try {
+                    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                    if (sessionError || !session) throw new Error("No tienes una sesión activa válida.");
+
+                    // Validar la contraseña intentando iniciar sesión de nuevo
+                    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+                        email: session.user.email,
+                        password: adminPassword
+                    });
+
+                    if (authError) {
+                        showAlert("Error de Seguridad", "Contraseña incorrecta. Operación abortada por seguridad.");
+                        return;
+                    }
+
+                    // Proceder con el borrado duro
+                    closeModal();
+
+                    const { error: deleteError } = await supabaseClient.from('proyectos_contables').delete().eq('id', uuid);
+                    if (deleteError) throw deleteError;
+
+                    showAlert("Éxito", "Proyecto eliminado permanentemente de la base de datos global.");
+
+                    await loadMasterData();
+                    if (currentAuditUserId) {
+                        viewUserProjects(currentAuditUserId);
+                    }
+                } catch (e) {
+                    showAlert("Error Crítico", "Error en borrado permanente: " + e.message);
+                }
+            }, true);
         }
 
         function auditMasterProject(uuid) {
@@ -4181,6 +4297,32 @@
         // On Load
         window.addEventListener('DOMContentLoaded', () => {
             initApp();
+
+            // Lógica Enter para Modal de Autenticación
+            const authName = document.getElementById('auth-name');
+            const authEmail = document.getElementById('auth-email');
+            const authPassword = document.getElementById('auth-password');
+            if (authName) authName.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); authEmail.focus(); } });
+            if (authEmail) authEmail.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); authPassword.focus(); } });
+            if (authPassword) authPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleAuthSubmit(); } });
+
+            // Lógica Enter para Modal de Nuevo Proyecto
+            const projInputName = document.getElementById('proj-input-name');
+            if (projInputName) projInputName.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveProjectFromModal(); } });
+
+            // Lógica Enter para Modal de Perfil
+            const profileName = document.getElementById('profile-name');
+            if (profileName) profileName.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleUpdateProfile(); } });
+
+            // Lógica Enter para Modal Genérico (contraseña)
+            const modalPasswordInput = document.getElementById('modal-password-input');
+            if (modalPasswordInput) modalPasswordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const confirmBtn = document.getElementById('modal-confirm-btn');
+                    if (confirmBtn && typeof confirmBtn.onclick === 'function') confirmBtn.onclick();
+                }
+            });
 
             // Attach form sumbits properly
             const authForm = document.getElementById('form-auth');
