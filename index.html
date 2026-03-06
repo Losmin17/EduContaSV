@@ -1538,6 +1538,17 @@
     <!-- PANEL GLOBAL DE SUGERENCIAS AL FINAL DEL BODY PARA EVITAR CONFLICTOS DE POSICIÓN RELATIVA/TRANSFORM -->
     <div id="global-suggestions" class="suggestions-panel hidden no-print"></div>
 
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast"
+        class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-2xl shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Proyectos respaldados
+            </p>
+        </div>
+    </div>
+
     <script>
         // --- CONSTANTES: CATÁLOGO MAESTRO ---
         let CATALOGO_MAESTRO = []; // Se llena asincronamente desde Supabase o LocalStorage
@@ -1663,6 +1674,36 @@
         }
 
         // --- INICIALIZACIÓN Y SINCRONIZACIÓN ---
+        function showSyncVerification() {
+            const toast = document.getElementById('sync-toast');
+            if (!toast) return;
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 4000);
+        }
+
+        async function syncAllLocalProjectsToCloud(session) {
+            if (!session || !session.user || !projects || projects.length === 0) return;
+
+            const cloudInd = document.getElementById('cloud-indicator');
+            if (cloudInd) {
+                cloudInd.classList.remove('hidden'); cloudInd.classList.add('flex');
+                cloudInd.innerHTML = '<i class="fas fa-spinner fa-spin text-sky-500"></i> Sincronizando...';
+            }
+
+            try {
+                for (const proj of projects) {
+                    await syncCurrentProjectWithSupabase(proj, session.user.id);
+                }
+                if (cloudInd) cloudInd.innerHTML = '<i class="fas fa-cloud-check text-sky-500"></i> Sincronizado';
+                showSyncVerification();
+            } catch (e) {
+                console.error("Error global sync:", e);
+                if (cloudInd) cloudInd.innerHTML = '<i class="fas fa-exclamation-triangle text-rose-500"></i> Error';
+            }
+        }
+
         async function fetchProjectsFromCloud() {
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1676,46 +1717,57 @@
 
                 if (error) throw error;
 
-                if (data && data.length > 0) {
-                    // Reconstruir el array projects a partir de la DB (Aplicando deduplicación local)
-                    const tempProjects = data.map(row => row.data);
-                    // Ordenarlos por fecha descendente (más nuevos primero) antes de deduplicar
-                    tempProjects.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                const savedStr = localStorage.getItem('educonta_projects_v38');
+                const savedLocal = savedStr ? JSON.parse(savedStr) : [];
 
-                    const seenIds = new Set();
-                    projects = [];
+                if (data && data.length > 0) {
+                    const tempProjects = data.map(row => row.data);
+
+                    // Mezclar proyectos de nube y locales, manteniendo el más reciente
+                    const combinedMap = new Map();
+                    savedLocal.forEach(p => { if (p && p.id) combinedMap.set(p.id, p); });
+
                     tempProjects.forEach(p => {
                         if (p && p.id) {
-                            if (!seenIds.has(p.id)) {
-                                seenIds.add(p.id);
-                                projects.push(p);
+                            const existing = combinedMap.get(p.id);
+                            if (!existing || new Date(p.updatedAt) > new Date(existing.updatedAt)) {
+                                combinedMap.set(p.id, p);
                             }
-                        } else if (p) {
-                            projects.push(p); // Fallback if no id
                         }
                     });
 
-                    // Mostrar indicador nube verde
+                    const mergedProjects = Array.from(combinedMap.values());
+                    mergedProjects.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                    projects = mergedProjects;
+                    localStorage.setItem('educonta_projects_v38', JSON.stringify(projects));
+
+                    // Sincronizar todos (útil si los locales eran más nuevos)
+                    syncAllLocalProjectsToCloud(session);
+
                     const cloudInd = document.getElementById('cloud-indicator');
                     if (cloudInd) {
                         cloudInd.innerHTML = '<i class="fas fa-cloud text-sky-500"></i> Nube Ok';
                         cloudInd.classList.remove('hidden');
                         cloudInd.classList.add('flex');
                     }
-                    return true; // Se cargaron de la nube
+                    return true;
                 } else if (data && data.length === 0) {
-                    // Si el usuario borró todo y Supabase responde 0,
-                    // Forzamos limpiar la memoria local para no revivir fantasmas!
-                    projects = [];
-                    localStorage.removeItem('educonta_projects_v38');
+                    // Regla vital: No borrar la memoria si el usuario tiene proyectos locales sin sincronizar
+                    if (projects.length === 0 && savedLocal.length === 0) {
+                        localStorage.removeItem('educonta_projects_v38');
+                    } else if (savedLocal.length > 0) {
+                        projects = savedLocal;
+                        syncAllLocalProjectsToCloud(session);
+                    }
 
                     const cloudInd = document.getElementById('cloud-indicator');
                     if (cloudInd) {
-                        cloudInd.innerHTML = '<i class="fas fa-cloud text-sky-500"></i> Nube Ok (Vacía)';
+                        cloudInd.innerHTML = '<i class="fas fa-cloud-check text-sky-500"></i> Nube Ok';
                         cloudInd.classList.remove('hidden');
                         cloudInd.classList.add('flex');
                     }
-                    return true; // Conectó pero no tiene proyectos
+                    return true;
                 }
             } catch (err) {
                 console.error("Error cargando de Supabase:", err);
@@ -1727,13 +1779,12 @@
             // Cargar Catálogo Maestro antes que los proyectos
             await loadCatalogoMaestro();
 
-            const hasCloudActive = await fetchProjectsFromCloud();
+            // FALLBACK LOCAL PRIORITARIO: Cargamos memoria local primero para evitar parpadeos y asegurar data.
+            const saved = localStorage.getItem('educonta_projects_v38');
+            if (saved) projects = JSON.parse(saved);
 
-            if (!hasCloudActive) {
-                // FALLBACK LOCAL
-                const saved = localStorage.getItem('educonta_projects_v38');
-                if (saved) projects = JSON.parse(saved);
-            }
+            // Luego re-sincronizamos con nube (nuestra nueva función maneja el merge correctamente)
+            await fetchProjectsFromCloud();
 
             renderProjectGrid();
 
@@ -3856,10 +3907,8 @@
                     btnMaster.style.display = 'none';
                 }
 
-                // Carga en la nube (auto sync check on start)
-                if (projects.length === 0) {
-                    fetchProjectsFromCloud(sess.user.id);
-                }
+                // Sincronización y Carga Automática en la Nube
+                fetchProjectsFromCloud();
             } else {
                 if (authBtnH) {
                     authBtnH.classList.remove('hidden');
