@@ -1556,15 +1556,7 @@
         // Carga Inicial del Catálogo Maestro
         async function loadCatalogoMaestro() {
             try {
-                // 1. Intentar cargar desde el caché (localStorage)
-                const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v1');
-                if (cachedCatalogo) {
-                    CATALOGO_MAESTRO = JSON.parse(cachedCatalogo);
-                    return;
-                }
-
-                // 2. Si no hay caché, descargar desde Supabase
-
+                // Siempre intentar obtener la versión más reciente de Supabase
                 const { data, error } = await supabaseClient
                     .from('catalogo_maestro')
                     .select('codigo, nombre, tipo, categoria, nivel')
@@ -1573,20 +1565,28 @@
                 if (error) throw error;
 
                 if (data && data.length > 0) {
-                    // Mapeamos para mantener la misma estructura del lado cliente que tenía el array duro
                     CATALOGO_MAESTRO = data.map(row => ({
                         id: row.codigo,
                         name: row.nombre,
                         cat: row.categoria
                     }));
-
-                    // Guardar en caché para futuras sesiones
+                    // Actualizar caché
                     localStorage.setItem('educonta_catalogo_maestro_v1', JSON.stringify(CATALOGO_MAESTRO));
                 } else {
-                    console.warn("La tabla catalogo_maestro está vacía en Supabase.");
+                    console.warn("La tabla catalogo_maestro está vacía en Supabase. Cargando caché local si existe.");
+                    const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v1');
+                    if (cachedCatalogo) {
+                        CATALOGO_MAESTRO = JSON.parse(cachedCatalogo);
+                    }
                 }
             } catch (err) {
-                console.error("Error al cargar el Catálogo Maestro:", err);
+                console.error("Error al cargar el Catálogo Maestro desde Supabase:", err);
+                // Si falla por falta de internet u otro error, usar caché
+                const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v1');
+                if (cachedCatalogo) {
+                    CATALOGO_MAESTRO = JSON.parse(cachedCatalogo);
+                    console.log("Catálogo maestro cargado desde caché local.");
+                }
             }
         }
 
@@ -1847,15 +1847,17 @@
 
             if (data && data.length > 0) {
                 // Existe, hacer UPDATE en el registro exacto
-                await supabaseClient
+                const { error: updateError } = await supabaseClient
                     .from('proyectos_contables')
                     .update({ data: projectObj, updated_at: new Date() })
                     .eq('id', data[0].id);
+                if (updateError) throw updateError;
             } else {
                 // Nuevo, hacer INSERT (Supabase generará el UUID PK para la fila)
-                await supabaseClient
+                const { error: insertError } = await supabaseClient
                     .from('proyectos_contables')
-                    .insert([{ user_id: userId, data: projectObj }]);
+                    .insert([{ user_id: userId, data: projectObj, estado: 'activo' }]);
+                if (insertError) throw insertError;
             }
         }
 
