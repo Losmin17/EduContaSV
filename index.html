@@ -111,6 +111,7 @@
 
         input[type=number] {
             -moz-appearance: textfield;
+            appearance: textfield;
         }
 
         .suggestions-panel {
@@ -2625,10 +2626,18 @@
                     </div>
                     <div>
                         <h4 class="font-bold text-slate-800 text-lg mb-1 truncate">${p.name}</h4>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 mb-2">
                             <span class="text-[9px] font-bold text-slate-400 uppercase">${p.sheets ? p.sheets.length : 0} Hojas</span>
                             <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                             <span class="text-[9px] font-bold text-slate-400 uppercase">${new Date(p.updatedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 uppercase tracking-widest" title="Proyecto guardado de forma segura">
+                                <i class="fas fa-cloud-check"></i> Guardado
+                            </span>
+                            <span class="flex items-center gap-1 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100 uppercase tracking-widest" title="Proyecto contable en progreso">
+                                <i class="fas fa-chart-pie"></i> En Progreso
+                            </span>
                         </div>
                     </div>
                 `;
