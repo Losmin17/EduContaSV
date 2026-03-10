@@ -162,14 +162,15 @@
             color: #166534;
         }
 
+        .tag-inv {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
         .tag-ssf {
             background: #e0f2fe;
             color: #075985;
-        }
-
-        .tag-com {
-            background: #f1f5f9;
-            color: #475569;
         }
 
         .unbalanced {
@@ -864,13 +865,20 @@
 
                 <div class="flex gap-3 mt-8">
                     <button type="button" onclick="closeProfileModal()"
-                        class="flex-1 px-4 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
+                        class="flex-1 px-4 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Volver</button>
                     <button type="submit" id="btn-profile-submit"
-                        class="flex-1 px-4 py-3 rounded-xl bg-sky-500 text-white font-bold text-xs uppercase shadow-lg shadow-sky-200 hover:bg-sky-600 transition-all flex justify-center items-center">
-                        <span>Guardar Cambios</span>
+                        class="flex-3 px-4 py-3 rounded-xl bg-sky-500 text-white font-bold text-xs uppercase shadow-lg shadow-sky-200 hover:bg-sky-600 transition-all flex justify-center items-center">
+                        <span>Guardar</span>
                     </button>
                 </div>
             </form>
+
+            <hr class="my-6 border-slate-100">
+            <div id="profile-admin-container" class="mb-3"></div>
+            <button type="button" onclick="logout()"
+                class="w-full px-4 py-3 rounded-xl bg-rose-50 text-rose-600 font-bold text-xs uppercase hover:bg-rose-100 transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+            </button>
         </div>
     </div>
 
@@ -951,18 +959,14 @@
                     class="p-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition-colors md:hidden shadow-md">
                     <i class="fas fa-user-circle text-lg"></i>
                 </button>
-                <div id="user-info-header" class="hidden items-center gap-3" style="display: none;">
+                <div id="user-info-header"
+                    class="hidden items-center gap-3 cursor-pointer p-1.5 pr-4 rounded-full bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200"
+                    onclick="openProfileModal()" style="display: none;" title="Mi Perfil">
+                    <div
+                        class="w-8 h-8 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-sm">
+                        <i class="fas fa-user"></i>
+                    </div>
                     <span id="user-email-display" class="text-xs font-bold text-slate-600 hidden md:block"></span>
-                    <button onclick="openProfileModal()"
-                        class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 transition-colors"
-                        title="Mi Perfil">
-                        <i class="fas fa-user-edit"></i>
-                    </button>
-                    <button onclick="logout()"
-                        class="px-3 py-2 rounded-xl bg-rose-50 text-rose-600 font-bold text-xs hover:bg-rose-100 transition-colors"
-                        title="Cerrar sesión">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
                 </div>
             </div>
 
@@ -1039,10 +1043,15 @@
                     Cuentas y Sectores (100% de Registros)</p>
             </div>
             <div class="relative w-full md:w-72">
-                <i class="fas fa-search absolute left-4 top-3 text-slate-300"></i>
+                <i class="fas fa-search absolute left-4 top-3 text-slate-400 z-10"></i>
                 <input type="text" id="catalog-search"
-                    class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:border-indigo-400 outline-none"
+                    class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-10 py-2 text-sm text-slate-700 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 outline-none transition-all"
                     placeholder="Buscar cuenta o código..." oninput="filterCatalog()">
+                <button id="catalog-clear-search" onclick="clearCatalogSearch()"
+                    class="absolute right-3 top-2.5 text-slate-400 hover:text-rose-500 hidden transition-colors z-10"
+                    title="Limpiar búsqueda">
+                    <i class="fas fa-times-circle text-lg"></i>
+                </button>
             </div>
         </div>
 
@@ -1058,7 +1067,7 @@
                 <button onclick="setCatalogFilter('SSF')" data-cat="SSF"
                     class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Banca
                     y Seguros (SSF)</button>
-                <button onclick="setCatalogFilter('Com')" data-cat="Com"
+                <button onclick="setCatalogFilter('INV')" data-cat="INV"
                     class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Comercio
                     e Industria (NIC 2)</button>
                 <button onclick="setCatalogFilter('Agr')" data-cat="Agr"
@@ -1068,24 +1077,36 @@
                     class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Gubernamental
                     (SAFI)</button>
             </div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <div class="max-h-[600px] overflow-y-auto overflow-x-auto">
-                <table class="w-full text-sm min-w-[600px]">
-                    <thead class="sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
-                        <tr class="text-[10px] text-slate-500 uppercase font-black tracking-wider">
-                            <th class="py-4 px-6 text-left w-32">Código</th>
-                            <th class="py-4 px-6 text-left">Nombre de la Cuenta</th>
-                            <th class="py-4 px-6 text-center w-32">Sector</th>
-                        </tr>
-                    </thead>
-                    <tbody id="catalog-table-body" class="divide-y divide-slate-100">
-                        <!-- Llenado dinámico -->
-                    </tbody>
-                </table>
+            <!-- Migas de Pan (Breadcrumbs) -->
+            <div id="catalog-breadcrumbs"
+                class="mb-4 text-xs font-bold text-slate-500 flex flex-wrap gap-2 items-center hidden transition-all">
             </div>
-        </div>
+
+            <div class="bg-white rounded-[12px] shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-slate-200">
+                <div class="max-h-[600px] overflow-y-auto overflow-x-auto relative">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="sticky top-0 bg-white z-10 shadow-sm border-b border-slate-200">
+                            <tr class="text-[10px] text-slate-500 uppercase font-black tracking-wider">
+                                <th
+                                    class="py-4 px-6 text-left w-32 sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Código</th>
+                                <th
+                                    class="py-4 px-6 text-left sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Nombre de la Cuenta</th>
+                                <th
+                                    class="py-4 px-6 text-left sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Rubro</th>
+                                <th
+                                    class="py-4 px-6 text-center w-32 sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Sector</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalog-table-body" class="divide-y divide-slate-100">
+                            <!-- Llenado dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </main>
 
     <!-- PANTALLA: MASTER BACK-OFFICE -->
@@ -1554,36 +1575,52 @@
         // --- CONSTANTES: CATÁLOGO MAESTRO ---
         let CATALOGO_MAESTRO = []; // Se llena asincronamente desde Supabase o LocalStorage
 
-        // Carga Inicial del Catálogo Maestro
+        // Carga Inicial del Catálogo Maestro Completo (Blindado)
         async function loadCatalogoMaestro() {
             try {
-                // Siempre intentar obtener la versión más reciente de Supabase
-                const { data, error } = await supabaseClient
-                    .from('catalogo_maestro')
-                    .select('codigo, nombre, tipo, categoria, nivel')
-                    .order('codigo', { ascending: true });
+                let todosLosDatos = [];
+                let limite = 1000;
+                let inicio = 0;
+                let hayMasDatos = true;
 
-                if (error) throw error;
+                while (hayMasDatos) {
+                    // Pedimos las columnas exactas del nuevo CSV (usando 'Sector')
+                    const { data, error } = await supabaseClient
+                        .from('catalogo_maestro')
+                        .select('id, name, rubro, Sector')
+                        .order('id', { ascending: true })
+                        .range(inicio, inicio + limite - 1);
 
-                if (data && data.length > 0) {
-                    CATALOGO_MAESTRO = data.map(row => ({
-                        id: row.codigo,
-                        name: row.nombre,
-                        cat: row.categoria
-                    }));
-                    // Actualizar caché
-                    localStorage.setItem('educonta_catalogo_maestro_v1', JSON.stringify(CATALOGO_MAESTRO));
-                } else {
-                    console.warn("La tabla catalogo_maestro está vacía en Supabase. Cargando caché local si existe.");
-                    const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v1');
-                    if (cachedCatalogo) {
-                        CATALOGO_MAESTRO = JSON.parse(cachedCatalogo);
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        todosLosDatos = todosLosDatos.concat(data);
+                        inicio += limite;
+                        if (data.length < limite) hayMasDatos = false;
+                    } else {
+                        hayMasDatos = false;
                     }
                 }
+
+                if (todosLosDatos.length > 0) {
+                    // Convertimos todo a String explícitamente para evitar errores de búsqueda
+                    CATALOGO_MAESTRO = todosLosDatos.map(row => ({
+                        id: String(row.id || ''),
+                        name: String(row.name || ''),
+                        cat: String(row.Sector || ''), // Mapeamos Sector a cat para compatibilidad interna
+                        sector: String(row.Sector || ''), // Guardamos también explícitamente como sector
+                        rubro: String(row.rubro || '-')
+                    }));
+                    // _v4 obligará a tu PC a borrar el caché viejo y descargar este
+                    localStorage.setItem('educonta_catalogo_maestro_v4', JSON.stringify(CATALOGO_MAESTRO));
+                } else {
+                    console.warn("La tabla catalogo_maestro está vacía en Supabase. Cargando caché local si existe.");
+                    const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v4');
+                    if (cachedCatalogo) CATALOGO_MAESTRO = JSON.parse(cachedCatalogo);
+                }
             } catch (err) {
-                console.error("Error al cargar el Catálogo Maestro desde Supabase:", err);
-                // Si falla por falta de internet u otro error, usar caché
-                const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v1');
+                console.error("Error al cargar el Catálogo Maestro:", err);
+                const cachedCatalogo = localStorage.getItem('educonta_catalogo_maestro_v4');
                 if (cachedCatalogo) {
                     CATALOGO_MAESTRO = JSON.parse(cachedCatalogo);
                     console.log("Catálogo maestro cargado desde caché local.");
@@ -1601,7 +1638,9 @@
         // --- ESTADO ---
         let isAuditMode = false; // <--- Línea vital para la seguridad
         let currentAuditUserId = null; // Para navegación Atrás en auditoría
+        let adminProjectsBackup = []; // <--- Almacena temporalmente los proyectos del administrador
         let projects = [];
+        let syncedProjectIds = new Set(); // <--- Rastrear proyectos confirmados en la nube
         let currentProjectId = null;
         let editingProjectId = null;
         let bookCounter = 0;
@@ -1695,7 +1734,11 @@
 
             try {
                 for (const proj of projects) {
-                    await syncCurrentProjectWithSupabase(proj, session.user.id);
+                    await syncCurrentProjectWithSupabase(proj, session.user.id, true);
+                }
+                const pm = document.getElementById('master-screen');
+                if (!pm || pm.classList.contains('hidden')) {
+                    renderProjectGrid();
                 }
                 if (cloudInd) cloudInd.innerHTML = '<i class="fas fa-cloud-check text-sky-500"></i> Sincronizado';
                 showSyncVerification();
@@ -1722,6 +1765,11 @@
                 const savedLocal = savedStr ? JSON.parse(savedStr) : [];
 
                 if (data && data.length > 0) {
+                    // Actualizar el conjunto de IDs sincronizados
+                    data.forEach(row => {
+                        if (row.data && row.data.id) syncedProjectIds.add(row.data.id);
+                    });
+
                     const tempProjects = data.map(row => row.data);
 
                     // Mezclar proyectos de nube y locales, manteniendo el más reciente
@@ -1828,7 +1876,7 @@
         }
 
         // --- SINCRONIZACIÓN WEB SUPABASE CON UPSERT VERDADERO ---
-        async function syncCurrentProjectWithSupabase(projectObj, userId) {
+        async function syncCurrentProjectWithSupabase(projectObj, userId, skipRender = false) {
             // 1. INYECCIÓN DE IDENTIDAD: Guardamos el nombre y correo dentro del proyecto 
             // para que el administrador pueda leerlo sin requerir permisos especiales de Supabase.
             const { data: authData } = await supabaseClient.auth.getUser();
@@ -1853,12 +1901,22 @@
                     .update({ data: projectObj, updated_at: new Date() })
                     .eq('id', data[0].id);
                 if (updateError) throw updateError;
+                syncedProjectIds.add(projectObj.id);
             } else {
                 // Nuevo, hacer INSERT (Supabase generará el UUID PK para la fila)
                 const { error: insertError } = await supabaseClient
                     .from('proyectos_contables')
                     .insert([{ user_id: userId, data: projectObj, estado: 'activo' }]);
                 if (insertError) throw insertError;
+                syncedProjectIds.add(projectObj.id);
+            }
+
+            // Refrescar UI si estamos en la vista de proyectos
+            if (!skipRender) {
+                const pm = document.getElementById('master-screen');
+                if (!pm || pm.classList.contains('hidden')) {
+                    renderProjectGrid();
+                }
             }
         }
 
@@ -2488,6 +2546,30 @@
             if (btnProj) btnProj.classList.add('hidden');
         }
 
+        let skipHashChange = false;
+        function updateHistory(screenName) {
+            if (!skipHashChange) {
+                skipHashChange = true;
+                window.location.hash = screenName;
+                setTimeout(() => { skipHashChange = false; }, 50);
+            }
+        }
+
+        window.addEventListener('hashchange', (e) => {
+            if (skipHashChange) return;
+            skipHashChange = true;
+            const hash = window.location.hash.replace('#', '');
+            switch (hash) {
+                case 'home': showHomeScreen(); break;
+                case 'projects': showProjectScreen(); break;
+                case 'catalog': showCatalogScreen(); break;
+                case 'app': showApp(); break;
+                case 'master': showMasterScreen(); break;
+                default: showHomeScreen();
+            }
+            setTimeout(() => { skipHashChange = false; }, 50);
+        });
+
         function showHomeScreen() {
             hideAllScreens();
             currentProjectId = null;
@@ -2495,6 +2577,7 @@
             document.getElementById('home-screen').classList.add('fade-in');
             const btnOffice = document.getElementById('btn-master-office');
             if (btnOffice) btnOffice.style.display = 'block';
+            updateHistory('home');
         }
 
         function showProjectScreen() {
@@ -2506,6 +2589,7 @@
             renderProjectGrid();
             const btnOffice = document.getElementById('btn-master-office');
             if (btnOffice) btnOffice.style.display = 'none';
+            updateHistory('projects');
         }
 
         function showCatalogScreen() {
@@ -2516,6 +2600,7 @@
             document.getElementById('btn-volver').classList.remove('hidden');
             setCatalogFilter('Todos'); // Renderiza todo al abrir
             setTimeout(updateCatalogTabIndicator, 50);
+            updateHistory('catalog');
         }
 
         function showApp() {
@@ -2531,6 +2616,7 @@
             if (btnOffice) btnOffice.style.display = 'none';
             switchTab('diario');
             setTimeout(updateTabIndicator, 50); // Dar tiempo al navegador de renderizar el ancho
+            updateHistory('app');
         }
 
         function showMasterScreen() {
@@ -2539,6 +2625,7 @@
             document.getElementById('master-screen').classList.add('fade-in');
             document.getElementById('btn-volver').classList.remove('hidden');
             loadMasterData();
+            updateHistory('master');
         }
 
         // --- LÓGICA DEL VISOR DE CATÁLOGOS ---
@@ -2571,25 +2658,150 @@
             filterCatalog();
         }
 
-        function filterCatalog() {
-            const searchTerm = document.getElementById('catalog-search').value.toLowerCase();
+        function clearCatalogSearch() {
+            const input = document.getElementById('catalog-search');
+            input.value = '';
+            filterCatalog();
+        }
+
+        function filterCatalog(searchTermOverride = null) {
+            const input = document.getElementById('catalog-search');
+            if (searchTermOverride !== null) {
+                input.value = searchTermOverride;
+            }
+
+            const searchTerm = input.value.trim();
+            const searchTermLower = searchTerm.toLowerCase();
+            const btnClear = document.getElementById('catalog-clear-search');
             const tbody = document.getElementById('catalog-table-body');
 
+            if (searchTerm.length > 0) {
+                btnClear.classList.remove('hidden');
+            } else {
+                btnClear.classList.add('hidden');
+            }
+
+            // Step 1: Find direct matches
+            let directMatchedIds = [];
+            if (searchTermLower !== '') {
+                CATALOGO_MAESTRO.forEach(item => {
+                    if (String(item.id || '').toLowerCase().includes(searchTermLower) || String(item.name || '').toLowerCase().includes(searchTermLower)) {
+                        directMatchedIds.push(String(item.id));
+                    }
+                });
+            }
+
+            // Step 2: Render Breadcrumbs
+            renderCatalogBreadcrumbs(searchTerm);
+
+            // Step 3: Filter logic allowing related subaccounts
             const filtered = CATALOGO_MAESTRO.filter(item => {
-                const matchesCat = currentCatalogFilter === 'Todos' || item.cat === currentCatalogFilter;
-                const matchesSearch = (item.id || '').toLowerCase().includes(searchTerm) || (item.name || '').toLowerCase().includes(searchTerm);
+                const itemCatLower = String(item.cat || '').toLowerCase();
+                const filterLower = currentCatalogFilter.toLowerCase();
+                const matchesCat = currentCatalogFilter === 'Todos' || itemCatLower === filterLower;
+
+                let matchesSearch = true;
+                if (searchTermLower !== '') {
+                    const itemIdStr = String(item.id || '');
+                    // It matches if it starts with any of the directly matched IDs
+                    matchesSearch = directMatchedIds.some(mId => itemIdStr.startsWith(mId));
+                }
+
                 return matchesCat && matchesSearch;
             });
 
-            tbody.innerHTML = filtered.length ? filtered.map(item => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="py-3 px-6 font-mono text-xs text-slate-500 font-bold">${item.id || ''}</td>
-                    <td class="py-3 px-6 text-sm text-slate-700">${item.name || ''}</td>
+            tbody.innerHTML = filtered.length ? filtered.map(item => {
+                const cod = String(item.id || '');
+                let indentClass = '';
+                let textClass = 'text-slate-700';
+                let rowBgClass = 'hover:bg-slate-100 transition-colors bg-white';
+                let fontWeightClass = '';
+                let cursorClass = '';
+                let clickHandler = '';
+
+                if (cod.length === 1) {
+                    fontWeightClass = 'font-black';
+                    rowBgClass = 'bg-slate-50 hover:bg-slate-200 transition-colors border-y border-slate-200 shadow-sm z-0 relative';
+                    cursorClass = 'cursor-pointer';
+                    clickHandler = `onclick="filterCatalog('${item.id}')" title="Ver subcuentas de ${item.name}"`;
+                } else if (cod.length === 2) {
+                    indentClass = 'pl-5';
+                    fontWeightClass = 'font-bold';
+                    cursorClass = 'cursor-pointer';
+                    clickHandler = `onclick="filterCatalog('${item.id}')" title="Ver subcuentas de ${item.name}"`;
+                } else if (cod.length === 4) {
+                    indentClass = 'pl-10';
+                    fontWeightClass = 'font-semibold';
+                    cursorClass = 'cursor-pointer';
+                    clickHandler = `onclick="filterCatalog('${item.id}')" title="Ver subcuentas de ${item.name}"`;
+                } else if (cod.length >= 6) {
+                    indentClass = 'pl-14';
+                    textClass = 'text-slate-500 text-xs';
+                }
+
+                return `
+                <tr class="${rowBgClass} ${cursorClass} group" ${clickHandler}>
+                    <td class="py-3 px-6 font-mono text-xs text-slate-500 font-bold flex items-center gap-2">
+                        <span>${item.id || ''}</span>
+                        <button onclick="copyCatalogCode('${item.id}', event)" class="text-slate-300 hover:text-sky-500 transition-colors opacity-0 group-hover:opacity-100" title="Copiar código">
+                            <i class="far fa-copy flex-shrink-0"></i>
+                        </button>
+                    </td>
+                    <td class="py-3 px-6 text-sm ${textClass} ${fontWeightClass}">
+                        <div class="${indentClass}">${item.name || ''}</div>
+                    </td>
+                    <td class="py-3 px-6 text-sm text-slate-600">${item.rubro || 'N/A'}</td>
                     <td class="py-3 px-6 text-center">
                         <span class="cat-tag tag-${(item.cat || '').toLowerCase()}">${item.cat || ''}</span>
                     </td>
                 </tr>
-            `).join('') : `<tr><td colspan="3" class="py-8 text-center text-slate-400 font-bold">No se encontraron resultados.</td></tr>`;
+            `}).join('') : `<tr><td colspan="4" class="py-8 text-center text-slate-400 font-bold">No se encontraron resultados.</td></tr>`;
+        }
+
+        function renderCatalogBreadcrumbs(currentSearch) {
+            const container = document.getElementById('catalog-breadcrumbs');
+            const searchTrim = currentSearch.trim();
+            if (!searchTrim || isNaN(searchTrim)) {
+                container.innerHTML = '';
+                container.classList.add('hidden');
+                return;
+            }
+
+            const lengths = [1, 2, 4, 6, 8, 10];
+            let breadcrumbsHtml = `<button onclick="clearCatalogSearch()" class="hover:text-sky-600 text-slate-400 transition-colors flex items-center gap-1" title="Volver al inicio"><i class="fas fa-home"></i> Catálogo</button>`;
+
+            for (let len of lengths) {
+                if (searchTrim.length >= len) {
+                    const levelId = searchTrim.substring(0, len);
+                    const matchedItem = CATALOGO_MAESTRO.find(i => String(i.id) === levelId);
+                    if (matchedItem) {
+                        breadcrumbsHtml += `
+                            <i class="fas fa-chevron-right text-[8px] text-slate-300"></i>
+                            <button onclick="filterCatalog('${levelId}')" class="hover:text-sky-600 transition-colors ${searchTrim === levelId ? 'text-sky-600 font-black' : ''}">${matchedItem.name}</button>
+                        `;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            container.innerHTML = breadcrumbsHtml;
+            container.classList.remove('hidden');
+        }
+
+        function copyCatalogCode(code, event) {
+            if (event) event.stopPropagation();
+            navigator.clipboard.writeText(code).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg z-50 flex items-center gap-2 fade-in';
+                toast.innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> Código ' + code + ' copiado';
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            }).catch(err => console.error('Error al copiar código:', err));
         }
 
         // --- CRUD DE PROYECTOS ---
@@ -2631,13 +2843,14 @@
                             <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                             <span class="text-[9px] font-bold text-slate-400 uppercase">${new Date(p.updatedAt).toLocaleDateString()}</span>
                         </div>
-                        <div class="flex gap-2">
-                            <span class="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 uppercase tracking-widest" title="Proyecto guardado de forma segura">
-                                <i class="fas fa-cloud-check"></i> Guardado
-                            </span>
-                            <span class="flex items-center gap-1 text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100 uppercase tracking-widest" title="Proyecto contable en progreso">
-                                <i class="fas fa-chart-pie"></i> En Progreso
-                            </span>
+                        <div class="flex gap-2 mt-2">
+                            ${syncedProjectIds.has(p.id) ?
+                        `<span class="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 uppercase tracking-widest" title="Guardado y sincronizado en la nube">
+                                <i class="fas fa-cloud-check"></i> Sincronizado
+                            </span>` :
+                        `<span class="flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 uppercase tracking-widest" title="Guardado localmente. Se sincronizará al conectar o hacer cambios.">
+                                <i class="fas fa-hdd"></i> Local
+                            </span>`}
                         </div>
                     </div>
                 `;
@@ -2678,23 +2891,44 @@
             document.getElementById('proj-input-name').value = name;
         }
 
-        function saveProjectFromModal() {
+        async function saveProjectFromModal() {
             let name = document.getElementById('proj-input-name').value.trim();
             if (!name) name = `Proyecto ${projects.length + 1}`;
+
+            const isNew = !editingProjectId;
+            let targetProjId = editingProjectId;
 
             if (editingProjectId) {
                 const p = projects.find(proj => proj.id === editingProjectId);
                 if (p) { p.name = name; p.updatedAt = new Date().toISOString(); }
             } else {
-                const newId = 'proj_' + Date.now();
+                targetProjId = 'proj_' + Date.now();
                 projects.unshift({
-                    id: newId, name: name, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+                    id: targetProjId, name: name, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
                     sheets: [], bookCounter: 0
                 });
             }
-            saveProjectsToLocal();
+
+            // Save locally and render instantly for fast UI feedback
+            localStorage.setItem('educonta_projects_v38', JSON.stringify(projects));
             renderProjectGrid();
             closeProjectModal();
+
+            // Targeted fast sync for this specific project
+            if (!isAuditMode) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && targetProjId) {
+                    try {
+                        const pToSync = projects.find(p => p.id === targetProjId);
+                        if (pToSync) {
+                            await syncCurrentProjectWithSupabase(pToSync, session.user.id, true);
+                            renderProjectGrid(); // Update badge to "Sincronizado"
+                        }
+                    } catch (e) {
+                        console.error('Error in targeted sync:', e);
+                    }
+                }
+            }
         }
 
         function duplicateProject(id) {
@@ -3901,17 +4135,16 @@
 
                 // INYECCIÓN BACKOFFICE PARA ADMIN
                 let btnMaster = document.getElementById('btn-master-office');
+                const adminContainer = document.getElementById('profile-admin-container');
                 if (sess.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     if (!btnMaster) {
                         btnMaster = document.createElement('button');
                         btnMaster.id = 'btn-master-office';
-                        // Removida la clase "animate-pulse" para detener la oscilación
-                        btnMaster.className = 'px-3 py-2 rounded-xl bg-violet-600 text-white font-bold text-xs hover:bg-violet-500 transition-colors shadow-lg';
-                        btnMaster.title = 'Gestión Maestra Goblal';
-                        btnMaster.innerHTML = '<i class="fas fa-rocket mr-1"></i> Admin';
-                        btnMaster.onclick = showMasterScreen;
-                        // Insertar antes del boton de logout
-                        userInfo.insertBefore(btnMaster, userInfo.lastElementChild);
+                        btnMaster.className = 'w-full px-4 py-3 rounded-xl bg-violet-600 text-white font-bold text-xs uppercase hover:bg-violet-500 transition-colors shadow-lg shadow-violet-200 mb-3';
+                        btnMaster.title = 'Gestión Maestra Global';
+                        btnMaster.innerHTML = '<i class="fas fa-rocket mr-2"></i> Panel de Administrador';
+                        btnMaster.onclick = () => { closeProfileModal(); showMasterScreen(); };
+                        if (adminContainer) adminContainer.appendChild(btnMaster);
                     }
                     btnMaster.style.display = 'block';
                 } else if (btnMaster) {
@@ -4233,6 +4466,11 @@
                 const exitBtn = document.getElementById('btn-exit-audit');
                 if (exitBtn) exitBtn.classList.remove('hidden');
 
+                // Asegurar los proyectos del admin antes de sobrescribir
+                if (adminProjectsBackup.length === 0) {
+                    adminProjectsBackup = [...projects];
+                }
+
                 // Inyectamos el listado local con el proyecto del ajeno.
                 projects = [doc.data];
                 closeModal();
@@ -4302,6 +4540,19 @@
 
         function exitAuditMode() {
             isAuditMode = false;
+
+            // Restaurar los proyectos originales del admin
+            if (adminProjectsBackup.length > 0) {
+                projects = [...adminProjectsBackup];
+                adminProjectsBackup = [];
+            } else {
+                // Instancia de fallback si no teníamos nada (recargar de caché local)
+                const savedLocal = localStorage.getItem('educonta_projects_v38');
+                if (savedLocal) projects = JSON.parse(savedLocal);
+            }
+
+            currentProjectId = null;
+
             const exitBtn = document.getElementById('btn-exit-audit');
             if (exitBtn) exitBtn.classList.add('hidden');
             let badge = document.getElementById('audit-badge');
