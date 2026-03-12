@@ -2739,6 +2739,11 @@
                 const projName = (projNameEl && projNameEl.innerText !== 'Cargando...') ? projNameEl.innerText : 'Proyecto_Contable';
                 const dateStr = new Date().toLocaleDateString();
 
+                // Datos del proyecto actual (para lógica multisectorial)
+                const project = projects.find(p => p.id === currentProjectId);
+                const sector = project?.sector || 'COM';
+                const catalogo = project?.catalogo || 'MAESTRO';
+
                 const fmt = (n) => typeof n === 'number' ? '$ ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : n;
                 const fmtNeg = (n) => typeof n === 'number' ? (n === 0 ? "0.00" : `($ ${(Math.abs(n)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`) : n;
 
@@ -2988,9 +2993,6 @@
                 }
                 // === 4. ESTADO DE RESULTADOS MULTISECTORIAL ===
                 else if (baseFilename === 'Estado_Resultados') {
-                    const project = projects.find(p => p.id === currentProjectId);
-                    const sector = project?.sector || 'COM';
-                    const catalogo = project?.catalogo || 'MAESTRO';
                     buildHeader('Estado de Resultados', `Sector: ${sector} | Catálogo: ${catalogo}`);
 
                     const accounts = procesarDiario(false);
@@ -3276,7 +3278,7 @@
 
             } catch (err) {
                 console.error(err);
-                showModal("Error", "Hubo un error al generar error al generar el PDF. Verifica la consola.", closeModal);
+                showModal("Error", "Hubo un error al generar el PDF. Verifica la consola.", closeModal);
             } finally {
                 if (btn) {
                     btn.innerHTML = originalHTML;
@@ -5671,6 +5673,9 @@
             const doc = masterProjectsData.find(d => d.id === uuid);
             if (!doc || !doc.data) { showModal("Error", "JSON no encontrado.", closeModal); return; }
 
+            // CORRECCIÓN: Asegurar que los datos estén parseados (JSON string -> Object)
+            const pDataParsed = typeof doc.data === 'string' ? JSON.parse(doc.data) : doc.data;
+
             showModal("Alerta de Auditoría", "Abrirás este archivo en MODO SOLO LECTURA. No podrás editar ni guardar cambios. ¿Continuar?", () => {
                 isAuditMode = true;
                 const exitBtn = document.getElementById('btn-exit-audit');
@@ -5682,14 +5687,14 @@
                 }
 
                 // Inyectamos el listado local con el proyecto del ajeno.
-                projects = [doc.data];
+                projects = [pDataParsed];
                 closeModal();
 
                 // Redirigimos al app con ese project
-                currentProjectId = doc.data.id;
+                currentProjectId = pDataParsed.id;
 
                 // Título de propiedad en vez de (SOLO LECTURA)
-                const pData = doc.data;
+                const pData = pDataParsed;
                 const profileName = doc.profiles ? (doc.profiles.full_name || doc.profiles.username) : null;
                 const extractedName = profileName || pData.owner_name || (pData.user_metadata && pData.user_metadata.full_name) || doc.user_email || 'Alumno';
                 document.getElementById('project-owner-label').innerText = `AUDITANDO PROYECTO DE: ${extractedName}`;
@@ -5702,8 +5707,8 @@
                 document.getElementById('books-stack').innerHTML = '';
                 if (isGridView) toggleGridView(false);
 
-                bookCounter = doc.data.bookCounter || 0;
-                if (doc.data.sheets && doc.data.sheets.length > 0) doc.data.sheets.forEach(s => reconstructSheet(s));
+                bookCounter = pDataParsed.bookCounter || 0;
+                if (pDataParsed.sheets && pDataParsed.sheets.length > 0) pDataParsed.sheets.forEach(s => reconstructSheet(s));
                 else createNewBook();
                 history = []; historyPointer = -1; saveHistory();
 
