@@ -25,37 +25,407 @@
 
     <style>
         :root {
-            --azul-corporativo: #1e293b;
-            --celeste-sv: #38bdf8;
-            --bg-light: #f1f5f9;
+            --azul-corporativo: #0f172a;
+            --celeste-sv: #0ea5e9;
+            --bg-light: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+            --glass-blur: blur(8px);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 220px;
+            /* Peak Performance: Hardware Acceleration */
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-light);
+            background-color: var(--bg-light);
             min-height: 100vh;
             margin: 0;
-            color: #1e293b;
-            scroll-behavior: smooth;
+            color: var(--azul-corporativo);
+            position: relative;
         }
 
-        .glass-card {
-            background: white;
-            border: 2px solid transparent;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            margin-bottom: 40px;
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-color: #f0f4f8;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15), transparent 45%),
+                radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.12), transparent 45%),
+                radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.15), transparent 50%),
+                radial-gradient(circle at 80% 90%, rgba(244, 63, 94, 0.08), transparent 45%);
+            pointer-events: none;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        /* --- GLASSMORPHISM & MINIMALISMO CORPORATIVO --- */
+        /* --- GLASSMORPHISM & MODALES --- */
+        #custom-modal>div,
+        #project-modal>div,
+        #auth-modal>div,
+        #profile-modal>div {
+            background: var(--glass-bg) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
+            border: 1px solid var(--glass-border) !important;
+            box-shadow: var(--glass-shadow) !important;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            contain: paint;
+        }
+
+        /* Excepciones de Glassmorphism (no doble blur) */
+        .bg-white table th,
+        .bg-white table td,
+        #books-stack.is-grid-view .glass-card {
+            backdrop-filter: none !important;
+        }
+
+        /* Tablas: Cabeceras premium */
+        thead.bg-white,
+        thead.bg-slate-50,
+        .sticky.top-0.bg-white {
+            background: rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important;
+        }
+
+        /* Panel Maestro Backend / Administrador Opaco Glass */
+        .bg-slate-900.rounded-\[28px\],
+        .bg-slate-900.shadow-2xl {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
+            border: 1px solid rgba(255, 255, 255, 0.187) !important;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4) !important;
+            transform: translate3d(0, 0, 0);
+        }
+
+        /* Cards interactivos premium - 120 FPS Optimized */
+        .glass-card,
+        .project-card {
+            margin-bottom: 24px;
             position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 28px !important;
+            /* Optimizado: Fondo más opaco para evitar backdrop-filter costoso en listas */
+            background: rgba(248, 250, 252, 0.85) !important;
+            box-shadow:
+                -8px -8px 24px rgba(255, 255, 255, 0.7),
+                8px 12px 24px rgba(0, 0, 0, 0.06),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease !important;
             cursor: pointer;
-            scroll-margin-top: 190px;
             -webkit-tap-highlight-color: transparent;
+            isolation: isolate;
+            border: none !important;
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 500px;
+            contain: paint;
+            transform: translateZ(0);
+        }
+
+        /* Shadow Bloom (Sombra con color sutil para herramientas) */
+        .btn-bloom-emerald {
+            box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .btn-bloom-slate {
+            box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.3) !important;
+        }
+
+        .btn-bloom-rose {
+            box-shadow: 0 8px 20px -4px rgba(244, 63, 94, 0.4) !important;
+        }
+
+        .btn-bloom-orange {
+            box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.4) !important;
+        }
+
+        .btn-bloom-indigo {
+            box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.4) !important;
+        }
+
+        /* --- RENDERING ISOLATION & CPU/GPU BALANCING (120 FPS) --- */
+        #home-screen,
+        #app-screen,
+        #master-screen {
+            contain: paint;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+
+        .glow-hover:hover.btn-bloom-emerald {
+            box-shadow: 0 12px 28px -4px rgba(16, 185, 129, 0.55) !important;
+        }
+
+        .glow-hover:hover.btn-bloom-slate {
+            box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.5) !important;
+        }
+
+        .glow-hover:hover.btn-bloom-rose {
+            box-shadow: 0 12px 28px -4px rgba(244, 63, 94, 0.55) !important;
+        }
+
+        .glow-hover:hover.btn-bloom-orange {
+            box-shadow: 0 12px 28px -4px rgba(245, 158, 11, 0.55) !important;
+        }
+
+        .glow-hover:hover.btn-bloom-indigo {
+            box-shadow: 0 12px 28px -4px rgba(79, 70, 229, 0.55) !important;
+        }
+
+        /* Expansión Dinámica de la Viñeta (Pop-up Overlay) */
+        .project-pill-expanded {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 300px !important;
+            height: auto !important;
+            padding: 1rem !important;
+            border-radius: 28px !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+            z-index: 2000 !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+
+        /* Contenedor estático para que el header no se mueva */
+        .project-pill-wrapper {
+            width: 200px;
+            /* Ancho base */
+            height: 56px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .pill-options-panel {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .project-pill-expanded .pill-options-panel {
+            max-height: 250px;
+            opacity: 1;
+            margin-top: 0.75rem;
+        }
+
+        /* Simetría: Altura uniforme para todas las cápsulas del header */
+        .glass-pill,
+        #main-project-pill {
+            height: 56px;
+            /* Ajuste fino de 58px a 56px para mayor elegancia */
+            display: flex;
+            align-items: center;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+            transform: translate3d(0, 0, 0);
+        }
+
+        #main-project-pill.project-pill-expanded {
+            padding-top: 1rem !important;
+        }
+
+        .pill-select-mini {
+            width: 100%;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #334155;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pill-select-mini:focus {
+            border-color: #38bdf8;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+        }
+
+        /* will-change solo activo al hacer hover — evita N capas GPU simultáneas */
+        .glass-card:hover,
+        .project-card:hover {
+            will-change: transform;
+            transform: translate3d(0, -5px, 0) !important;
+            box-shadow:
+                -12px -12px 28px rgba(255, 255, 255, 0.5),
+                12px 12px 28px rgba(15, 23, 42, 0.1),
+                inset 1px 1px 0px rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
+        }
+
+        #main-project-pill:hover {
+            transform: none !important;
         }
 
         .glass-card.active-sheet {
-            border-color: var(--celeste-sv);
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1), 0 10px 30px rgba(0, 0, 0, 0.05);
-            transform: scale(1.005);
+            box-shadow:
+                0 0 0 2px rgba(14, 165, 233, 0.3),
+                -10px -10px 20px rgba(255, 255, 255, 0.92),
+                10px 10px 20px rgba(15, 23, 42, 0.05) !important;
+        }
+
+        /* --- MODALES GLASSMORPHISM --- */
+        .glass-modal {
+            cursor: default;
+            margin-bottom: 0;
+            padding: 40px;
+            border-radius: 28px !important;
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(30px) !important;
+            -webkit-backdrop-filter: blur(30px) !important;
+            box-shadow:
+                -10px -10px 30px rgba(255, 255, 255, 0.9),
+                10px 20px 40px rgba(0, 0, 0, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+            border: none !important;
+        }
+
+
+        /* === BORDE ANIMADO & AURA SYMMETRIC === */
+        @keyframes aura-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.35;
+            }
+
+            50% {
+                transform: scale(1.18);
+                opacity: 0.1;
+            }
+        }
+
+        .sync-aura {
+            position: absolute;
+            inset: -4px;
+            border-radius: inherit;
+            background: rgba(14, 165, 233, 0.45);
+            z-index: -1;
+            animation: aura-pulse 3s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .sync-aura-2 {
+            position: absolute;
+            inset: -4px;
+            border-radius: inherit;
+            background: rgba(14, 165, 233, 0.45);
+            z-index: -1;
+            animation: aura-pulse 3s infinite ease-in-out 1.5s;
+            pointer-events: none;
+        }
+
+        @property --border-angle {
+            syntax: "<angle>";
+            inherits: false;
+            initial-value: 0deg;
+        }
+
+        /* === BORDE ANIMADO (sweep cónico — solo borde, sin aura exterior) === */
+        .glass-pill::before,
+        .project-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: conic-gradient(from var(--border-angle),
+                    transparent 0%,
+                    rgba(14, 165, 233, 1) 10%,
+                    transparent 25%,
+                    transparent 50%,
+                    rgba(14, 165, 233, 1) 60%,
+                    transparent 75%,
+                    transparent 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        /* Animación solo cuando está expandido */
+        #main-project-pill.project-pill-expanded::before {
+            opacity: 1;
+            animation: spinBorderAI 2s linear infinite;
+        }
+
+        @keyframes spinBorderAI {
+            to {
+                --border-angle: 360deg;
+            }
+        }
+
+        /* Clase activadora dinámica — solo muestra el sweep del borde */
+        .border-active {
+            box-shadow:
+                -12px -12px 24px rgba(255, 255, 255, 0.95),
+                12px 12px 24px rgba(15, 23, 42, 0.04) !important;
+            transition: box-shadow 0.4s ease !important;
+        }
+
+        .glass-pill.border-active::before,
+        .project-card.border-active::before {
+            opacity: 1;
+            animation: spinBorderAI 2s linear infinite;
+        }
+
+
+
+        /* Clase compartida para viñetas y toolbars (mantiene efecto glass) */
+        .glass-pill {
+            position: relative;
+            background: rgba(255, 255, 255, 0.45) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            box-shadow:
+                -8px -8px 24px rgba(255, 255, 255, 0.45),
+                8px 8px 24px rgba(15, 23, 42, 0.12),
+                inset 1px 1px 2px rgba(255, 255, 255, 0.5) !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            border-radius: 999px !important;
+            isolation: isolate;
+            contain: layout;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* --- GLOW COLOREADO EFECTO (Eliminado por fuga de sombra) --- */
+        .glow-hover {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+        }
+
+        .glow-hover:hover {
+            transform: translate3d(0, -4px, 0);
+        }
+
+        .glow-hover::before {
+            display: none !important;
         }
 
         .main-header {
@@ -65,13 +435,17 @@
             right: 0;
             z-index: 1000;
             padding: 0 1.25rem;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.6) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
             display: flex;
             align-items: center;
             justify-content: space-between;
             height: 70px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            transform: translateZ(0);
         }
 
         @media (min-width: 768px) {
@@ -82,25 +456,44 @@
         }
 
         .input-minimal {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.5);
             border: none;
-            border-bottom: 1px solid transparent;
+            border-radius: 12px;
+            box-shadow: inset 2px 2px 5px rgba(15, 23, 42, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
             width: 100%;
-            padding: 4px;
+            padding: 10px 14px;
             outline: none;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             color: #1e293b;
         }
 
-        .input-minimal:focus {
-            border-bottom: 2px solid var(--celeste-sv);
-            background: rgba(56, 189, 248, 0.03);
+        .input-minimal:focus,
+        #auth-modal input:focus,
+        #proj-input-name:focus {
+            box-shadow:
+                inset 2px 2px 5px rgba(15, 23, 42, 0.02),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.5),
+                0 0 0 2px var(--celeste-sv);
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+        }
+
+        /* Estilo general para inputs simulando neomorfismo */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            background: rgba(255, 255, 255, 0.6) !important;
+            border: none !important;
+            box-shadow: inset 3px 3px 8px rgba(15, 23, 42, 0.12), inset -3px -3px 8px rgba(255, 255, 255, 0.5) !important;
+            border-radius: 16px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
         .input-minimal:disabled {
             cursor: not-allowed;
-            opacity: 0.7;
-            color: #64748b;
+            opacity: 0.6;
+            background: rgba(241, 245, 249, 0.5);
+            box-shadow: none;
         }
 
         input[type=number]::-webkit-inner-spin-button,
@@ -150,37 +543,48 @@
             text-transform: uppercase;
             margin-bottom: 4px;
             display: inline-block;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .tag-gub {
-            background: #fee2e2;
+            background: rgba(254, 226, 226, 0.5);
             color: #991b1b;
+            border: 1px solid rgba(248, 113, 113, 0.3);
         }
 
         .tag-agr {
-            background: #dcfce7;
+            background: rgba(220, 252, 231, 0.5);
             color: #166534;
+            border: 1px solid rgba(74, 222, 128, 0.3);
         }
 
         .tag-inv {
-            background: #f1f5f9;
+            background: rgba(241, 245, 249, 0.5);
             color: #334155;
-            border: 1px solid #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
 
         .tag-ssf {
-            background: #e0f2fe;
+            background: rgba(224, 242, 254, 0.5);
             color: #075985;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         .unbalanced {
-            background-color: #fee2e2;
+            background-color: rgba(254, 226, 226, 0.6);
             color: #991b1b;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .balanced {
-            background-color: #dcfce7;
+            background-color: rgba(220, 252, 231, 0.6);
             color: #166534;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .frozen-badge {
@@ -199,29 +603,30 @@
         }
 
         #custom-modal,
-        #project-modal {
+        #project-modal,
+        #auth-modal,
+        #profile-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(255, 255, 255, 0.35);
             z-index: 9999;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             animation: fadeInBackdrop 0.3s ease-out forwards;
         }
 
         #custom-modal>div,
         #project-modal>div {
-            animation: modalPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: modalPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             transform: translateZ(0);
             will-change: transform, opacity;
             margin: 0 1.5rem;
-            /* Evita que el modal toque los bordes en móviles */
         }
 
         @keyframes fadeInBackdrop {
@@ -251,34 +656,65 @@
         }
 
         .tool-btn {
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px !important;
             font-weight: 700;
             font-size: 10px;
             text-transform: uppercase;
-            transition: all 0.2s;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            box-shadow:
+                -4px -4px 12px rgba(255, 255, 255, 0.4),
+                4px 4px 12px rgba(15, 23, 42, 0.1);
+            color: #475569;
+            outline: none !important;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                -6px -6px 16px rgba(255, 255, 255, 0.45),
+                6px 6px 16px rgba(15, 23, 42, 0.12);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .tool-btn:active {
+            transform: translateY(1px);
+            box-shadow:
+                inset 3px 3px 6px rgba(15, 23, 42, 0.05),
+                inset -3px -3px 6px rgba(255, 255, 255, 0.8);
         }
 
         .tool-btn:disabled {
-            opacity: 0.3;
+            opacity: 0.4;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            background: transparent;
         }
 
         .project-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
+            background: var(--glass-bg) !important;
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
             padding: 24px;
-            transition: all 0.3s;
+            /* Eliminamos transition: all para prevenir shift cromático inicial */
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
             position: relative;
+            transform: translateZ(0);
+            /* Hardware accelerated */
+            will-change: transform, box-shadow;
         }
 
         .project-card:hover {
-            transform: translateY(-4px);
+            transform: translateZ(0) translateY(-4px);
             border-color: var(--celeste-sv);
             box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
         }
@@ -319,14 +755,15 @@
         /* ESTILOS DE VISTA DE CUADRÍCULA (GRID VIEW) */
         #books-stack.is-grid-view {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 16px;
             align-items: start;
+            justify-content: center;
         }
 
         @media (min-width: 768px) {
             #books-stack.is-grid-view {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
                 gap: 24px;
             }
         }
@@ -339,8 +776,9 @@
             border: 2px solid #e2e8f0;
             cursor: zoom-in;
             position: relative;
-            transform: scale(1);
-            transition: all 0.3s ease;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform, opacity;
         }
 
         #books-stack.is-grid-view .glass-card::after {
@@ -457,6 +895,14 @@
         .disable-transitions,
         .disable-transitions * {
             transition: none !important;
+            animation: none !important;
+        }
+
+        #books-stack {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            will-change: transform;
         }
 
         /* --- OCULTAR BARRAS DE DESPLAZAMIENTO GLOBALES --- */
@@ -474,7 +920,7 @@
 
         /* Estilos Pestañas y Animación de Selección */
         .tab-btn {
-            transition: all 0.3s ease;
+            transition: color 0.3s ease, background-color 0.3s ease;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -715,28 +1161,28 @@
 
     <!-- Modal genérico -->
     <div id="custom-modal">
-        <div class="bg-white p-8 rounded-2xl max-w-sm w-full shadow-2xl">
+        <div class="glass-modal max-w-sm w-full mx-4">
             <h4 id="modal-title" class="text-xl font-bold text-slate-900 mb-2">Confirmación</h4>
             <p id="modal-msg" class="text-slate-500 text-sm mb-6"></p>
             <div id="modal-password-container" class="hidden mb-6">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contraseña de
                     Administrador</label>
                 <input type="password" id="modal-password-input"
-                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-full px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
                     placeholder="••••••••">
             </div>
             <div class="flex gap-3">
                 <button id="modal-cancel-btn" onclick="closeModal()"
-                    class="flex-1 px-4 py-3 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs uppercase hover:bg-slate-200">Cancelar</button>
+                    class="flex-1 px-4 py-3 rounded-full bg-slate-100 text-slate-600 font-bold text-xs uppercase hover:bg-slate-200">Cancelar</button>
                 <button id="modal-confirm-btn"
-                    class="flex-1 px-4 py-3 rounded-xl bg-rose-500 text-white font-bold text-xs uppercase shadow-lg hover:bg-rose-600">Confirmar</button>
+                    class="flex-1 px-4 py-3 rounded-full bg-rose-500 text-white font-bold text-xs uppercase shadow-lg hover:bg-rose-600">Confirmar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Nuevo Proyecto -->
     <div id="project-modal">
-        <div class="bg-white p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl">
+        <div class="glass-modal max-w-md w-full mx-4">
             <div class="flex justify-between items-center mb-6">
                 <h4 id="proj-modal-title" class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Nuevo
                     Proyecto</h4>
@@ -748,7 +1194,7 @@
                     Entidad</label>
                 <div class="relative">
                     <input type="text" id="proj-input-name"
-                        class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
+                        class="w-full bg-slate-50 border-2 border-slate-100 rounded-full px-4 py-3 text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
                         placeholder="Ej: Auditoría 2024">
                     <button onclick="setRandomProjectName()"
                         class="absolute right-3 top-3 text-slate-300 hover:text-sky-500 transition-colors"
@@ -757,80 +1203,111 @@
                     </button>
                 </div>
             </div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Sector
+                        Económico</label>
+                    <div class="relative">
+                        <select id="proj-input-sector" onchange="updateCatalogOptions()"
+                            class="w-full bg-slate-50 border-2 border-slate-100 rounded-full px-4 py-3 text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all appearance-none cursor-pointer">
+                            <option value="ALL">Catálogo Completo</option>
+                            <option value="SSF">Banca y Seguros (SSF)</option>
+                            <option value="NICS">Comercio y Agro (NICS)</option>
+                            <option value="GUB">Gubernamental (SAFI)</option>
+                        </select>
+                        <div
+                            class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                            <i class="fas fa-industry text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden">
+                    <select id="proj-input-catalogo">
+                        <option value="MAESTRO">Normal</option>
+                    </select>
+                </div>
+            </div>
             <div class="flex gap-3">
                 <button onclick="closeProjectModal()"
-                    class="flex-1 px-4 py-4 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200">Cancelar</button>
+                    class="flex-1 px-4 py-4 rounded-full bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200">Cancelar</button>
                 <button id="proj-save-btn" onclick="saveProjectFromModal()"
-                    class="flex-[2] px-4 py-4 rounded-xl bg-sky-500 text-white font-bold text-xs uppercase shadow-lg shadow-sky-200 hover:bg-sky-600">Guardar
+                    class="flex-[2] px-4 py-4 rounded-full bg-sky-500 text-white font-bold text-xs uppercase shadow-lg shadow-sky-200 hover:bg-sky-600">Guardar
                     Proyecto</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Autenticación -->
-    <div id="auth-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: fadeInBackdrop 0.3s ease-out forwards;">
-        <div class="bg-white p-6 md:p-8 rounded-3xl max-w-sm w-full shadow-2xl relative"
-            style="animation: modalPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform: translateZ(0); will-change: transform, opacity; margin: 0 1.5rem;">
+    <div id="auth-modal" style="display: none;">
+
+        <!-- El contendor div adquiere todos los nuevos estilos Glass-Neomorficos de CSS -->
+        <div class="glass-modal w-full max-w-[420px] mx-4"
+            style="animation: modalPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+            <!-- Icono Neomórfico superior (Parecido al Hexagono del ejemplo 3) -->
+            <div class="mx-auto w-20 h-20 rounded-full bg-white mb-8 flex items-center justify-center"
+                style="box-shadow: -8px -8px 16px rgba(255,255,255,0.9), 8px 8px 16px rgba(15, 23, 42, 0.06); transform: translateY(-10px);">
+                <i class="fas fa-fingerprint text-3xl text-slate-700"></i>
+            </div>
+
             <button onclick="closeAuthModal()"
-                class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none"><i
+                class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 focus:outline-none transition-transform hover:rotate-90"><i
                     class="fas fa-times"></i></button>
-            <h4 id="auth-modal-title"
-                class="text-xl md:text-2xl font-black text-slate-900 tracking-tight mb-6 text-center">Acceso</h4>
+            <h4 id="auth-modal-title" class="text-2xl font-black text-slate-800 tracking-tight mb-8 text-center"
+                style="text-shadow: 1px 1px 0px rgba(255,255,255,1);">Bienvenido</h4>
 
             <div id="auth-error-msg"
-                class="hidden mb-4 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-xs rounded-xl font-bold">
+                class="hidden mb-4 p-4 bg-rose-50/80 border-none rounded-full text-rose-600 text-xs font-bold shadow-[inset_2px_2px_5px_rgba(225,29,72,0.1)]">
             </div>
             <div id="auth-success-msg"
-                class="hidden mb-4 p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs rounded-xl font-bold">
+                class="hidden mb-4 p-4 bg-emerald-50/80 border-none rounded-full text-emerald-600 text-xs font-bold shadow-[inset_2px_2px_5px_rgba(16,185,129,0.1)]">
             </div>
 
-            <form id="form-auth" class="space-y-4">
+            <form id="form-auth" class="space-y-5">
                 <div id="auth-name-container" class="hidden">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Nombre
+                    <label
+                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1 px-2">Nombre
                         Completo</label>
                     <input type="text" id="auth-name"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-full px-5 py-3.5 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
                         placeholder="Tu nombre">
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Correo
+                    <label
+                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1 px-2">Correo
                         Electrónico</label>
                     <input type="email" id="auth-email"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-full px-5 py-3.5 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
                         placeholder="tucorreo@ejemplo.com">
                 </div>
                 <div>
                     <label
-                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1 pointer-events-none">Contraseña</label>
+                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1 px-2">Contraseña</label>
                     <div class="relative">
                         <input type="password" id="auth-password"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all pr-12"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-full px-5 py-3.5 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all pr-12"
                             placeholder="••••••••">
                         <button type="button"
                             onclick="event.preventDefault(); event.stopPropagation(); togglePasswordVisibility('auth-password', 'auth-password-icon')"
-                            class="absolute right-4 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
-                            title="Mostrar/ocultar contraseña">
-                            <i id="auth-password-icon" class="fas fa-eye pointer-events-none"></i>
+                            class="absolute right-5 top-3.5 text-slate-400 hover:text-sky-500 transition-colors focus:outline-none">
+                            <i id="auth-password-icon" class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Forgot Password Button (inside form so it doesn't trigger generic submit) -->
-                <div id="auth-forgot-pwd-container" class="mt-2 text-right">
+                <div id="auth-forgot-pwd-container" class="mt-2 text-right px-2">
                     <button type="button" onclick="handleRecoverPassword()"
-                        class="text-[10px] font-bold text-sky-500 hover:text-sky-600 focus:outline-none transition-colors">¿Olvidaste
+                        class="text-[11px] font-bold text-sky-500 hover:text-sky-600 focus:outline-none transition-colors">¿Olvidaste
                         tu contraseña?</button>
                 </div>
 
-                <div class="mt-8 flex flex-col gap-3">
+                <div class="mt-8 flex flex-col gap-4">
                     <button type="submit" id="btn-auth-submit"
-                        class="w-full px-4 py-3 rounded-xl bg-slate-800 text-white font-bold text-xs uppercase shadow-lg shadow-slate-200 hover:bg-slate-700 transition-all flex justify-center items-center">
-                        <span>Iniciar Sesión</span>
+                        class="w-full px-6 py-4 rounded-full bg-sky-500 text-white font-black text-[13px] uppercase tracking-wide transition-all shadow-lg shadow-sky-100 hover:bg-sky-600">
+                        Iniciar Sesión
                     </button>
                     <button type="button" onclick="toggleAuthMode()" id="btn-auth-toggle"
-                        class="text-[11px] font-bold text-slate-500 hover:text-slate-800 transition-colors focus:outline-none mt-2">
-                        ¿No tienes cuenta? Regístrate
+                        class="text-[11px] font-bold text-slate-500 hover:text-slate-800 transition-colors py-2 focus:outline-none">
+                        ¿No tienes cuenta? <span class="text-sky-500">Regístrate</span>
                     </button>
                 </div>
             </form>
@@ -838,20 +1315,27 @@
     </div>
 
     <!-- Modal Perfil -->
-    <div id="profile-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: fadeInBackdrop 0.3s ease-out forwards;">
-        <div class="bg-white p-6 md:p-8 rounded-3xl max-w-sm w-full shadow-2xl relative"
-            style="animation: modalPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform: translateZ(0); will-change: transform, opacity; margin: 0 1.5rem;">
+    <div id="profile-modal" style="display: none;">
+
+        <div class="glass-modal w-full max-w-[420px] mx-4"
+            style="animation: modalPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
             <button onclick="closeProfileModal()"
-                class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none"><i
+                class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 focus:outline-none transition-transform hover:rotate-90"><i
                     class="fas fa-times"></i></button>
-            <h4 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight mb-6 text-center">Mi Perfil</h4>
+
+            <div class="mx-auto w-16 h-16 rounded-full bg-white mb-6 flex items-center justify-center text-sky-500"
+                style="box-shadow: -8px -8px 16px rgba(255,255,255,0.9), 8px 8px 16px rgba(15, 23, 42, 0.06);">
+                <i class="fas fa-user-circle text-3xl"></i>
+            </div>
+
+            <h4 class="text-2xl font-black text-slate-800 tracking-tight mb-8 text-center"
+                style="text-shadow: 1px 1px 0px rgba(255,255,255,1);">Mi Perfil</h4>
 
             <div id="profile-error-msg"
-                class="hidden mb-4 p-3 bg-rose-50 border border-rose-100 text-rose-600 text-xs rounded-xl font-bold">
+                class="hidden mb-4 p-4 bg-rose-50/80 border-none rounded-full text-rose-600 text-xs font-bold shadow-[inset_2px_2px_5px_rgba(225,29,72,0.1)]">
             </div>
             <div id="profile-success-msg"
-                class="hidden mb-4 p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs rounded-xl font-bold">
+                class="hidden mb-4 p-4 bg-emerald-50/80 border-none rounded-full text-emerald-600 text-xs font-bold shadow-[inset_2px_2px_5px_rgba(16,185,129,0.1)]">
             </div>
 
             <form id="form-profile" class="space-y-4">
@@ -859,15 +1343,15 @@
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Nombre
                         Completo</label>
                     <input type="text" id="profile-name"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-full px-4 py-3 text-sm text-slate-700 font-bold focus:border-sky-400 focus:bg-white outline-none transition-all"
                         placeholder="Tu nombre completo">
                 </div>
 
                 <div class="flex gap-3 mt-8">
                     <button type="button" onclick="closeProfileModal()"
-                        class="flex-1 px-4 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Volver</button>
+                        class="flex-1 px-4 py-3 rounded-full bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Volver</button>
                     <button type="submit" id="btn-profile-submit"
-                        class="flex-3 px-4 py-3 rounded-xl bg-sky-500 text-white font-bold text-xs uppercase shadow-lg shadow-sky-200 hover:bg-sky-600 transition-all flex justify-center items-center">
+                        class="flex-3 px-4 py-3 rounded-full bg-sky-500 text-white font-bold text-xs uppercase shadow-lg shadow-sky-200 hover:bg-sky-600 transition-all flex justify-center items-center">
                         <span>Guardar</span>
                     </button>
                 </div>
@@ -876,11 +1360,110 @@
             <hr class="my-6 border-slate-100">
             <div id="profile-admin-container" class="mb-3"></div>
             <button type="button" onclick="logout()"
-                class="w-full px-4 py-3 rounded-xl bg-rose-50 text-rose-600 font-bold text-xs uppercase hover:bg-rose-100 transition-colors">
+                class="w-full px-4 py-3 rounded-full bg-rose-50 text-rose-500 font-bold text-xs uppercase hover:bg-rose-100/50 transition-all border border-rose-100/50">
                 <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
             </button>
         </div>
     </div>
+
+    <!-- PANTALLA: BIBLIOTECA LEGAL -->
+    <main id="legal-screen" class="max-w-5xl mx-auto px-6 md:px-8 mt-6 md:mt-12 hidden no-print fade-in">
+        <div class="mb-8 md:mb-12">
+            <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Biblioteca <span
+                    class="text-emerald-500">Legal</span></h2>
+            <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Base de datos de leyes y
+                normativas contables</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Secciones Legales -->
+            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-emerald-50 rounded-full"><i class="fas fa-university text-emerald-600"></i></div>
+                    <h4 class="font-bold text-slate-800">Sector Financiero</h4>
+                </div>
+                <ul class="space-y-2 text-xs text-slate-500 font-medium">
+                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley de Bancos</li>
+                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley de Sociedades de Seguros
+                    </li>
+                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley de Bancos Cooperativos
+                    </li>
+                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley del Mercado de Valores
+                    </li>
+                </ul>
+            </div>
+
+            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-indigo-50 rounded-full"><i
+                            class="fas fa-file-invoice-dollar text-indigo-600"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800">Normas Contables</h4>
+                </div>
+                <ul class="space-y-2 text-xs text-slate-500 font-medium">
+                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• Disposiciones de las NIC</li>
+                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• NIIF para PYMES</li>
+                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• Principios Éticos del Contador
+                    </li>
+                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• Pronunciamientos del CVPCPA
+                    </li>
+                </ul>
+            </div>
+
+            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-sky-50 rounded-full"><i class="fas fa-gavel text-sky-600"></i></div>
+                    <h4 class="font-bold text-slate-800">Administración Pública</h4>
+                </div>
+                <ul class="space-y-2 text-xs text-slate-500 font-medium">
+                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley AFI (Adm. Financiera)</li>
+                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley del Servicio Civil</li>
+                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley de Ética Gubernamental</li>
+                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley de Compras Públicas</li>
+                </ul>
+            </div>
+
+            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-amber-50 rounded-full"><i class="fas fa-briefcase text-amber-600"></i></div>
+                    <h4 class="font-bold text-slate-800">Derecho Mercantil</h4>
+                </div>
+                <ul class="space-y-2 text-xs text-slate-500 font-medium">
+                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Código de Comercio</li>
+                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Ley de Sociedades</li>
+                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Derechos de Registro</li>
+                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Registro de Comercio</li>
+                </ul>
+            </div>
+
+            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-rose-50 rounded-full"><i class="fas fa-users-cog text-rose-600"></i></div>
+                    <h4 class="font-bold text-slate-800">Derecho Laboral</h4>
+                </div>
+                <ul class="space-y-2 text-xs text-slate-500 font-medium">
+                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Código de Trabajo</li>
+                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Ley del Seguro Social (ISSS)</li>
+                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Ley de Pensiones (AFP)</li>
+                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Trámites Administrativos</li>
+                </ul>
+            </div>
+
+            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-3 bg-slate-50 rounded-full"><i class="fas fa-ship text-slate-600"></i></div>
+                    <h4 class="font-bold text-slate-800">Aduanas y Tributos</h4>
+                </div>
+                <ul class="space-y-2 text-xs text-slate-500 font-medium">
+                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Leyes Aduaneras</li>
+                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Código Tributario</li>
+                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Ley del IVA / ISR</li>
+                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Entes Reguladores (SSSF/CVPCPA)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
 
     <!-- Header Principal -->
     <header class="main-header no-print">
@@ -948,15 +1531,15 @@
             <!-- Auth Container -->
             <div id="auth-container" class="flex items-center gap-3">
                 <button id="btn-exit-audit" onclick="exitAuditMode()"
-                    class="hidden px-4 py-2 rounded-xl bg-rose-600 text-white font-bold text-[10px] uppercase hover:bg-rose-500 transition-colors shadow-lg tracking-widest">
+                    class="hidden px-4 py-2 rounded-full bg-rose-600 text-white font-bold text-[10px] uppercase hover:bg-rose-500 transition-colors shadow-lg tracking-widest">
                     <i class="fas fa-sign-out-alt mr-1 hidden md:inline"></i> Salir de Auditoría
                 </button>
                 <button onclick="openAuthModal()" id="btn-login-header"
-                    class="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-[10px] uppercase hover:bg-slate-700 transition-colors shadow-md hidden md:block tracking-widest">
+                    class="px-4 py-2 rounded-full bg-slate-800 text-white font-bold text-[10px] uppercase hover:bg-slate-700 transition-colors shadow-md hidden md:block tracking-widest">
                     Iniciar Sesión / Registro
                 </button>
                 <button onclick="openAuthModal()" id="btn-login-header-mobile"
-                    class="p-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition-colors md:hidden shadow-md">
+                    class="p-2 rounded-full bg-slate-800 text-white hover:bg-slate-700 transition-colors md:hidden shadow-md">
                     <i class="fas fa-user-circle text-lg"></i>
                 </button>
                 <div id="user-info-header"
@@ -991,7 +1574,7 @@
             <p class="text-slate-500 mt-4 md:mt-6 text-base md:text-xl font-medium max-w-xl">Sistema contable con
                 catálogos integrales para El Salvador (Banca, Comercio, Gobierno y Agro).</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Botón a Proyectos -->
             <button onclick="showProjectScreen()"
                 class="glass-card bg-white p-8 text-left hover:bg-slate-50 hover:border-sky-400 focus:outline-none focus:ring-4 focus:ring-sky-100/50 transition-all group">
@@ -1009,6 +1592,16 @@
                 <p class="text-xs text-slate-400 mt-2">Consulta los catálogos integrales (NIC 2, NIC 41, Banca y
                     Gubernamental).</p>
             </button>
+
+            <!-- Botón a Biblioteca Legal -->
+            <button onclick="showLegalScreen()"
+                class="glass-card bg-white p-8 text-left hover:bg-slate-50 hover:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100/50 transition-all group">
+                <i
+                    class="fas fa-balance-scale text-4xl text-emerald-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                <h3 class="text-lg font-bold text-slate-800">Biblioteca Legal</h3>
+                <p class="text-xs text-slate-400 mt-2">Acceso a leyes de bancos, seguros, NIC, NIIF, leyes aduaneras y
+                    más.</p>
+            </button>
         </div>
     </main>
 
@@ -1022,12 +1615,13 @@
                     para trabajar</p>
             </div>
             <button onclick="openNewProjectModal()"
-                class="w-full sm:w-auto px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase hover:bg-slate-800 transition-all shadow-xl hover:-translate-y-1">
+                class="w-full sm:w-auto px-6 py-3 bg-slate-900 text-white rounded-full font-bold text-xs uppercase hover:bg-slate-800 transition-all shadow-xl hover:-translate-y-1">
                 <i class="fas fa-plus mr-2"></i> Nuevo Proyecto
             </button>
         </div>
         <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div id="empty-projects" class="hidden py-20 text-center border-2 border-dashed border-slate-200 rounded-3xl">
+        <div id="empty-projects"
+            class="hidden py-20 text-center border-2 border-dashed border-slate-200 rounded-[28px]">
             <i class="fas fa-archive text-4xl text-slate-200 mb-4"></i>
             <p class="text-slate-400 font-bold text-sm">No tienes proyectos guardados aún.</p>
         </div>
@@ -1045,7 +1639,7 @@
             <div class="relative w-full md:w-72">
                 <i class="fas fa-search absolute left-4 top-3 text-slate-400 z-10"></i>
                 <input type="text" id="catalog-search"
-                    class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-10 py-2 text-sm text-slate-700 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 outline-none transition-all"
+                    class="w-full bg-white border border-slate-200 rounded-full pl-10 pr-10 py-2 text-sm text-slate-700 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 outline-none transition-all"
                     placeholder="Buscar cuenta o código..." oninput="filterCatalog()">
                 <button id="catalog-clear-search" onclick="clearCatalogSearch()"
                     class="absolute right-3 top-2.5 text-slate-400 hover:text-rose-500 hidden transition-colors z-10"
@@ -1055,34 +1649,37 @@
             </div>
         </div>
 
-        <div class="w-full overflow-x-auto overflow-y-hidden scrollbar-hide no-print mb-6">
-            <div class="relative flex gap-1 p-1.5 bg-slate-200/60 rounded-2xl w-max">
+        <div class="w-full overflow-x-auto overflow-y-hidden scrollbar-hide no-print mb-6 px-4">
+            <div
+                class="relative flex gap-1 p-1.5 bg-slate-200/30 backdrop-blur-md border border-white/50 shadow-sm rounded-[28px] mx-auto max-w-6xl">
                 <!-- Indicador deslizante de fondo -->
                 <div id="catalog-tab-indicator"
-                    class="absolute top-1.5 bottom-1.5 left-0 rounded-xl bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0">
+                    class="absolute top-1.5 bottom-1.5 left-0 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(15,23,42,0.1)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-0">
                 </div>
 
                 <button onclick="setCatalogFilter('Todos')" data-cat="Todos"
-                    class="cat-filter-btn active relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-sky-600 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Todos</button>
+                    class="cat-filter-btn active relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-sky-600 focus:outline-none whitespace-nowrap rounded-full transition-colors">Completo</button>
                 <button onclick="setCatalogFilter('SSF')" data-cat="SSF"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Banca
-                    y Seguros (SSF)</button>
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-full transition-colors">SSF
+                    (Banca/Seguros)</button>
                 <button onclick="setCatalogFilter('INV')" data-cat="INV"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Comercio
-                    e Industria (NIC 2)</button>
-                <button onclick="setCatalogFilter('Agr')" data-cat="Agr"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Agrícola
-                    (NIC 41)</button>
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-full transition-colors">NIC
+                    2
+                    (Inventarios)</button>
+                <button onclick="setCatalogFilter('AGR')" data-cat="AGR"
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-full transition-colors">NIC
+                    41
+                    (Agricultura)</button>
                 <button onclick="setCatalogFilter('Gub')" data-cat="Gub"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl transition-colors">Gubernamental
-                    (SAFI)</button>
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-full transition-colors">Gubernamental</button>
             </div>
             <!-- Migas de Pan (Breadcrumbs) -->
             <div id="catalog-breadcrumbs"
                 class="mb-4 text-xs font-bold text-slate-500 flex flex-wrap gap-2 items-center hidden transition-all">
             </div>
 
-            <div class="bg-white rounded-[12px] shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-slate-200">
+            <div
+                class="bg-white rounded-[28px] shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-slate-200 overflow-hidden mx-auto max-w-6xl">
                 <div class="max-h-[600px] overflow-y-auto overflow-x-auto relative">
                     <table class="w-full text-sm min-w-[600px]">
                         <thead class="sticky top-0 bg-white z-10 shadow-sm border-b border-slate-200">
@@ -1112,7 +1709,7 @@
     <!-- PANTALLA: MASTER BACK-OFFICE -->
     <main id="master-screen" class="max-w-6xl mx-auto px-6 mt-28 mb-12 hidden no-print fade-in pb-12">
         <div
-            class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4 bg-slate-900 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4 bg-slate-900 rounded-[28px] p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute -right-10 -top-10 opacity-10">
                 <i class="fas fa-rocket text-9xl text-white"></i>
             </div>
@@ -1127,23 +1724,23 @@
             </div>
             <div class="relative z-10 flex flex-col md:flex-row w-full md:w-auto gap-3 items-center">
                 <button id="btn-master-back" onclick="renderMasterUserList()"
-                    class="hidden w-full md:w-auto px-5 py-2.5 bg-slate-800 text-white rounded-xl font-bold text-xs uppercase hover:bg-slate-700 transition-all shadow-lg flex items-center justify-center gap-2">
+                    class="hidden w-full md:w-auto px-5 py-2.5 bg-slate-800 text-white rounded-full font-bold text-xs uppercase hover:bg-slate-700 transition-all shadow-lg flex items-center justify-center gap-2">
                     <i class="fas fa-chevron-left"></i> Volver a Usuarios
                 </button>
                 <div class="relative w-full md:w-auto">
                     <i class="fas fa-search absolute left-4 top-3 text-slate-400"></i>
                     <input type="text" id="master-search"
-                        class="w-full md:w-64 bg-slate-800 border border-slate-700/50 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:border-sky-500 outline-none placeholder-slate-500"
+                        class="w-full md:w-64 bg-slate-800 border border-slate-700/50 rounded-full pl-10 pr-4 py-2 text-sm text-white focus:border-sky-500 outline-none placeholder-slate-500"
                         placeholder="Filtrar proyectos o usuarios..." oninput="renderMasterUserList()">
                 </div>
                 <button onclick="downloadMasterBackup()"
-                    class="w-full md:w-auto px-5 py-2.5 bg-sky-500 text-white rounded-xl font-bold text-xs uppercase hover:bg-sky-400 transition-all shadow-lg flex items-center justify-center gap-2">
+                    class="w-full md:w-auto px-5 py-2.5 bg-sky-500 text-white rounded-full font-bold text-xs uppercase hover:bg-sky-400 transition-all shadow-lg flex items-center justify-center gap-2">
                     <i class="fas fa-download"></i> Backup
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-[28px] border border-slate-200 shadow-sm overflow-hidden">
             <div class="max-h-[600px] overflow-y-auto overflow-x-auto">
                 <table class="w-full text-sm min-w-[800px]">
                     <thead id="master-table-head" class="sticky top-0 bg-slate-50 z-10 border-b border-slate-200">
@@ -1167,61 +1764,110 @@
     </main>
 
     <!-- PANTALLA 3: EDITOR -->
-    <div id="app-screen" class="max-w-6xl mx-auto px-4 md:px-8 hidden fade-in mt-6 md:mt-0">
-        <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 no-print">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <div class="p-2 bg-sky-100 rounded-lg shrink-0">
-                    <i class="fas fa-briefcase text-sky-600"></i>
-                </div>
-                <div class="min-w-0 flex-1 flex flex-col">
-                    <p id="project-owner-label"
-                        class="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-0.5 transition-colors">
-                        Proyecto Activo</p>
-                    <h1 id="current-project-name"
-                        class="text-lg md:text-xl font-black text-slate-800 focus:outline-sky-400 px-2 rounded truncate leading-tight"
-                        contenteditable="true" onblur="updateCurrentProjectName(this)">Cargando...</h1>
-                </div>
-            </div>
+    <div id="app-screen" class="w-full px-4 md:px-8 hidden fade-in mt-6 md:mt-0 relative">
 
-            <!-- Indicador de Guardado -->
-            <div id="save-indicator"
-                class="hidden items-center gap-2 text-emerald-500 font-bold text-xs bg-emerald-50 px-3 py-1.5 rounded-full">
-                <i class="fas fa-check-circle"></i> Local Guardado
-            </div>
-            <!-- Indicador de Nube Supabase -->
-            <div id="cloud-indicator"
-                class="hidden items-center gap-2 text-sky-500 font-bold text-xs bg-sky-50 px-3 py-1.5 rounded-full ml-2"
-                title="Sincronizado con la nube">
-                <i class="fas fa-cloud-check"></i> Sincronizado
-            </div>
-        </div>
+        <!-- HEADER STICKY TRANSLÚCIDO -->
+        <div class="w-full sticky top-[70px] md:top-[85px] z-[900] pt-4 pb-2 mb-6 pointer-events-none">
+            <!-- Flex centering system for 100% width -->
+            <div class="flex items-start justify-between w-full gap-4">
 
-        <!-- BARRA DE PESTAÑAS (TABS) -->
-        <div class="w-full overflow-x-auto overflow-y-hidden scrollbar-hide no-print mb-6">
-            <div class="relative flex gap-1 p-1.5 bg-slate-200/60 rounded-2xl w-max">
-                <!-- Indicador deslizante de fondo -->
-                <div id="tab-indicator"
-                    class="absolute top-1.5 bottom-1.5 left-0 rounded-xl bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0">
+                <!-- IZQUIERDA: Título (flex-1 para empujar el centro) -->
+                <div class="flex-1 flex justify-start">
+                    <div class="project-pill-wrapper pointer-events-auto">
+                        <div id="main-project-pill"
+                            class="project-card p-3 flex flex-col gap-0 border border-white/50 cursor-pointer group relative overflow-hidden w-full"
+                            onclick="toggleProjectPillExpansion(event)" style="margin-bottom: 0;"
+                            title="Haz clic para expandir opciones de sector/catálogo">
+                            <!-- Dual Symmetric Aura -->
+                            <div class="sync-aura"></div>
+                            <div class="sync-aura-2"></div>
+
+                            <!-- Header Visible -->
+                            <div class="flex items-center gap-3">
+                                <div class="p-1.5 bg-slate-100/80 rounded-full shrink-0 transition-colors duration-300">
+                                    <i class="fas fa-briefcase text-slate-500"></i>
+                                </div>
+                                <div class="min-w-0 flex flex-col justify-center pr-2">
+                                    <div class="flex items-center gap-2 px-1">
+                                        <span id="pill-sector-tag"
+                                            class="text-[7px] font-black text-slate-500 bg-slate-100/60 px-1 py-0.5 rounded border border-slate-200 uppercase tracking-widest leading-none">NICS</span>
+                                        <span id="pill-catalog-tag" class="hidden"></span>
+                                    </div>
+                                    <h1 id="current-project-name"
+                                        class="text-sm md:text-base font-black text-slate-800 focus:outline-sky-400 px-1 rounded truncate leading-none bg-transparent cursor-default"
+                                        contenteditable="false" onclick="event.stopPropagation()"
+                                        onblur="updateCurrentProjectName(this)">Cargando...</h1>
+                                </div>
+                            </div>
+
+                            <!-- Panel Expansible -->
+                            <div class="pill-options-panel w-full" onclick="event.stopPropagation()">
+                                <div class="pt-2 border-t border-slate-100">
+                                    <label
+                                        class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1 px-1">Sector
+                                        Económico</label>
+                                    <select id="pill-input-sector" onchange="updateProjectSectorFromPill(this.value)"
+                                        class="pill-select-mini mb-0">
+                                        <option value="ALL">Catálogo Completo</option>
+                                        <option value="SSF">Banca y Seguros (SSF)</option>
+                                        <option value="NICS">Comercio y Agro (NICS)</option>
+                                        <option value="GUB">Gubernamental (SAFI)</option>
+                                    </select>
+                                    <div class="hidden">
+                                        <select id="pill-input-catalogo"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <button onclick="switchTab('diario')" id="tab-diario"
-                    class="tab-btn active relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-sky-600 focus:outline-none whitespace-nowrap rounded-xl">Libro
-                    Diario</button>
-                <button onclick="switchTab('mayor')" id="tab-mayor"
-                    class="tab-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl">Libros
-                    Mayores</button>
-                <button onclick="switchTab('comprobacion')" id="tab-comprobacion"
-                    class="tab-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl">Estado
-                    Comprobación</button>
-                <button onclick="switchTab('resultados')" id="tab-resultados"
-                    class="tab-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl">Estado
-                    Resultados</button>
-                <button onclick="switchTab('inicial')" id="tab-inicial"
-                    class="tab-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl">Balance
-                    Inicial</button>
-                <button onclick="switchTab('balance')" id="tab-balance"
-                    class="tab-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-xl">Balance
-                    General</button>
+                <!-- CENTRO: Pestañas (Alineado con el ancho de las hojas max-w-5xl) -->
+                <div class="flex-none flex justify-center">
+                    <div class="pointer-events-auto glass-pill border border-white/50 shrink-0 max-w-[1000px]">
+                        <div class="relative flex justify-center gap-0.5 p-1.5 w-full">
+                            <div id="tab-indicator"
+                                class="absolute top-1 bottom-1 left-0 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-600 ease-[cubic-bezier(0.23,1,0.32,1)] z-0">
+                            </div>
+                            <button onclick="switchTab('diario')" id="tab-diario"
+                                class="tab-btn active relative z-10 px-4 md:px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-sky-600 focus:outline-none focus:ring-0 whitespace-nowrap rounded-full transition-all">Libro
+                                Diario</button>
+                            <button onclick="switchTab('mayor')" id="tab-mayor"
+                                class="tab-btn relative z-10 px-4 md:px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 whitespace-nowrap rounded-full transition-all">Libros
+                                Mayores</button>
+                            <button onclick="switchTab('comprobacion')" id="tab-comprobacion"
+                                class="tab-btn relative z-10 px-4 md:px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 whitespace-nowrap rounded-full transition-all">Bal.
+                                de Comprobación</button>
+                            <button onclick="switchTab('resultados')" id="tab-resultados"
+                                class="tab-btn relative z-10 px-4 md:px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 whitespace-nowrap rounded-full transition-all">Estado
+                                de Resultados</button>
+                            <button onclick="switchTab('inicial')" id="tab-inicial"
+                                class="tab-btn relative z-10 px-4 md:px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 whitespace-nowrap rounded-full transition-all">Balance
+                                Inicial</button>
+                            <button onclick="switchTab('balance')" id="tab-balance"
+                                class="tab-btn relative z-10 px-4 md:px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 whitespace-nowrap rounded-full transition-all">Balance
+                                General</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DERECHA: Sincronización (flex-1 para balancear el lado izquierdo) -->
+                <div class="flex-1 flex justify-end">
+                    <div class="pointer-events-auto glass-pill p-3 flex items-center gap-3 border border-white/50">
+                        <div id="save-indicator"
+                            class="hidden items-center gap-2 text-emerald-500 font-bold text-xs bg-emerald-50 px-3 py-1.5 rounded-full shadow-sm">
+                            <i class="fas fa-check-circle"></i> Local
+                        </div>
+                        <div id="cloud-indicator"
+                            class="hidden items-center gap-2 text-sky-500 font-bold text-xs bg-sky-50 px-3 py-1.5 rounded-full shadow-sm relative"
+                            title="Sincronizado con la nube">
+                            <i class="fas fa-cloud-check"></i> Sincronizado
+                            <div class="sync-aura"></div>
+                            <div class="sync-aura-2"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1229,59 +1875,70 @@
 
         <!-- VISTA: LIBRO DIARIO -->
         <div id="view-diario" class="block fade-in">
+            <!-- Toolbar sticky: alineada a los bordes (100% ancho) sin contenedor de fondo -->
             <div
-                class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 sticky top-[70px] md:top-[85px] z-[50] no-print bg-slate-50/90 backdrop-blur-md p-2 -mx-2 rounded-xl border border-slate-200/50 lg:border-none lg:bg-transparent lg:p-0 lg:mx-0 lg:backdrop-blur-none">
-                <div class="flex flex-wrap gap-2 w-full lg:w-auto">
-                    <button id="btn-force-save" onclick="forceSave()"
-                        class="flex-1 sm:flex-none justify-center px-4 py-3 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 transition-all shadow-lg flex items-center gap-2"
-                        title="Guardar cambios manualmente">
-                        <i class="fas fa-save"></i> <span class="inline">Guardar</span>
-                    </button>
-                    <button id="btn-grid-view" onclick="toggleGridView()"
-                        class="flex-1 sm:flex-none justify-center px-4 py-3 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all shadow-lg flex items-center gap-2"
-                        title="Ver todas las partidas en cuadrícula">
-                        <i class="fas fa-th-large"></i> <span class="hidden sm:inline">Vista General</span>
-                    </button>
-                    <!-- BOTÓN EXPORTAR PDF (NATIVO VECTORIAL) -->
-                    <button onclick="exportarPDF('Libro_Diario')"
-                        class="flex-1 sm:flex-none justify-center px-4 py-3 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-lg flex items-center gap-2"
-                        title="Exportar Libro Diario a PDF Vectorial">
-                        <i class="fas fa-file-pdf"></i> <span class="hidden sm:inline">Exportar PDF</span>
-                    </button>
+                class="sticky top-[135px] md:top-[165px] z-[800] flex items-center justify-between w-full mb-8 no-print pointer-events-none">
+
+                <!-- HERRAMIENTAS IZQUIERDA -->
+                <div class="flex-1 flex justify-start pointer-events-auto">
+                    <div
+                        class="glass-pill flex gap-2 p-2 items-center overflow-x-auto scrollbar-hide border border-white/50 shadow-sm">
+                        <button id="btn-force-save" onclick="forceSave()"
+                            class="glow-hover btn-bloom-emerald flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-full bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 transition-all shadow-md flex items-center gap-2"
+                            title="Guardar cambios manualmente">
+                            <i class="fas fa-save"></i> <span class="inline">Guardar</span>
+                        </button>
+                        <button id="btn-grid-view" onclick="toggleGridView()"
+                            class="glow-hover btn-bloom-slate flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-full bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all shadow-md flex items-center gap-2"
+                            title="Ver todas las partidas en cuadrícula">
+                            <i class="fas fa-th-large"></i> <span class="hidden sm:inline">Vista General</span>
+                        </button>
+                        <button onclick="exportarPDF('Libro_Diario')"
+                            class="glow-hover btn-bloom-rose flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2"
+                            title="Exportar Libro Diario a PDF Vectorial">
+                            <i class="fas fa-file-pdf"></i> <span class="hidden sm:inline">Exportar PDF</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div
-                    class="flex gap-2 bg-white shadow-xl p-1.5 rounded-2xl border border-slate-200 items-center overflow-x-auto w-full lg:w-auto scrollbar-hide">
-                    <button id="btn-undo" onclick="undo()"
-                        class="tool-btn shrink-0 text-slate-400 hover:text-sky-600 hover:bg-sky-50"
-                        title="Deshacer (Ctrl+Z)">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                    <button id="btn-redo" onclick="redo()"
-                        class="tool-btn shrink-0 text-slate-400 hover:text-sky-600 hover:bg-sky-50"
-                        title="Rehacer (Ctrl+Y)">
-                        <i class="fas fa-redo"></i>
-                    </button>
-                    <div class="w-px h-6 bg-slate-200 mx-1 shrink-0"></div>
-                    <button onclick="confirmClearData()" class="tool-btn shrink-0 text-amber-600 hover:bg-amber-50">
-                        <i class="fas fa-eraser"></i> <span class="hidden sm:inline">Limpiar</span>
-                    </button>
-                    <button onclick="confirmDeleteSheet()" class="tool-btn shrink-0 text-rose-600 hover:bg-rose-50">
-                        <i class="fas fa-trash-alt"></i> <span class="hidden sm:inline">Borrar</span>
-                    </button>
-                    <div class="w-px h-8 bg-slate-200 mx-1 shrink-0"></div>
-                    <button onclick="createNewBook()"
-                        class="shrink-0 px-4 py-3 rounded-xl bg-indigo-600 text-white font-bold text-[10px] uppercase hover:bg-indigo-700 shadow-lg flex items-center gap-2 hover:-translate-y-0.5 transition-transform">
-                        <i class="fas fa-plus-circle"></i> Nueva Hoja
-                    </button>
+                <!-- HERRAMIENTAS DERECHA -->
+                <div class="flex-1 flex justify-end pointer-events-auto">
+                    <div
+                        class="glass-pill flex gap-2 p-2 items-center overflow-x-auto scrollbar-hide border border-white/50 shadow-sm">
+                        <button id="btn-undo" onclick="undo()"
+                            class="glow-hover btn-bloom-slate shrink-0 px-3 py-3 rounded-full bg-slate-100/50 text-slate-500 font-bold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                            style="box-shadow: inset 2px 2px 4px rgba(255,255,255,0.8);" title="Deshacer (Ctrl+Z)">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button id="btn-redo" onclick="redo()"
+                            class="glow-hover btn-bloom-slate shrink-0 px-3 py-3 rounded-full bg-slate-100/50 text-slate-500 font-bold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                            style="box-shadow: inset 2px 2px 4px rgba(255,255,255,0.8);" title="Rehacer (Ctrl+Y)">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <div class="w-px h-6 bg-slate-300/40 mx-1 shrink-0"></div>
+                        <button onclick="confirmClearData()"
+                            class="glow-hover btn-bloom-orange flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-full bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition-all shadow-md flex items-center gap-2">
+                            <i class="fas fa-eraser"></i> <span class="hidden sm:inline">Limpiar</span>
+                        </button>
+                        <button onclick="confirmDeleteSheet()"
+                            class="glow-hover btn-bloom-rose flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2">
+                            <i class="fas fa-trash-alt"></i> <span class="hidden sm:inline">Borrar</span>
+                        </button>
+                        <div class="w-px h-8 bg-slate-300/40 mx-1 shrink-0"></div>
+                        <button onclick="createNewBook()"
+                            class="glow-hover btn-bloom-indigo shrink-0 px-4 py-3 rounded-full bg-indigo-600 text-white font-bold text-[10px] uppercase hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2">
+                            <i class="fas fa-plus-circle"></i> Nueva Hoja
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div id="books-stack" class="page-container"></div>
+            <div id="books-stack" class="page-container max-w-5xl mx-auto"></div>
         </div>
 
         <!-- VISTA: LIBROS MAYORES (CUENTAS T) -->
-        <div id="view-mayor" class="hidden fade-in">
+        <div id="view-mayor" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">Libros Mayores <span
@@ -1290,7 +1947,7 @@
                 </div>
                 <!-- BOTÓN EXPORTAR PDF (NATIVO VECTORIAL) -->
                 <button onclick="exportarPDF('Libros_Mayores')"
-                    class="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
+                    class="glow-hover btn-bloom-rose px-5 py-2.5 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
             </div>
@@ -1302,8 +1959,10 @@
         </div>
 
         <!-- VISTA: BALANCE DE COMPROBACIÓN -->
-        <div id="view-comprobacion" class="hidden fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print">
+        <div id="view-comprobacion" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print max-w-5xl mx-auto">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">Estado de Comprobación</h2>
                     <p class="text-sm text-slate-500">Verificación de la partida doble en Movimientos y Saldos (4
@@ -1311,14 +1970,14 @@
                 </div>
                 <!-- BOTÓN EXPORTAR PDF (NATIVO VECTORIAL) -->
                 <button onclick="exportarPDF('Balance_Comprobacion')"
-                    class="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
+                    class="glow-hover btn-bloom-rose px-5 py-2.5 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
             </div>
 
-            <div id="view-comprobacion-content" class="pb-4">
+            <div id="view-comprobacion-content" class="pb-4 max-w-5xl mx-auto">
                 <!-- Se movió el overflow-hidden al div padre para evitar recortes del border radius -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-12 overflow-hidden">
+                <div class="bg-white rounded-[28px] border border-slate-200 shadow-sm mb-12 overflow-hidden">
                     <div class="p-6 border-b border-slate-100 bg-slate-50 text-center">
                         <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm" id="comp-entidad">
                             ENTIDAD</h3>
@@ -1367,7 +2026,8 @@
         </div>
 
         <!-- VISTA: ESTADO DE RESULTADOS -->
-        <div id="view-resultados" class="hidden fade-in">
+        <div id="view-resultados" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">Estado de Resultados</h2>
@@ -1376,7 +2036,7 @@
                 </div>
                 <!-- BOTÓN EXPORTAR PDF (NATIVO VECTORIAL) -->
                 <button onclick="exportarPDF('Estado_Resultados')"
-                    class="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
+                    class="glow-hover btn-bloom-rose px-5 py-2.5 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
             </div>
@@ -1384,7 +2044,7 @@
             <div id="view-resultados-content" class="pb-8">
                 <!-- Se movió el overflow-hidden al div padre para evitar recortes -->
                 <div
-                    class="bg-white rounded-xl border border-slate-200 shadow-sm max-w-4xl mx-auto mb-12 overflow-hidden">
+                    class="bg-white rounded-[28px] border border-slate-200 shadow-sm max-w-4xl mx-auto mb-12 overflow-hidden">
                     <div class="p-8 border-b border-slate-200 text-center bg-slate-50/50">
                         <h3 class="font-black text-slate-800 uppercase text-lg tracking-wider" id="res-entidad">ENTIDAD
                         </h3>
@@ -1423,8 +2083,10 @@
         </div>
 
         <!-- VISTA: BALANCE INICIAL -->
-        <div id="view-inicial" class="hidden fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print">
+        <div id="view-inicial" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print max-w-5xl mx-auto">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">Balance Inicial <span
                             class="text-slate-400 text-base font-medium">/ De Apertura</span></h2>
@@ -1433,13 +2095,13 @@
                 </div>
                 <!-- BOTÓN EXPORTAR PDF (NATIVO VECTORIAL) -->
                 <button onclick="exportarPDF('Balance_Inicial')"
-                    class="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
+                    class="glow-hover btn-bloom-rose px-5 py-2.5 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
             </div>
 
-            <div id="view-inicial-content" class="pb-4">
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mb-12">
+            <div id="view-inicial-content" class="pb-4 max-w-5xl mx-auto">
+                <div class="bg-white rounded-[28px] border border-slate-200 overflow-hidden shadow-sm mb-12">
                     <div class="p-6 border-b border-slate-100 bg-sky-900 text-center text-white">
                         <h3 class="font-black uppercase tracking-widest text-sm" id="ini-entidad">ENTIDAD</h3>
                         <p class="text-xs text-sky-200 mt-1 font-bold uppercase">Balance Inicial de Apertura</p>
@@ -1469,7 +2131,7 @@
                             <div id="ini-patrimonio" class="space-y-2 text-sm mb-6 min-w-[250px]"></div>
 
                             <div id="ini-resultado-container"
-                                class="hidden justify-between items-center py-2 px-3 bg-indigo-50 rounded-lg text-sm font-bold text-indigo-800 mb-6 min-w-[250px]">
+                                class="hidden justify-between items-center py-2 px-3 bg-indigo-50 rounded-full text-sm font-bold text-indigo-800 mb-6 min-w-[250px]">
                                 <span>Resultado Acumulado</span>
                                 <span id="ini-resultado-ej">$ 0.00</span>
                             </div>
@@ -1490,8 +2152,10 @@
         </div>
 
         <!-- VISTA: BALANCE GENERAL -->
-        <div id="view-balance" class="hidden fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print">
+        <div id="view-balance" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print max-w-5xl mx-auto">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800">Balance General <span
                             class="text-slate-400 text-base font-medium">/ Situación Final</span></h2>
@@ -1499,13 +2163,13 @@
                 </div>
                 <!-- BOTÓN EXPORTAR PDF (NATIVO VECTORIAL) -->
                 <button onclick="exportarPDF('Balance_General')"
-                    class="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
+                    class="glow-hover btn-bloom-rose px-5 py-2.5 rounded-full bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 shrink-0">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
             </div>
 
-            <div id="view-balance-content" class="pb-4">
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mb-12">
+            <div id="view-balance-content" class="pb-4 max-w-5xl mx-auto">
+                <div class="bg-white rounded-[28px] border border-slate-200 overflow-hidden shadow-sm mb-12">
                     <div class="p-6 border-b border-slate-100 bg-slate-900 text-center text-white">
                         <h3 class="font-black uppercase tracking-widest text-sm" id="bal-entidad">ENTIDAD</h3>
                         <p class="text-xs text-slate-400 mt-1 font-bold uppercase">Balance General</p>
@@ -1535,7 +2199,7 @@
                             <div id="bal-patrimonio" class="space-y-2 text-sm mb-6 min-w-[250px]"></div>
 
                             <div
-                                class="flex justify-between items-center py-2 px-3 bg-indigo-50 rounded-lg text-sm font-bold text-indigo-800 mb-6 min-w-[250px]">
+                                class="flex justify-between items-center py-2 px-3 bg-indigo-50 rounded-full text-sm font-bold text-indigo-800 mb-6 min-w-[250px]">
                                 <span>Resultado del Ejercicio</span>
                                 <span id="bal-resultado-ej">$ 0.00</span>
                             </div>
@@ -1562,7 +2226,7 @@
 
     <!-- TOAST DE SINCRONIZACIÓN -->
     <div id="sync-toast"
-        class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-2xl shadow-2xl pointer-events-none no-print">
+        class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
         <i class="fas fa-check-circle text-2xl"></i>
         <div>
             <h4 class="font-black text-sm">Sincronización Exitosa</h4>
@@ -1660,45 +2324,124 @@
         };
 
         // --- MOTOR DE REGLAS CONTABLES DINÁMICAS (MULTISECTORIAL) ---
+        // --- MOTOR DE REGLAS CONTABLES DINÁMICAS (MULTISECTORIAL NIIF/NIC 1) ---
         function clasificarCuenta(a) {
-            const c = a.codigo.toString().trim();
+            const c = a.id ? String(a.id).trim() : String(a.codigo || '').trim();
             const cat = a.cat || 'Com';
-            let tipo = 'Desconocido';
-            let sub = 'Otros';
+            const rubroLabel = (a.rubro || '').trim();
 
-            if (cat === 'Gub') {
-                if (c.startsWith('2')) tipo = 'Activo';
-                else if (c.startsWith('4') || c.startsWith('6')) tipo = 'Pasivo';
-                else if (c.startsWith('81')) tipo = 'Patrimonio';
-                else if (c.startsWith('85') || c.startsWith('813')) { tipo = 'Resultado'; sub = 'Ingreso'; }
-                else if (c.startsWith('83') || c.startsWith('812')) { tipo = 'Resultado'; sub = 'Gasto'; }
-                else { tipo = 'Resultado'; sub = 'Otro'; }
-            } else if (cat === 'SSF') {
-                if (c.startsWith('1')) tipo = 'Activo';
-                else if (c.startsWith('2')) tipo = 'Pasivo';
-                else if (c.startsWith('3')) tipo = 'Patrimonio';
-                else if (c.startsWith('6') || c.startsWith('4')) { tipo = 'Resultado'; sub = 'Ingreso'; }
-                else if (c.startsWith('7') || c.startsWith('5')) { tipo = 'Resultado'; sub = 'Costo'; }
-                else if (c.startsWith('8')) { tipo = 'Resultado'; sub = 'Gasto'; }
-                else { tipo = 'Resultado'; sub = 'Otro'; }
-            } else if (cat === 'Agr') {
-                if (c.startsWith('1')) tipo = 'Activo';
-                else if (c.startsWith('2')) tipo = 'Pasivo';
-                else if (c.startsWith('3')) tipo = 'Patrimonio';
-                else if (c.startsWith('5')) { tipo = 'Resultado'; sub = 'Ingreso'; }
-                else if (c.startsWith('4')) { tipo = 'Resultado'; sub = 'Gasto'; }
-                else { tipo = 'Resultado'; sub = 'Otro'; }
-            } else { // Com default (NIC 2)
-                if (c.startsWith('1')) tipo = 'Activo';
-                else if (c.startsWith('2')) tipo = 'Pasivo';
-                else if (c.startsWith('3')) tipo = 'Patrimonio';
-                else if (c.startsWith('4')) { tipo = 'Resultado'; sub = 'Ingreso'; }
-                else if (c.startsWith('5')) { tipo = 'Resultado'; sub = 'Costo'; }
-                else if (c.startsWith('61') || c.startsWith('62')) { tipo = 'Resultado'; sub = 'Gasto'; }
-                else if (c.startsWith('6')) { tipo = 'Resultado'; sub = 'Otro Gasto'; }
-                else { tipo = 'Resultado'; sub = 'Otro'; }
+            let tipo = 'Otros'; // Activo, Pasivo, Patrimonio, Resultado
+            let clase = 'Mixto'; // Corriente, No Corriente
+            let rubroId = '';
+            let rubroNombre = 'Otros';
+
+            // 1. DETERMINAR TIPO (Basado en Rubro de DB o Prefijo)
+            if (rubroLabel.includes('Activo') || c.startsWith('1')) tipo = 'Activo';
+            else if (rubroLabel.includes('Pasivo') || c.startsWith('2')) tipo = 'Pasivo';
+            else if (rubroLabel.includes('Patrimonio') || c.startsWith('3')) tipo = 'Patrimonio';
+            else if (rubroLabel.includes('Ingreso') || rubroLabel.includes('Gasto') || rubroLabel.includes('Costo') ||
+                c.startsWith('4') || c.startsWith('5') || c.startsWith('6') || c.startsWith('7') || c.startsWith('8')) {
+                tipo = 'Resultado';
             }
-            return { tipo, sub };
+
+            // 2. DETERMINAR CLASE (Corriente vs No Corriente) - Basado en NIC 1 / SSF
+            if (tipo === 'Activo') {
+                if (cat === 'SSF') {
+                    // SSF: 11 Intermediación (C), 12 Otros (C), 13 Fijo (NC)
+                    if (c.startsWith('11') || c.startsWith('12')) clase = 'Corriente';
+                    else if (c.startsWith('13')) clase = 'No Corriente';
+                    else clase = 'Corriente';
+                } else if (cat === 'Gub') {
+                    if (c.startsWith('21')) clase = 'Corriente';
+                    else clase = 'No Corriente';
+                } else { // Comercial (NIC) / Agr
+                    // 11 Corriente, 12 No Corriente
+                    if (c.startsWith('11')) clase = 'Corriente';
+                    else if (c.startsWith('12')) clase = 'No Corriente';
+                    else clase = 'Corriente';
+                }
+            } else if (tipo === 'Pasivo') {
+                if (cat === 'SSF') {
+                    // SSF: 21 (C), 22/23 (Mixto/NC), 24 (NC)
+                    if (c.startsWith('21')) clase = 'Corriente';
+                    else clase = 'No Corriente';
+                } else {
+                    // 21 Corriente, 22 No Corriente
+                    if (c.startsWith('21')) clase = 'Corriente';
+                    else if (c.startsWith('22')) clase = 'No Corriente';
+                    else clase = 'Corriente';
+                }
+            }
+
+            // 3. DETERMINAR RUBRO DE AGRUPACIÓN (Jerarquía)
+            // Tomamos los primeros 4 dígitos para identificar el Rubro Normativo (Cuentas de Mayor)
+            // Si el código es más corto, tomamos lo que haya.
+            if (c.length >= 4) {
+                rubroId = c.substring(0, 4);
+            } else {
+                rubroId = c;
+            }
+
+            rubroNombre = obtenerNombreRubro(rubroId, cat, tipo);
+
+            return { tipo, clase, rubroId, rubroNombre };
+        }
+
+        // Busca el nombre del rubro en el catálogo maestro para encabezados
+        function obtenerNombreRubro(id, cat, tipo = 'Activo') {
+            const project = projects.find(p => p.id === currentProjectId);
+            const catalogo = project?.catalogo || 'MAESTRO';
+
+            // Caso especial: Sobregiros Bancarios (Activo con saldo acreedor movido a Pasivo)
+            if (tipo === 'Pasivo' && id.startsWith('11')) {
+                return 'Sobregiros Bancarios';
+            }
+
+            // Reglas de Nomenclatura por Catálogo Específico
+            if (cat === 'SSF') {
+                if (catalogo === 'BANCOS') {
+                    if (id === '1101') return 'Disponibilidades';
+                    if (id === '1102') return 'Inversiones Financieras';
+                    if (id === '1103') return 'Cartera de Préstamos (Neta)';
+                    if (id === '2101') return 'Obligaciones con el Público';
+                } else if (catalogo === 'SEGUROS') {
+                    if (id === '1101') return 'Inversiones y Disponibilidades';
+                    if (id === '2101') return 'Obligaciones Contractuales';
+                }
+            } else if (cat === 'AGR') {
+                if (catalogo === 'NIC41') {
+                    if (id === '1103') return 'Activos Biológicos Corrientes';
+                    if (id === '1201') return 'Activos Biológicos Productores';
+                }
+            } else if (cat === 'GUB') {
+                if (id === '1101') return 'Fondo General / Tesorería';
+                if (id === '2101') return 'Deuda Flotante';
+            }
+
+            const match = CATALOGO_MAESTRO.find(x => x.id === id && x.cat === cat);
+            if (match) return match.name;
+
+            // Fallbacks comunes si no está en el catálogo (Nomenclatura Estándar El Salvador)
+            const fallbacks = {
+                '11': 'Activos Corrientes',
+                '1101': 'Efectivo y Equivalentes',
+                '1103': 'Inventarios',
+                '12': 'Activos No Corrientes',
+                '1201': 'Propiedad, Planta y Equipo',
+                '21': 'Pasivos Corrientes',
+                '2101': 'Cuentas por Pagar',
+                '22': 'Pasivos No Corrientes',
+                '31': 'Capital y Reservas',
+                '41': 'Ingresos',
+                '51': 'Costos y Gastos'
+            };
+            return fallbacks[id] || `Grupo ${id}`;
+        }
+
+        function getClaseNombre(clase, tipo) {
+            if (tipo === 'Activo') return clase === 'Corriente' ? 'Activo Corriente' : 'Activo No Corriente';
+            if (tipo === 'Pasivo') return clase === 'Corriente' ? 'Pasivo Corriente' : 'Pasivo No Corriente';
+            return tipo;
         }
 
         // Calcula la Utilidad Neta evaluando todas las cuentas de "Resultado"
@@ -1856,6 +2599,8 @@
                         cloudInd.classList.remove('hidden'); cloudInd.classList.add('flex');
                         cloudInd.innerHTML = '<i class="fas fa-spinner fa-spin text-sky-500"></i> Subiendo...';
                     }
+                    // Activar animación de la viñeta de sincronización
+                    setSyncAnimating(true);
 
                     const currentProj = projects.find(p => p.id === currentProjectId);
                     if (currentProj) {
@@ -1864,15 +2609,19 @@
                             await syncCurrentProjectWithSupabase(currentProj, session.user.id);
 
                             if (cloudInd) cloudInd.innerHTML = '<i class="fas fa-cloud-check text-sky-500"></i> Sincronizado';
+                            setSyncAnimating(false);
                         } catch (err) {
                             if (cloudInd) {
                                 cloudInd.innerHTML = '<i class="fas fa-exclamation-triangle text-rose-500"></i> Error';
                             }
+                            setSyncAnimating(false);
                             console.error('Error Sync:', err);
                         }
+                    } else {
+                        setSyncAnimating(false);
                     }
                 }
-            } catch (e) { console.error('Error Auth Session:', e); }
+            } catch (e) { setSyncAnimating(false); console.error('Error Auth Session:', e); }
         }
 
         // --- SINCRONIZACIÓN WEB SUPABASE CON UPSERT VERDADERO ---
@@ -2237,45 +2986,79 @@
                         }
                     });
                 }
-                // === 4. ESTADO DE RESULTADOS (USANDO MOTOR DINÁMICO) ===
+                // === 4. ESTADO DE RESULTADOS MULTISECTORIAL ===
                 else if (baseFilename === 'Estado_Resultados') {
-                    buildHeader('Estado de Resultados', 'Clasificación Multisectorial de Cuentas');
-                    const accounts = procesarDiario(false);
+                    const project = projects.find(p => p.id === currentProjectId);
+                    const sector = project?.sector || 'COM';
+                    const catalogo = project?.catalogo || 'MAESTRO';
+                    buildHeader('Estado de Resultados', `Sector: ${sector} | Catálogo: ${catalogo}`);
 
+                    const accounts = procesarDiario(false);
                     let ingresos = [], costos = [], gastosOp = [], otrosIng = [], otrosGas = [];
+                    let variacionValorRazonable = 0;
 
                     accounts.forEach(a => {
                         const clasif = clasificarCuenta(a);
                         if (clasif.tipo !== 'Resultado') return;
-
                         const val = Math.abs(a.saldoAcreedor - a.saldoDeudor);
                         if (val === 0) return;
+
+                        // Lógica NIC 41 si es AGR
+                        if (sector === 'AGR' && (a.nombre.toLowerCase().includes('valor razonable') || a.nombre.toLowerCase().includes('biológica'))) {
+                            if (a.saldoAcreedor > a.saldoDeudor) variacionValorRazonable += val;
+                            else variacionValorRazonable -= val;
+                            return;
+                        }
 
                         if (clasif.sub === 'Ingreso') ingresos.push({ ...a, val });
                         else if (clasif.sub === 'Costo') costos.push({ ...a, val });
                         else if (clasif.sub === 'Gasto') gastosOp.push({ ...a, val });
-                        else if (a.saldoAcreedor > a.saldoDeudor) otrosIng.push({ ...a, val });
-                        else otrosGas.push({ ...a, val });
+                        else {
+                            if (a.saldoAcreedor > a.saldoDeudor) otrosIng.push({ ...a, val });
+                            else otrosGas.push({ ...a, val });
+                        }
                     });
 
                     const sum = (arr) => arr.reduce((acc, el) => acc + el.val, 0);
                     const tIngresos = sum(ingresos), tCostos = sum(costos), tGastosOp = sum(gastosOp), netoOtros = sum(otrosIng) - sum(otrosGas);
-                    const margenBruto = tIngresos - tCostos;
-                    const utilidadOp = margenBruto - tGastosOp;
-                    const utilidadFinal = utilidadOp + netoOtros;
+                    let margenPrincipal = tIngresos - tCostos;
+
+                    let labelVentas = "INGRESOS POR VENTAS Y ACTIVIDADES";
+                    let labelCostos = "COSTOS DE OPERACIÓN";
+                    let labelMargen = "MARGEN BRUTO";
+
+                    if (sector === 'SSF') {
+                        labelVentas = (catalogo === 'SEGUROS') ? "PRIMAS Y RECARGOS NETOS" : "INGRESOS POR INTERESES Y COMISIONES";
+                        labelCostos = (catalogo === 'SEGUROS') ? "SINIESTROS Y GASTOS DE REASEGURO" : "COSTOS DE CAPTACIÓN Y FINANCIEROS";
+                        labelMargen = "MARGEN FINANCIERO NETO";
+                    } else if (sector === 'AGR') {
+                        labelVentas = "VENTAS DE PRODUCTOS AGRÍCOLAS";
+                        labelMargen = "MARGEN OPERATIVO AGRÍCOLA (NIC 41)";
+                    } else if (sector === 'GUB') {
+                        labelVentas = "INGRESOS DE GESTIÓN / TRIBUTARIOS";
+                        labelCostos = "COSTOS DE TRANSFERENCIAS Y SERVICIOS";
+                        labelMargen = "AHORRO/DESAHORRO DE GESTIÓN";
+                    }
 
                     const rows = [];
-
-                    rows.push([{ content: 'INGRESOS POR VENTAS Y ACTIVIDADES', styles: { fontStyle: 'bold', textColor: bDark } }, '', fmt(tIngresos)]);
+                    rows.push([{ content: labelVentas, styles: { fontStyle: 'bold', textColor: bDark } }, '', fmt(tIngresos)]);
                     ingresos.forEach(a => rows.push([{ content: a.nombre, styles: { cellPadding: { left: 8 } } }, fmt(a.val), '']));
 
-                    rows.push([{ content: 'MENOS: COSTOS', styles: { fontStyle: 'bold', textColor: bDark } }, '', fmtNeg(tCostos)]);
+                    rows.push([{ content: `MENOS: ${labelCostos}`, styles: { fontStyle: 'bold', textColor: bDark } }, '', fmtNeg(tCostos)]);
                     costos.forEach(a => rows.push([{ content: a.nombre, styles: { cellPadding: { left: 8 } } }, fmt(a.val), '']));
 
-                    rows.push([{ content: 'IGUAL: MARGEN BRUTO', styles: { fontStyle: 'bold', textColor: bDark, fillColor: bGray } }, '', { content: fmt(margenBruto), styles: { fontStyle: 'bold', fillColor: bGray } }]);
+                    if (sector === 'AGR') {
+                        rows.push([{ content: '+/- VARIACIÓN VALOR RAZONABLE (NIC 41)', styles: { fontStyle: 'italic', textColor: [79, 70, 229] } }, fmt(variacionValorRazonable), '']);
+                        margenPrincipal += variacionValorRazonable;
+                    }
 
-                    rows.push([{ content: 'MENOS: GASTOS DE OPERACIÓN', styles: { fontStyle: 'bold', textColor: bDark } }, '', fmtNeg(tGastosOp)]);
+                    rows.push([{ content: `IGUAL: ${labelMargen}`, styles: { fontStyle: 'bold', textColor: bDark, fillColor: bGray } }, '', { content: fmt(margenPrincipal), styles: { fontStyle: 'bold', fillColor: bGray } }]);
+
+                    rows.push([{ content: 'MENOS: GASTOS DE OPERACIÓN Y ADMÓN', styles: { fontStyle: 'bold', textColor: bDark } }, '', fmtNeg(tGastosOp)]);
                     gastosOp.forEach(a => rows.push([{ content: a.nombre, styles: { cellPadding: { left: 8 } } }, fmt(a.val), '']));
+
+                    const utilidadOp = margenPrincipal - tGastosOp;
+                    const utilidadFinal = utilidadOp + netoOtros;
 
                     rows.push([{ content: 'IGUAL: UTILIDAD DE OPERACIÓN', styles: { fontStyle: 'bold', textColor: bDark, fillColor: bGray } }, '', { content: fmt(utilidadOp), styles: { fontStyle: 'bold', fillColor: bGray } }]);
 
@@ -2283,7 +3066,7 @@
                     otrosIng.forEach(a => rows.push([{ content: '+ ' + a.nombre, styles: { cellPadding: { left: 8 } } }, fmt(a.val), '']));
                     otrosGas.forEach(a => rows.push([{ content: '- ' + a.nombre, styles: { cellPadding: { left: 8 } } }, fmtNeg(a.val), '']));
 
-                    rows.push([{ content: 'GANANCIA ANTES DE RESERVA E IMPUESTOS', styles: { fontStyle: 'bold', textColor: bDark, lineWidth: { bottom: 1 }, lineColor: bDark } }, '', { content: fmt(utilidadFinal), styles: { fontStyle: 'bold', textColor: bDark, lineWidth: { bottom: 1 }, lineColor: bDark } }]);
+                    rows.push([{ content: 'RESULTADO FINAL DEL EJERCICIO', styles: { fontStyle: 'bold', textColor: bDark, lineWidth: { bottom: 1 }, lineColor: bDark } }, '', { content: fmt(utilidadFinal), styles: { fontStyle: 'bold', textColor: bDark, lineWidth: { bottom: 1 }, lineColor: bDark } }]);
 
                     doc.autoTable({
                         startY: 46,
@@ -2298,7 +3081,6 @@
                         margin: { left: 14, right: 14 }
                     });
 
-                    // Firmas
                     let finalY = doc.lastAutoTable.finalY + 30;
                     if (finalY > 250) { doc.addPage(); finalY = 40; }
                     doc.setDrawColor(0);
@@ -2310,37 +3092,111 @@
                 // === 5 y 6. BALANCES (USANDO MOTOR DINÁMICO) ===
                 else if (baseFilename === 'Balance_Inicial' || baseFilename === 'Balance_General') {
                     buildHeader(baseFilename === 'Balance_Inicial' ? 'Balance Inicial de Apertura' : 'Balance General', 'Situación Financiera');
-                    const accounts = procesarDiario(baseFilename === 'Balance_Inicial');
+                    const accountsArr = procesarDiario(baseFilename === 'Balance_Inicial');
 
-                    const activos = accounts.filter(a => clasificarCuenta(a).tipo === 'Activo');
-                    const pasivos = accounts.filter(a => clasificarCuenta(a).tipo === 'Pasivo');
-                    const patrimonios = accounts.filter(a => clasificarCuenta(a).tipo === 'Patrimonio');
-                    const utilidad = calcularUtilidad(accounts);
+                    // 1. RECLASIFICACIÓN DINÁMICA NIIF (Anti-Sobregiros)
+                    const baseActivos = accountsArr.filter(a => clasificarCuenta(a).tipo === 'Activo');
+                    const basePasivos = accountsArr.filter(a => clasificarCuenta(a).tipo === 'Pasivo');
+                    const basePatrimonios = accountsArr.filter(a => clasificarCuenta(a).tipo === 'Patrimonio');
+                    const utilidad = calcularUtilidad(accountsArr);
 
-                    // Regla 5 y 6: Simulación de Flexbox (2 columnas exactas) en PDF
-                    let leftList = [];
-                    let rightList = [];
+                    // Reclasificación dinámica
+                    const activosFinal = [];
+                    const pasivosFinal = [];
+
+                    baseActivos.forEach(a => {
+                        const val = a.saldoDeudor - a.saldoAcreedor;
+                        if (val < 0) pasivosFinal.push({ ...a, val: Math.abs(val), esRecl: true });
+                        else if (val > 0) activosFinal.push({ ...a, val });
+                    });
+
+                    basePasivos.forEach(a => {
+                        const val = a.saldoAcreedor - a.saldoDeudor;
+                        if (val < 0) activosFinal.push({ ...a, val: Math.abs(val), esRecl: true });
+                        else if (val > 0) pasivosFinal.push({ ...a, val });
+                    });
+
+                    const agruparParaPDF = (lista, tipoFuerza = null) => {
+                        const grupos = {};
+                        lista.forEach(a => {
+                            const info = clasificarCuenta(a);
+                            const t = tipoFuerza || info.tipo;
+                            // Sincronización con lógica UI: SSF y GUB usan clase Unificada
+                            const clase = (sector === 'SSF' || sector === 'GUB') ? 'Unificada' : info.clase;
+
+                            if (!grupos[clase]) grupos[clase] = {};
+                            const rubroId = String(a.codigo).substring(0, 4);
+                            if (!grupos[clase][rubroId]) {
+                                grupos[clase][rubroId] = {
+                                    nombre: obtenerNombreRubro(rubroId, info.cat, t),
+                                    cuentas: [],
+                                    total: 0
+                                };
+                            }
+                            grupos[clase][rubroId].cuentas.push(a);
+                            grupos[clase][rubroId].total += a.val;
+                        });
+                        return grupos;
+                    };
+
+                    const actuG = agruparParaPDF(activosFinal, 'Activo');
+                    const pasuG = agruparParaPDF(pasivosFinal, 'Pasivo');
+
+                    let leftList = [], rightList = [];
                     let tAct = 0, tPas = 0, tPat = 0;
 
                     // Llenar Activos
-                    leftList.push({ name: 'ACTIVOS (GRUPO 1 O EQUIVALENTE)', val: '', isTitle: true, color: [16, 185, 129] });
-                    activos.forEach(a => { const v = a.saldoDeudor - a.saldoAcreedor; tAct += v; leftList.push({ name: a.nombre, val: fmt(v) }); });
-                    leftList.push({ name: 'TOTAL ACTIVO', val: fmt(tAct), isTotal: true, color: [16, 185, 129] });
+                    const clasesAct = (sector === 'SSF' || sector === 'GUB') ? ['Unificada'] : ['Corriente', 'No Corriente', 'Mixto'];
+                    clasesAct.forEach(clase => {
+                        if (actuG[clase]) {
+                            const label = (sector === 'SSF' || sector === 'GUB') ? 'ACTIVOS SEGÚN LIQUIDEZ' : `ACTIVO ${clase.toUpperCase()}`;
+                            leftList.push({ name: label, val: '', isTitle: true, color: [16, 185, 129] });
+                            let tClase = 0;
+                            Object.values(actuG[clase]).forEach(r => {
+                                leftList.push({ name: r.nombre.toUpperCase(), val: fmt(r.total), highlight: true, color: [20, 100, 80] });
+                                r.cuentas.forEach(c => leftList.push({ name: `   ${c.nombre}${c.esRecl ? ' (Recl.)' : ''}`, val: fmt(c.val) }));
+                                tClase += r.total;
+                                tAct += r.total;
+                            });
+                            if (sector !== 'SSF' && sector !== 'GUB') {
+                                leftList.push({ name: `TOTAL ACTIVO ${clase.toUpperCase()}`, val: fmt(tClase), isSubtotal: true });
+                            }
+                        }
+                    });
+                    leftList.push({ name: 'TOTAL COMPLETO DE ACTIVO', val: fmt(tAct), isTotal: true, color: [16, 185, 129] });
 
                     // Llenar Pasivos
-                    rightList.push({ name: 'PASIVOS (GRUPO 2 O EQUIVALENTE)', val: '', isTitle: true, color: [244, 63, 94] });
-                    if (pasivos.length === 0) rightList.push({ name: 'Sin pasivos.', val: '', italic: true });
-                    pasivos.forEach(a => { const v = a.saldoAcreedor - a.saldoDeudor; tPas += v; rightList.push({ name: a.nombre, val: fmt(v) }); });
+                    const clasesPas = (sector === 'SSF' || sector === 'GUB') ? ['Unificada'] : ['Corriente', 'No Corriente', 'Mixto'];
+                    clasesPas.forEach(clase => {
+                        if (pasuG[clase]) {
+                            const label = (sector === 'SSF' || sector === 'GUB') ? 'PASIVOS SEGÚN EXIGIBILIDAD' : `PASIVO ${clase.toUpperCase()}`;
+                            rightList.push({ name: label, val: '', isTitle: true, color: [244, 63, 94] });
+                            let tClase = 0;
+                            Object.values(pasuG[clase]).forEach(r => {
+                                rightList.push({ name: r.nombre.toUpperCase(), val: fmt(r.total), highlight: true, color: [150, 40, 60] });
+                                r.cuentas.forEach(c => rightList.push({ name: `   ${c.nombre}${c.esRecl ? ' (Sobregiro)' : ''}`, val: fmt(c.val) }));
+                                tClase += r.total;
+                                tPas += r.total;
+                            });
+                            if (sector !== 'SSF' && sector !== 'GUB') {
+                                rightList.push({ name: `TOTAL PASIVO ${clase.toUpperCase()}`, val: fmt(tClase), isSubtotal: true });
+                            }
+                        }
+                    });
 
-                    // Llenar Patrimonio
-                    rightList.push({ name: '', val: '' }); // Espacio
-                    rightList.push({ name: 'PATRIMONIO (GRUPO 3 O EQUIVALENTE)', val: '', isTitle: true, color: [99, 102, 241] });
-                    if (patrimonios.length === 0) rightList.push({ name: 'Sin patrimonio.', val: '', italic: true });
-                    patrimonios.forEach(a => { const v = a.saldoAcreedor - a.saldoDeudor; tPat += v; rightList.push({ name: a.nombre, val: fmt(v) }); });
+                    // Patrimonio
+                    rightList.push({ name: '', val: '' });
+                    rightList.push({ name: 'PATRIMONIO', val: '', isTitle: true, color: [99, 102, 241] });
+                    basePatrimonios.forEach(a => {
+                        const v = a.saldoAcreedor - a.saldoDeudor;
+                        tPat += v;
+                        rightList.push({ name: a.nombre, val: fmt(v) });
+                    });
                     if (utilidad !== 0) {
-                        rightList.push({ name: 'Resultado del Ejercicio', val: fmt(utilidad), highlight: true });
+                        rightList.push({ name: (utilidad > 0 ? 'Utilidad del Ejercicio' : 'Pérdida del Ejercicio'), val: fmt(utilidad), highlight: true });
                         tPat += utilidad;
                     }
+                    rightList.push({ name: 'TOTAL PATRIMONIO', val: fmt(tPat), isSubtotal: true });
                     rightList.push({ name: 'TOTAL PASIVO + PATRIMONIO', val: fmt(tPas + tPat), isTotal: true, color: [99, 102, 241] });
 
                     // Unir listas en filas de 4 columnas
@@ -2351,15 +3207,16 @@
                         if (!item) return {};
                         if (item.isTitle) return { fontStyle: 'bold', textColor: item.color, fontSize: 8, cellPadding: { top: 4, bottom: 2 } };
                         if (item.isTotal) return { fontStyle: 'bold', textColor: bDark, fontSize: 9, lineWidth: { top: 0.5 }, lineColor: bDark, cellPadding: { top: 4 } };
+                        if (item.isSubtotal) return { fontStyle: 'bold', textColor: [71, 85, 105], fontSize: 7.5, lineWidth: { top: 0.2 }, lineColor: [200, 200, 200] };
                         if (item.italic) return { fontStyle: 'italic', textColor: 150 };
-                        if (item.highlight) return { fontStyle: 'bold', textColor: [99, 102, 241], fillColor: [238, 242, 255] };
+                        if (item.highlight) return { fontStyle: 'bold', textColor: item.color || [99, 102, 241], fillColor: [248, 250, 252] };
                         return { textColor: 80 };
                     };
                     const getStylesVal = (item) => {
                         let st = getStyles(item);
                         st.halign = 'right';
                         st.font = 'courier';
-                        if (item && item.isTotal) st.textColor = item.color;
+                        if (item && (item.isTotal || item.isSubtotal)) st.textColor = item.color || [71, 85, 105];
                         return st;
                     };
 
@@ -2435,18 +3292,22 @@
             saveHistory();
             const btn = document.getElementById('btn-force-save');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> <span class="hidden sm:inline">Guardado</span>';
+            btn.innerHTML = '<i class="fas fa-check"></i> <span class="inline">Guardado</span>';
             btn.classList.replace('bg-emerald-500', 'bg-emerald-600');
 
             const ind = document.getElementById('save-indicator');
             ind.classList.remove('hidden');
             ind.classList.add('flex');
 
+            // Activar animación de la viñeta de sincronización
+            setSyncAnimating(true);
+
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
                 btn.classList.replace('bg-emerald-600', 'bg-emerald-500');
                 ind.classList.add('hidden');
                 ind.classList.remove('flex');
+                setSyncAnimating(false);
             }, 2000);
         }
 
@@ -2456,69 +3317,63 @@
             const btn = document.getElementById('btn-grid-view');
             if (!btn) return;
 
-            document.body.style.scrollBehavior = 'auto';
+            // Bloquear scroll temporalmente para evitar jitter
+            const originalScroll = document.documentElement.style.scrollBehavior;
             document.documentElement.style.scrollBehavior = 'auto';
 
             container.classList.add('disable-transitions');
             container.classList.remove('animating-to-normal', 'animating-to-grid');
 
-            if (isGridView) {
-                container.classList.add('is-grid-view');
-                btn.innerHTML = '<i class="fas fa-list"></i> <span class="hidden sm:inline">Vista Normal</span>';
-                btn.classList.replace('bg-slate-800', 'bg-sky-500');
-                btn.classList.replace('hover:bg-slate-700', 'hover:bg-sky-600');
+            // Wrap logic in requestAnimationFrame for 60fps alignment
+            requestAnimationFrame(() => {
+                if (isGridView) {
+                    container.classList.add('is-grid-view');
+                    btn.innerHTML = '<i class="fas fa-list"></i> <span class="hidden sm:inline">Vista Normal</span>';
+                    btn.classList.replace('bg-slate-800', 'bg-sky-500');
+                    btn.classList.replace('hover:bg-slate-700', 'hover:bg-sky-600');
 
-                void container.offsetWidth;
+                    // Pequeño timeout para dejar que el DOM respire antes de animar
+                    setTimeout(() => {
+                        container.classList.remove('disable-transitions');
+                        container.classList.add('animating-to-grid');
+                        document.documentElement.style.scrollBehavior = originalScroll;
+                    }, 10);
+                } else {
+                    container.classList.remove('is-grid-view');
+                    btn.innerHTML = '<i class="fas fa-th-large"></i> <span class="hidden sm:inline">Vista General</span>';
+                    btn.classList.replace('bg-sky-500', 'bg-slate-800');
+                    btn.classList.replace('hover:bg-sky-600', 'hover:bg-slate-700');
 
-                container.classList.remove('disable-transitions');
-                container.classList.add('animating-to-grid');
-
-                setTimeout(() => {
-                    document.body.style.scrollBehavior = '';
-                    document.documentElement.style.scrollBehavior = '';
-                }, 50);
-
-            } else {
-                container.classList.remove('is-grid-view');
-                btn.innerHTML = '<i class="fas fa-th-large"></i> <span class="hidden sm:inline">Vista General</span>';
-                btn.classList.replace('bg-sky-500', 'bg-slate-800');
-                btn.classList.replace('hover:bg-sky-600', 'hover:bg-slate-700');
-
-                void container.offsetHeight;
-
-                if (selectedSheetId) {
-                    const el = document.getElementById(selectedSheetId);
-                    if (el) {
-                        const rect = el.getBoundingClientRect();
-                        const absoluteY = rect.top + window.pageYOffset;
-                        const viewportHeight = window.innerHeight;
-                        let targetY;
-
-                        if (rect.height < viewportHeight - 120) {
-                            targetY = absoluteY - (viewportHeight / 2) + (rect.height / 2);
-                        } else {
-                            targetY = absoluteY - 120;
-                        }
-
-                        window.scrollTo(0, Math.max(0, targetY));
-                        el.classList.add('expand-from-center-effect');
-                    }
-                }
-
-                container.classList.add('animating-to-normal');
-
-                setTimeout(() => { container.classList.remove('disable-transitions'); }, 20);
-
-                setTimeout(() => {
-                    document.body.style.scrollBehavior = '';
-                    document.documentElement.style.scrollBehavior = '';
-                    container.classList.remove('animating-to-normal');
                     if (selectedSheetId) {
                         const el = document.getElementById(selectedSheetId);
-                        if (el) el.classList.remove('expand-from-center-effect');
+                        if (el) {
+                            const rect = el.getBoundingClientRect();
+                            const absoluteY = rect.top + window.pageYOffset;
+                            const viewportHeight = window.innerHeight;
+                            let targetY = rect.height < viewportHeight - 120 ?
+                                absoluteY - (viewportHeight / 2) + (rect.height / 2) :
+                                absoluteY - 120;
+
+                            window.scrollTo(0, Math.max(0, targetY));
+                            el.classList.add('expand-from-center-effect');
+                        }
                     }
-                }, 650);
-            }
+
+                    setTimeout(() => {
+                        container.classList.remove('disable-transitions');
+                        container.classList.add('animating-to-normal');
+                        document.documentElement.style.scrollBehavior = originalScroll;
+                    }, 10);
+
+                    setTimeout(() => {
+                        container.classList.remove('animating-to-normal');
+                        if (selectedSheetId) {
+                            const el = document.getElementById(selectedSheetId);
+                            if (el) el.classList.remove('expand-from-center-effect');
+                        }
+                    }, 650);
+                }
+            });
         }
 
         // Navegación principal (HOME / CATALOGOS / PROYECTOS / APP / MASTER)
@@ -2539,6 +3394,7 @@
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('project-screen').classList.add('hidden');
             document.getElementById('catalog-screen').classList.add('hidden');
+            document.getElementById('legal-screen').classList.add('hidden'); // Added this line
             document.getElementById('app-screen').classList.add('hidden');
             document.getElementById('master-screen').classList.add('hidden');
             document.getElementById('btn-volver').classList.add('hidden');
@@ -2563,6 +3419,7 @@
                 case 'home': showHomeScreen(); break;
                 case 'projects': showProjectScreen(); break;
                 case 'catalog': showCatalogScreen(); break;
+                case 'legal': showLegalScreen(); break; // Added this line
                 case 'app': showApp(); break;
                 case 'master': showMasterScreen(); break;
                 default: showHomeScreen();
@@ -2573,8 +3430,9 @@
         function showHomeScreen() {
             hideAllScreens();
             currentProjectId = null;
-            document.getElementById('home-screen').classList.remove('hidden');
-            document.getElementById('home-screen').classList.add('fade-in');
+            const hs = document.getElementById('home-screen');
+            hs.classList.remove('hidden');
+            hs.classList.add('fade-in');
             const btnOffice = document.getElementById('btn-master-office');
             if (btnOffice) btnOffice.style.display = 'block';
             updateHistory('home');
@@ -2603,6 +3461,16 @@
             updateHistory('catalog');
         }
 
+        function showLegalScreen() {
+            hideAllScreens();
+            currentProjectId = null;
+            const ls = document.getElementById('legal-screen');
+            ls.classList.remove('hidden');
+            ls.classList.add('fade-in');
+            document.getElementById('btn-volver').classList.remove('hidden');
+            updateHistory('legal');
+        }
+
         function showApp() {
             hideAllScreens();
             document.getElementById('app-screen').classList.remove('hidden');
@@ -2616,6 +3484,7 @@
             if (btnOffice) btnOffice.style.display = 'none';
             switchTab('diario');
             setTimeout(updateTabIndicator, 50); // Dar tiempo al navegador de renderizar el ancho
+            setupTitlePillAnimation(); // Habilitar animación de borde en viñeta del título
             updateHistory('app');
         }
 
@@ -2698,7 +3567,23 @@
             const filtered = CATALOGO_MAESTRO.filter(item => {
                 const itemCatLower = String(item.cat || '').toLowerCase();
                 const filterLower = currentCatalogFilter.toLowerCase();
-                const matchesCat = currentCatalogFilter === 'Todos' || itemCatLower === filterLower;
+
+                let matchesCat = false;
+                if (currentCatalogFilter === 'Todos') {
+                    matchesCat = true;
+                } else if (filterLower === 'ssf') {
+                    matchesCat = (['ssf', 'bancos', 'seguros', 'cooperativas', 'coop'].includes(itemCatLower));
+                } else if (filterLower === 'inv') {
+                    // NIC 2: Inventarios (INV), Comercio (COM), etc.
+                    matchesCat = (['inv', 'com', 'prod', 'nics_gral', 'produccion'].includes(itemCatLower));
+                } else if (filterLower === 'agr') {
+                    // NIC 41: Agricultura (AGR)
+                    matchesCat = (['agr'].includes(itemCatLower));
+                } else if (filterLower === 'gub') {
+                    matchesCat = (['gub', 'safi', 'muni'].includes(itemCatLower));
+                } else {
+                    matchesCat = itemCatLower === filterLower;
+                }
 
                 let matchesSearch = true;
                 if (searchTermLower !== '') {
@@ -2793,7 +3678,7 @@
             if (event) event.stopPropagation();
             navigator.clipboard.writeText(code).then(() => {
                 const toast = document.createElement('div');
-                toast.className = 'fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg z-50 flex items-center gap-2 fade-in';
+                toast.className = 'fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg z-50 flex items-center gap-2 fade-in';
                 toast.innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> Código ' + code + ' copiado';
                 document.body.appendChild(toast);
                 setTimeout(() => {
@@ -2808,21 +3693,22 @@
         function renderProjectGrid() {
             const grid = document.getElementById('project-grid');
             const empty = document.getElementById('empty-projects');
-            grid.innerHTML = '';
+            if (grid) grid.innerHTML = '';
 
             if (projects.length === 0) {
-                empty.classList.remove('hidden');
+                if (empty) empty.classList.remove('hidden');
                 return;
             }
-            empty.classList.add('hidden');
+            if (empty) empty.classList.add('hidden');
 
+            const fragment = document.createDocumentFragment();
             projects.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'project-card flex flex-col justify-between';
                 card.onclick = () => openProject(p.id);
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center">
+                        <div class="w-12 h-12 bg-sky-50 rounded-[28px] flex items-center justify-center">
                             <i class="fas fa-file-invoice text-sky-500 text-xl"></i>
                         </div>
                         <div class="relative">
@@ -2842,20 +3728,25 @@
                             <span class="text-[9px] font-bold text-slate-400 uppercase">${p.sheets ? p.sheets.length : 0} Hojas</span>
                             <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                             <span class="text-[9px] font-bold text-slate-400 uppercase">${new Date(p.updatedAt).toLocaleDateString()}</span>
+                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                            <span class="text-[9px] font-bold text-sky-500 bg-sky-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">${p.sector || 'ALL'}</span>
+                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                            <span class="text-[9px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">${p.catalogo || 'MAESTRO'}</span>
                         </div>
                         <div class="flex gap-2 mt-2">
                             ${syncedProjectIds.has(p.id) ?
-                        `<span class="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 uppercase tracking-widest" title="Guardado y sincronizado en la nube">
+                        `<span class="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 uppercase tracking-widest" title="Sincronizado">
                                 <i class="fas fa-cloud-check"></i> Sincronizado
                             </span>` :
-                        `<span class="flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 uppercase tracking-widest" title="Guardado localmente. Se sincronizará al conectar o hacer cambios.">
+                        `<span class="flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 uppercase tracking-widest" title="Local">
                                 <i class="fas fa-hdd"></i> Local
                             </span>`}
                         </div>
                     </div>
                 `;
-                grid.appendChild(card);
+                fragment.appendChild(card);
             });
+            if (grid) grid.appendChild(fragment);
         }
 
         function toggleProjMenu(id) {
@@ -2866,11 +3757,22 @@
             if (!isOpen) menu.style.display = 'block';
         }
 
+        function updateCatalogOptions(selectedSector = null, selectedCat = null) {
+            const sector = selectedSector || document.getElementById('proj-input-sector').value;
+            const catSelect = document.getElementById('proj-input-catalogo');
+            if (!catSelect) return;
+
+            const defaults = { 'ALL': 'MAESTRO', 'SSF': 'BANCOS', 'NICS': 'NICS_GRAL', 'GUB': 'SAFI' };
+            catSelect.value = selectedCat || defaults[sector] || 'MAESTRO';
+        }
+
         function openNewProjectModal() {
             editingProjectId = null;
             document.getElementById('proj-modal-title').innerText = "Nuevo Proyecto";
             document.getElementById('proj-input-name').value = "";
             document.getElementById('proj-input-name').placeholder = `Proyecto ${projects.length + 1}`;
+            document.getElementById('proj-input-sector').value = "COM";
+            updateCatalogOptions('COM', 'MAESTRO');
             document.getElementById('project-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('proj-input-name').focus(), 100);
         }
@@ -2880,6 +3782,8 @@
             const p = projects.find(proj => proj.id === id);
             document.getElementById('proj-modal-title').innerText = "Renombrar Proyecto";
             document.getElementById('proj-input-name').value = p.name;
+            document.getElementById('proj-input-sector').value = p.sector || "COM";
+            updateCatalogOptions(p.sector || 'COM', p.catalogo || 'MAESTRO');
             document.getElementById('project-modal').style.display = 'flex';
             setTimeout(() => document.getElementById('proj-input-name').focus(), 100);
         }
@@ -2895,22 +3799,48 @@
             let name = document.getElementById('proj-input-name').value.trim();
             if (!name) name = `Proyecto ${projects.length + 1}`;
 
+            let sector = document.getElementById('proj-input-sector').value;
+            let catalogo = document.getElementById('proj-input-catalogo').value;
+
             const isNew = !editingProjectId;
             let targetProjId = editingProjectId;
 
             if (editingProjectId) {
                 const p = projects.find(proj => proj.id === editingProjectId);
-                if (p) { p.name = name; p.updatedAt = new Date().toISOString(); }
+                if (p) {
+                    p.name = name;
+                    p.sector = sector;
+                    p.catalogo = catalogo;
+                    p.updatedAt = new Date().toISOString();
+                }
             } else {
                 targetProjId = 'proj_' + Date.now();
                 projects.unshift({
-                    id: targetProjId, name: name, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+                    id: targetProjId, name: name, sector: sector, catalogo: catalogo,
+                    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
                     sheets: [], bookCounter: 0
                 });
             }
 
             // Save locally and render instantly for fast UI feedback
             localStorage.setItem('educonta_projects_v38', JSON.stringify(projects));
+
+            // Sync current view if editing the active project
+            if (currentProjectId === targetProjId) {
+                document.getElementById('current-project-name').innerText = name;
+                const sTag = document.getElementById('pill-sector-tag');
+                const cTag = document.getElementById('pill-catalog-tag');
+                if (sTag) sTag.innerText = sector;
+                if (cTag) cTag.classList.add('hidden');
+
+                // Forzar re-renderizado de la pestaña activa para aplicar nuevas reglas
+                const activeTab = document.querySelector('.tab-btn.active');
+                if (activeTab) {
+                    const tabId = activeTab.id.replace('tab-', '');
+                    switchTab(tabId);
+                }
+            }
+
             renderProjectGrid();
             closeProjectModal();
 
@@ -2970,9 +3900,19 @@
             const project = projects.find(p => p.id === id);
             if (!project) return;
 
-            document.getElementById('project-owner-label').innerText = 'PROYECTO ACTIVO';
-            document.getElementById('project-owner-label').classList.replace('text-rose-500', 'text-slate-400');
             document.getElementById('current-project-name').innerText = project.name;
+            const sectorTag = document.getElementById('pill-sector-tag');
+            const catalogTag = document.getElementById('pill-catalog-tag');
+            if (sectorTag) sectorTag.innerText = project.sector || 'COM';
+            if (catalogTag) catalogTag.innerText = project.catalogo || 'MAESTRO';
+
+            // Sincronizar selectores de la viñeta
+            const pSector = document.getElementById('pill-input-sector');
+            if (pSector) {
+                pSector.value = project.sector || 'ALL';
+                const pCat = document.getElementById('pill-input-catalogo');
+                if (pCat) pCat.value = project.catalogo || 'MAESTRO';
+            }
 
             const btnVolver = document.getElementById('btn-volver');
             if (btnVolver) btnVolver.innerHTML = '<i class="fas fa-chevron-left mr-0 sm:mr-2"></i> <span class="hidden sm:inline">Inicio</span>';
@@ -2988,6 +3928,75 @@
             else createNewBook();
             history = []; historyPointer = -1; saveHistory();
             showApp();
+        }
+
+        /* --- NUEVAS FUNCIONES VIÑETA EXPANSIVA --- */
+        function toggleProjectPillExpansion(e) {
+            const pill = document.getElementById('main-project-pill');
+            const nameEl = document.getElementById('current-project-name');
+            const isExpanded = pill.classList.toggle('project-pill-expanded');
+
+            if (nameEl) {
+                nameEl.contentEditable = isExpanded;
+                nameEl.classList.toggle('cursor-text', isExpanded);
+                nameEl.classList.toggle('cursor-default', !isExpanded);
+            }
+
+            if (isExpanded) {
+                const closeHandler = (ev) => {
+                    if (!pill.contains(ev.target)) {
+                        pill.classList.remove('project-pill-expanded');
+                        if (nameEl) {
+                            nameEl.contentEditable = "false";
+                            nameEl.classList.remove('cursor-text');
+                            nameEl.classList.add('cursor-default');
+                        }
+                        document.removeEventListener('click', closeHandler);
+                    }
+                };
+                setTimeout(() => document.addEventListener('click', closeHandler), 10);
+            }
+        }
+
+        function updateProjectSectorFromPill(sector) {
+            const p = projects.find(proj => proj.id === currentProjectId);
+            if (!p) return;
+            p.sector = sector;
+            p.updatedAt = new Date().toISOString();
+
+            const defaults = { 'ALL': 'MAESTRO', 'SSF': 'BANCOS', 'NICS': 'NICS_GRAL', 'GUB': 'SAFI' };
+            const autoCat = defaults[sector] || 'MAESTRO';
+            p.catalogo = autoCat;
+
+            saveProjectsToLocal();
+            renderProjectGrid();
+
+            // Actualizar tags visuales
+            document.getElementById('pill-sector-tag').innerText = sector;
+            document.getElementById('pill-catalog-tag').classList.add('hidden');
+
+            // Refrescar pestaña activa
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab) switchTab(activeTab.id.replace('tab-', ''));
+        }
+
+        function updateProjectCatalogFromPill(catalogo) {
+            const p = projects.find(proj => proj.id === currentProjectId);
+            if (!p) return;
+            p.catalogo = catalogo;
+            p.updatedAt = new Date().toISOString();
+
+            saveProjectsToLocal();
+            renderProjectGrid();
+
+            document.getElementById('pill-catalog-tag').innerText = catalogo;
+
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab) switchTab(activeTab.id.replace('tab-', ''));
+        }
+
+        function updatePillCatalogOptions() {
+            // Ya no es necesaria pues el catálogo es automático por sector
         }
 
         function updateCurrentProjectName(el) {
@@ -3007,9 +4016,12 @@
         }
 
         function switchTab(tabId) {
-            // Actualizar botones
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            // Actualizar botones — quitar animación previa, agregar solo al nuevo
             document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('active', 'text-sky-600');
+                b.classList.remove('active', 'text-sky-600', 'tab-just-selected');
                 b.classList.add('text-slate-500');
             });
             const btn = document.getElementById(`tab-${tabId}`);
@@ -3023,30 +4035,45 @@
             const views = ['inicial', 'diario', 'mayor', 'comprobacion', 'resultados', 'balance'];
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
-                if (el) {
-                    el.classList.add('hidden');
-                    el.classList.remove('block');
-                }
+                if (el) { el.classList.add('hidden'); el.classList.remove('block'); }
             });
-
             const activeView = document.getElementById(`view-${tabId}`);
-            if (activeView) {
-                activeView.classList.remove('hidden');
-                activeView.classList.add('block');
-            }
+            if (activeView) { activeView.classList.remove('hidden'); activeView.classList.add('block'); }
 
-            // Guardar historial pendiente y renderizar reportes si es necesario
             saveHistory();
             if (tabId !== 'diario') {
                 const accounts = procesarDiario(false);
                 const openingAccounts = procesarDiario(true);
-
                 if (tabId === 'inicial') renderInicial(openingAccounts);
                 if (tabId === 'mayor') renderMayor(accounts);
                 if (tabId === 'comprobacion') renderComprobacion(accounts);
                 if (tabId === 'resultados') renderResultados(accounts);
                 if (tabId === 'balance') renderBalance(accounts);
             }
+            window.scrollTo(scrollX, scrollY);
+        }
+
+        /* ── Animación Dinámica de Viñetas ── */
+        // Activa la animación del borde en la viñeta del título mientras se edita
+        function setupTitlePillAnimation() {
+            const titleEl = document.getElementById('current-project-name');
+            if (!titleEl) return;
+            const titlePill = titleEl.closest('.project-card');
+            if (!titlePill) return;
+            // Solo escuchar el elemento del título del proyecto, NO los títulos de hojas
+            titleEl.addEventListener('focusin', () => titlePill.classList.add('border-active'));
+            titleEl.addEventListener('focusout', () => titlePill.classList.remove('border-active'));
+        }
+
+        // Activa/desactiva la animación del borde en la viñeta de sincronización
+        let _syncPill = null;
+        function getSyncPill() {
+            if (!_syncPill) _syncPill = document.getElementById('cloud-indicator')?.closest('.glass-pill');
+            return _syncPill;
+        }
+        function setSyncAnimating(active) {
+            const pill = getSyncPill();
+            if (pill) pill.classList.toggle('border-active', active);
         }
 
         // Extrae la data del DOM (Libro Diario) y agrupa en Cuentas
@@ -3103,46 +4130,111 @@
         const fmtNegUI = (n) => n === 0 ? "0.00" : `(${fmtUI(Math.abs(n))})`;
 
         // Renderiza Balance Inicial (Apertura)
+        // Renderiza Balance Inicial (Apertura) NIIF
         function renderInicial(accounts) {
             const projName = document.getElementById('current-project-name').innerText;
+            const project = projects.find(p => p.id === currentProjectId);
+            const sector = project?.sector || 'COM';
             document.getElementById('ini-entidad').innerText = projName;
 
-            const activos = accounts.filter(a => clasificarCuenta(a).tipo === 'Activo');
-            const pasivos = accounts.filter(a => clasificarCuenta(a).tipo === 'Pasivo');
-            const patrimonios = accounts.filter(a => clasificarCuenta(a).tipo === 'Patrimonio');
             const utilidad = calcularUtilidad(accounts);
+
+            // Reclasificación Dinámica según naturaleza del saldo
+            let baseActivos = [];
+            let basePasivos = [];
+            let patrimonios = [];
+
+            accounts.forEach(a => {
+                const info = clasificarCuenta(a);
+                if (info.tipo === 'Activo') {
+                    if (a.saldoAcreedor > a.saldoDeudor) basePasivos.push(a);
+                    else baseActivos.push(a);
+                } else if (info.tipo === 'Pasivo') {
+                    if (a.saldoDeudor > a.saldoAcreedor) baseActivos.push(a);
+                    else basePasivos.push(a);
+                } else if (info.tipo === 'Patrimonio') {
+                    patrimonios.push(a);
+                }
+            });
+
+            const agruparLista = (lista, tipoContexto) => {
+                const grupos = {};
+                lista.forEach(a => {
+                    const info = clasificarCuenta(a);
+                    const cl = (sector === 'SSF' || sector === 'GUB') ? 'Unificada' : info.clase;
+                    const rKey = info.rubroId;
+                    if (!grupos[cl]) grupos[cl] = {};
+                    if (!grupos[cl][rKey]) grupos[cl][rKey] = { nombre: info.rubroNombre, cuentas: [], total: 0 };
+                    const val = (tipoContexto === 'Activo') ? (a.saldoDeudor - a.saldoAcreedor) : (a.saldoAcreedor - a.saldoDeudor);
+                    grupos[cl][rKey].cuentas.push({ ...a, val });
+                    grupos[cl][rKey].total += val;
+                });
+                return grupos;
+            };
+
+            const activosG = agruparLista(baseActivos, 'Activo');
+            const pasivosG = agruparLista(basePasivos, 'Pasivo');
 
             let tActivo = 0, tPasivo = 0, tPatrimonio = 0;
 
-            const formatLine = (a, isAcreedorNormal) => {
-                const val = isAcreedorNormal ? (a.saldoAcreedor - a.saldoDeudor) : (a.saldoDeudor - a.saldoAcreedor);
-                return `<div class="flex justify-between border-b border-dashed border-slate-200 pb-1"><span class="text-slate-600">${a.nombre}</span><span class="font-mono">$ ${fmtUI(val)}</span></div>`;
+            const renderSeccion = (grupos, tipo) => {
+                let html = '';
+                const clases = (sector === 'SSF' || sector === 'GUB') ? ['Unificada'] : ['Corriente', 'No Corriente', 'Mixto'];
+
+                clases.forEach(cl => {
+                    if (grupos[cl]) {
+                        let innerHtml = '';
+                        Object.values(grupos[cl]).forEach(r => {
+                            if (Math.abs(r.total) < 0.01) return;
+                            innerHtml += `<div class="pl-1 mb-2">
+                                <div class="flex justify-between font-bold text-slate-700 text-[11px]"><span>${r.nombre}</span><span>$ ${fmtUI(r.total)}</span></div>`;
+                            r.cuentas.forEach(a => {
+                                if (Math.abs(a.val) < 0.01) return;
+                                innerHtml += `<div class="flex justify-between text-[10px] text-slate-500 pl-3"><span>${a.nombre}</span><span>${fmtUI(a.val)}</span></div>`;
+                            });
+                            innerHtml += `</div>`;
+                        });
+                        if (innerHtml) {
+                            const totalSeccion = Object.values(grupos[cl]).reduce((acc, r) => acc + r.total, 0);
+                            const labelClase = (sector === 'SSF' || sector === 'GUB') ?
+                                (tipo === 'Activo' ? 'Activos según Liquidez' : 'Pasivos según Exigibilidad') :
+                                getClaseNombre(cl, tipo);
+                            html += `
+                                <div class="mt-4 mb-2 flex justify-between items-end border-b-2 border-slate-200 pb-1">
+                                    <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">${labelClase}</h5>
+                                    <span class="text-[11px] font-black text-slate-900">$ ${fmtUI(totalSeccion)}</span>
+                                </div>` + innerHtml;
+                        }
+                    }
+                });
+                return html;
             };
 
-            document.getElementById('ini-activos').innerHTML = activos.length ? activos.map(a => {
-                const v = a.saldoDeudor - a.saldoAcreedor; tActivo += v;
-                return formatLine(a, false);
-            }).join('') : '<div class="text-slate-400 italic text-xs">Sin activos.</div>';
+            document.getElementById('ini-activos').innerHTML = renderSeccion(activosG, 'Activo') || '<div class="text-slate-400 italic text-xs">Sin activos con saldo deudor.</div>';
+            document.getElementById('ini-pasivos').innerHTML = renderSeccion(pasivosG, 'Pasivo') || '<div class="text-slate-400 italic text-xs">Sin pasivos con saldo acreedor.</div>';
 
-            document.getElementById('ini-pasivos').innerHTML = pasivos.length ? pasivos.map(a => {
-                const v = a.saldoAcreedor - a.saldoDeudor; tPasivo += v;
-                return formatLine(a, true);
-            }).join('') : '<div class="text-slate-400 italic text-xs">Sin pasivos.</div>';
+            // Totales Activo
+            Object.values(activosG).forEach(cl => Object.values(cl).forEach(r => tActivo += r.total));
+            // Totales Pasivo
+            Object.values(pasivosG).forEach(cl => Object.values(cl).forEach(r => tPasivo += r.total));
 
-            document.getElementById('ini-patrimonio').innerHTML = patrimonios.length ? patrimonios.map(a => {
-                const v = a.saldoAcreedor - a.saldoDeudor; tPatrimonio += v;
-                return formatLine(a, true);
-            }).join('') : '<div class="text-slate-400 italic text-xs">Sin patrimonio.</div>';
+            // Render Patrimonio Refinado
+            let htmlPatrimonio = '';
+            if (patrimonios.length > 0) {
+                htmlPatrimonio = patrimonios.map(a => {
+                    const v = a.saldoAcreedor - a.saldoDeudor; tPatrimonio += v;
+                    return `<div class="flex justify-between border-b border-dashed border-slate-200 pb-1 mb-1"><span class="text-slate-600 text-[10px]">${a.nombre}</span><span class="font-mono text-[10px]">$ ${fmtUI(v)}</span></div>`;
+                }).join('');
+            } else if (utilidad === 0) {
+                htmlPatrimonio = '<div class="text-slate-400 italic text-xs">Sin patrimonio.</div>';
+            }
+            document.getElementById('ini-patrimonio').innerHTML = htmlPatrimonio;
 
             const resContainer = document.getElementById('ini-resultado-container');
             if (utilidad !== 0) {
-                resContainer.classList.remove('hidden');
-                resContainer.classList.add('flex');
+                resContainer.classList.remove('hidden'); resContainer.classList.add('flex');
                 document.getElementById('ini-resultado-ej').innerText = `$ ${fmtUI(utilidad)}`;
-            } else {
-                resContainer.classList.add('hidden');
-                resContainer.classList.remove('flex');
-            }
+            } else { resContainer.classList.add('hidden'); resContainer.classList.remove('flex'); }
 
             tPatrimonio += utilidad;
             const tPasPat = tPasivo + tPatrimonio;
@@ -3153,13 +4245,13 @@
             const verifEl = document.getElementById('ini-verificacion');
             if (Math.abs(tActivo - tPasPat) < 0.01 && tActivo > 0) {
                 verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-emerald-500 text-white";
-                verifEl.innerText = "¡Balance Inicial Cuadrado Exactamente!";
+                verifEl.innerText = "¡Balance Inicial Cuadrado!";
             } else if (tActivo === 0 && tPasPat === 0) {
                 verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-slate-100 text-slate-500";
                 verifEl.innerText = "Esperando Datos en la Partida No. 1...";
             } else {
                 verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-rose-500 text-white";
-                verifEl.innerText = `Descuadre detectado por $ ${fmtUI(Math.abs(tActivo - tPasPat))}`;
+                verifEl.innerText = `Descuadre: $ ${fmtUI(Math.abs(tActivo - tPasPat))}`;
             }
         }
 
@@ -3172,7 +4264,7 @@
             }
 
             grid.innerHTML = accounts.map(a => `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-white p-5 rounded-[28px] border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                     <div class="text-center mb-3">
                         <span class="text-xs font-black bg-slate-100 px-2 py-1 rounded text-slate-600">${a.codigo || '-'}</span>
                         <h4 class="font-bold text-slate-800 text-sm mt-1 truncate" title="${a.nombre}">${a.nombre}</h4>
@@ -3260,55 +4352,98 @@
             }
         }
 
-        // Renderiza Estado de Resultados (Usando el Motor Dinámico de Clasificación)
+        // Renderiza Estado de Resultados Multisectorial
         function renderResultados(accounts) {
             const projName = document.getElementById('current-project-name').innerText;
+            const project = projects.find(p => p.id === currentProjectId);
+            const sector = project?.sector || 'ALL';
+            const catalogo = project?.catalogo || 'MAESTRO';
             document.getElementById('res-entidad').innerText = projName;
 
             let ingresos = [], costos = [], gastosOp = [], otrosIng = [], otrosGas = [];
+            let variacionValorRazonable = 0; // Para AGR (NIC 41)
 
             accounts.forEach(a => {
                 const clasif = clasificarCuenta(a);
                 if (clasif.tipo !== 'Resultado') return;
-
                 const val = Math.abs(a.saldoAcreedor - a.saldoDeudor);
                 if (val === 0) return;
+
+                // Lógica de Variación Biológica (NICS - NIC 41)
+                // Usualmente cuentas 41xx (Ganancia) o 42xx (Pérdida) en catálogos agrícolas
+                if (sector === 'NICS' && (a.nombre.toLowerCase().includes('valor razonable') || a.nombre.toLowerCase().includes('biológica'))) {
+                    if (a.saldoAcreedor > a.saldoDeudor) variacionValorRazonable += val;
+                    else variacionValorRazonable -= val;
+                    return; // Se procesará en un rubro especial
+                }
 
                 if (clasif.sub === 'Ingreso') ingresos.push({ ...a, val });
                 else if (clasif.sub === 'Costo') costos.push({ ...a, val });
                 else if (clasif.sub === 'Gasto') gastosOp.push({ ...a, val });
-                else if (a.saldoAcreedor > a.saldoDeudor) otrosIng.push({ ...a, val });
-                else otrosGas.push({ ...a, val });
+                else {
+                    if (a.saldoAcreedor > a.saldoDeudor) otrosIng.push({ ...a, val });
+                    else otrosGas.push({ ...a, val });
+                }
             });
 
             const sum = (arr) => arr.reduce((acc, el) => acc + el.val, 0);
-
             const tIngresos = sum(ingresos);
             const tCostos = sum(costos);
-            const margenBruto = tIngresos - tCostos;
+
+            // Margen Operativo Base
+            let margenPrincipal = tIngresos - tCostos;
+
+            // Ajuste por NIC 41 (Agricultura dentro de NICS)
+            let layoutAgroHTML = "";
+            if (sector === 'NICS' && variacionValorRazonable !== 0) {
+                layoutAgroHTML = `
+                    <div class="flex justify-between items-center text-indigo-600 pl-4 py-1 italic">
+                        <span class="w-1/2">+/- Variación neta en Valor Razonable (NIC 41)</span>
+                        <div class="w-1/2 flex justify-between">
+                            <span class="w-1/2 text-right">${fmtUI(variacionValorRazonable)}</span>
+                            <span class="w-1/2"></span>
+                        </div>
+                    </div>
+                `;
+                margenPrincipal += variacionValorRazonable;
+            }
 
             const tGastosOp = sum(gastosOp);
-            const utilidadOp = margenBruto - tGastosOp;
-
+            const utilidadOp = margenPrincipal - tGastosOp;
             const netoOtros = sum(otrosIng) - sum(otrosGas);
             const utilidadFinal = utilidadOp + netoOtros;
 
+            // Etiquetas dinámicas por sector/catálogo
+            let labelVentas = "Ingresos por ventas y actividades";
+            let labelCostos = "Costos de Operación";
+            let labelMargen = "Margen Bruto";
+
+            if (sector === 'SSF') {
+                labelVentas = (catalogo === 'SEGUROS') ? "Primas y Recargos Netos" : "Ingresos por Intereses y Comisiones";
+                labelCostos = (catalogo === 'SEGUROS') ? "Siniestros y Gastos de Reaseguro" : "Costos de Captación y Financieros";
+                labelMargen = "Margen Financiero Neto";
+            } else if (sector === 'NICS') {
+                labelVentas = (variacionValorRazonable !== 0) ? "Ventas de Productos Agrícolas" : "Ingresos por Ventas Gravadas";
+                labelMargen = (variacionValorRazonable !== 0) ? "Margen Operativo Agrícola (NIC 41)" : "Utilidad Bruta en Ventas";
+            } else if (sector === 'GUB') {
+                labelVentas = "Ingresos de Gestión / Tributarios";
+                labelCostos = "Costos de Transferencias y Servicios";
+                labelMargen = "Ahorro/Desahorro de Gestión";
+            }
+
             let html = `
-                <div class="space-y-1 text-[13px] text-slate-700">
-                    
-                    <!-- INGRESOS POR VENTAS -->
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="w-1/2 font-bold">Ingresos por ventas y actividades</span>
+                <div class="space-y-1 text-[13px] text-slate-700 font-sans">
+                    <div class="flex justify-between items-center mb-1 bg-slate-50/50 p-1 rounded-lg">
+                        <span class="w-1/2 font-bold">${labelVentas}</span>
                         <div class="w-1/2 flex justify-between">
                             <span class="w-1/2"></span>
-                            <span class="w-1/2 text-right">$ ${fmtUI(tIngresos)}</span>
+                            <span class="w-1/2 text-right text-slate-900">$ ${fmtUI(tIngresos)}</span>
                         </div>
                     </div>
                     ${ingresos.map(a => `<div class="flex justify-between text-[11px] text-slate-500 pl-4"><span class="truncate pr-2">${a.nombre}</span><div class="w-1/2 flex justify-between"><span class="w-1/2 text-right">${fmtUI(a.val)}</span><span class="w-1/2"></span></div></div>`).join('')}
                     
-                    <!-- COSTO DE VENTAS -->
                     <div class="flex justify-between items-center mt-2 mb-2">
-                        <span class="w-1/2 font-bold">- Costos de Operación</span>
+                        <span class="w-1/2 font-bold">- ${labelCostos}</span>
                         <div class="w-1/2 flex justify-between">
                             <span class="w-1/2"></span>
                             <span class="w-1/2 text-right border-b border-slate-400 pb-1">${fmtNegUI(tCostos)}</span>
@@ -3316,18 +4451,18 @@
                     </div>
                     ${costos.map(a => `<div class="flex justify-between text-[11px] text-slate-500 pl-4"><span class="truncate pr-2">${a.nombre}</span><div class="w-1/2 flex justify-between"><span class="w-1/2 text-right">${fmtUI(a.val)}</span><span class="w-1/2"></span></div></div>`).join('')}
 
-                    <!-- MARGEN BRUTO -->
-                    <div class="flex justify-between items-center font-bold text-slate-900 mb-4">
-                        <span class="w-1/2">= Margen Bruto</span>
+                    ${layoutAgroHTML}
+
+                    <div class="flex justify-between items-center font-black text-sky-700 mb-4 bg-sky-50/30 p-1 rounded-lg border-y border-sky-100">
+                        <span class="w-1/2 uppercase tracking-tight text-[11px]">= ${labelMargen}</span>
                         <div class="w-1/2 flex justify-between">
                             <span class="w-1/2"></span>
-                            <span class="w-1/2 text-right">${fmtUI(margenBruto)}</span>
+                            <span class="w-1/2 text-right">${fmtUI(margenPrincipal)}</span>
                         </div>
                     </div>
 
-                    <!-- GASTOS DE OPERACIÓN -->
                     <div class="flex justify-between items-center mb-1">
-                        <span class="w-1/2 font-bold">- Gastos de Operación</span>
+                        <span class="w-1/2 font-bold">- Gastos de Operación y Administración</span>
                         <div class="w-1/2 flex justify-between"></div>
                     </div>
                     ${gastosOp.map((a, i) => `
@@ -3349,7 +4484,6 @@
                         </div>
                     ` : ''}
 
-                    <!-- UTILIDAD DE OPERACIÓN -->
                     <div class="flex justify-between items-center font-bold text-slate-900 mt-3 mb-4">
                         <span class="w-1/2">= Utilidad de Operación</span>
                         <div class="w-1/2 flex justify-between">
@@ -3358,9 +4492,8 @@
                         </div>
                     </div>
 
-                    <!-- OTROS INGRESOS Y GASTOS -->
                     <div class="flex justify-between items-center mb-1">
-                        <span class="w-1/2 font-bold text-xs">+/- Otros Ingresos y Gastos no de operación</span>
+                        <span class="w-1/2 font-bold text-xs">+/- Otros Ingresos y Gastos</span>
                         <div class="w-1/2 flex justify-between"></div>
                     </div>
                     ${otrosIng.map(a => `
@@ -3391,9 +4524,8 @@
                         </div>
                     ` : ''}
 
-                    <!-- GANANCIA / UTILIDAD FINAL -->
                     <div class="flex justify-between items-center font-black text-slate-900 mt-4 pt-2 border-t-2 border-slate-800 text-sm">
-                        <span class="w-1/2">= Ganancia antes de Reserva e Impuestos</span>
+                        <span class="w-1/2">= Resultado Final del Ejercicio</span>
                         <div class="w-1/2 flex justify-between">
                             <span class="w-1/2"></span>
                             <span class="w-1/2 text-right border-b-4 border-double border-slate-800">$ ${fmtUI(utilidadFinal)}</span>
@@ -3401,44 +4533,104 @@
                     </div>
                 </div>
             `;
-
             document.getElementById('res-body-content').innerHTML = html;
         }
 
-        // Renderiza Balance General
+        // Renderiza Estado de Situación Financiera (Balance General) Multisectorial
         function renderBalance(accounts) {
             const projName = document.getElementById('current-project-name').innerText;
+            const project = projects.find(p => p.id === currentProjectId);
+            const sector = project?.sector || 'COM';
             document.getElementById('bal-entidad').innerText = projName;
 
-            const activos = accounts.filter(a => clasificarCuenta(a).tipo === 'Activo');
-            const pasivos = accounts.filter(a => clasificarCuenta(a).tipo === 'Pasivo');
-            const patrimonios = accounts.filter(a => clasificarCuenta(a).tipo === 'Patrimonio');
             const utilidad = calcularUtilidad(accounts);
 
-            let tActivo = 0, tPasivo = 0, tPatrimonio = 0;
+            let baseActivos = [], basePasivos = [], patrimonios = [];
+            accounts.forEach(a => {
+                const info = clasificarCuenta(a);
+                if (info.tipo === 'Activo') {
+                    if (a.saldoAcreedor > a.saldoDeudor) basePasivos.push(a);
+                    else baseActivos.push(a);
+                } else if (info.tipo === 'Pasivo') {
+                    if (a.saldoDeudor > a.saldoAcreedor) baseActivos.push(a);
+                    else basePasivos.push(a);
+                } else if (info.tipo === 'Patrimonio') { patrimonios.push(a); }
+            });
 
-            const formatLine = (a, isAcreedorNormal) => {
-                const val = isAcreedorNormal ? (a.saldoAcreedor - a.saldoDeudor) : (a.saldoDeudor - a.saldoAcreedor);
-                return `<div class="flex justify-between border-b border-dashed border-slate-200 pb-1"><span class="text-slate-600">${a.nombre}</span><span class="font-mono">$ ${fmtUI(val)}</span></div>`;
+            // Agrupación Multisectorial
+            const agruparLista = (lista, tipoContexto) => {
+                const grupos = {};
+                lista.forEach(a => {
+                    const info = clasificarCuenta(a);
+                    // Caso SSF: No usa Corriente/No Corriente usualmente, sino liquidez.
+                    const clase = (sector === 'SSF' || sector === 'GUB') ? 'Unificada' : info.clase;
+                    const rKey = info.rubroId;
+                    if (!grupos[clase]) grupos[clase] = {};
+                    if (!grupos[clase][rKey]) grupos[clase][rKey] = { nombre: info.rubroNombre, cuentas: [], total: 0 };
+                    const val = (tipoContexto === 'Activo') ? (a.saldoDeudor - a.saldoAcreedor) : (a.saldoAcreedor - a.saldoDeudor);
+                    grupos[clase][rKey].cuentas.push({ ...a, val });
+                    grupos[clase][rKey].total += val;
+                });
+                return grupos;
             };
 
-            document.getElementById('bal-activos').innerHTML = activos.length ? activos.map(a => {
-                const v = a.saldoDeudor - a.saldoAcreedor; tActivo += v;
-                return formatLine(a, false);
-            }).join('') : '<div class="text-slate-400 italic text-xs">Sin activos.</div>';
+            const activosG = agruparLista(baseActivos, 'Activo');
+            const pasivosG = agruparLista(basePasivos, 'Pasivo');
+            let tActivo = 0, tPasivo = 0, tPatrimonio = 0;
 
-            document.getElementById('bal-pasivos').innerHTML = pasivos.length ? pasivos.map(a => {
-                const v = a.saldoAcreedor - a.saldoDeudor; tPasivo += v;
-                return formatLine(a, true);
-            }).join('') : '<div class="text-slate-400 italic text-xs">Sin pasivos.</div>';
+            const renderSeccion = (grupos, tipo) => {
+                let html = '';
+                const clases = (sector === 'SSF' || sector === 'GUB') ? ['Unificada'] : ['Corriente', 'No Corriente', 'Mixto'];
 
-            document.getElementById('bal-patrimonio').innerHTML = patrimonios.length ? patrimonios.map(a => {
+                clases.forEach(cl => {
+                    if (grupos[cl]) {
+                        let innerHtml = '';
+                        Object.entries(grupos[cl]).sort((a, b) => a[0].localeCompare(b[0])).forEach(([key, rubro]) => {
+                            if (Math.abs(rubro.total) < 0.01) return;
+                            innerHtml += `<div class="pl-2 mb-3">
+                                <div class="flex justify-between items-center font-bold text-slate-700 text-[12px] mb-1">
+                                    <span>${rubro.nombre}</span>
+                                    <span class="font-mono">$ ${fmtUI(rubro.total)}</span>
+                                </div>`;
+                            rubro.cuentas.forEach(a => {
+                                if (Math.abs(a.val) < 0.01) return;
+                                innerHtml += `<div class="flex justify-between text-[11px] text-slate-500 pl-4 border-l border-slate-50 ml-1 mb-0.5">
+                                    <span class="truncate pr-2">${a.nombre}</span>
+                                    <span class="font-mono text-[10px]">${fmtUI(a.val)}</span>
+                                </div>`;
+                            });
+                            innerHtml += `</div>`;
+                        });
+
+                        if (innerHtml) {
+                            const totalSecc = Object.values(grupos[cl]).reduce((acc, r) => acc + r.total, 0);
+                            const labelClase = (sector === 'SSF' || sector === 'GUB') ?
+                                (tipo === 'Activo' ? 'Activos según Liquidez' : 'Pasivos según Exigibilidad') :
+                                getClaseNombre(cl, tipo);
+                            html += `
+                                <div class="mt-4 mb-2 flex justify-between items-end border-b-2 border-slate-200 pb-1">
+                                    <h5 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">${labelClase}</h5>
+                                    <span class="text-[12px] font-black text-slate-900">$ ${fmtUI(totalSecc)}</span>
+                                </div>` + innerHtml;
+                        }
+                    }
+                });
+                return html;
+            };
+
+            document.getElementById('bal-activos').innerHTML = renderSeccion(activosG, 'Activo') || '<div class="text-slate-400 italic text-xs">Sin activos reportables.</div>';
+            document.getElementById('bal-pasivos').innerHTML = renderSeccion(pasivosG, 'Pasivo') || '<div class="text-slate-400 italic text-xs">Sin pasivos reportables.</div>';
+
+            Object.values(activosG).forEach(cl => Object.values(cl).forEach(r => tActivo += r.total));
+            Object.values(pasivosG).forEach(cl => Object.values(cl).forEach(r => tPasivo += r.total));
+
+            let htmlPatrimonio = patrimonios.map(a => {
                 const v = a.saldoAcreedor - a.saldoDeudor; tPatrimonio += v;
-                return formatLine(a, true);
-            }).join('') : '<div class="text-slate-400 italic text-xs">Sin patrimonio.</div>';
+                return `<div class="flex justify-between border-b border-dashed border-slate-200 pb-1 mb-1"><span class="text-slate-600 text-[11px]">${a.nombre}</span><span class="font-mono text-[11px]">$ ${fmtUI(v)}</span></div>`;
+            }).join('') || (utilidad === 0 ? '<div class="text-slate-400 italic text-xs">Sin patrimonio.</div>' : '');
 
+            document.getElementById('bal-patrimonio').innerHTML = htmlPatrimonio;
             document.getElementById('bal-resultado-ej').innerText = `$ ${fmtUI(utilidad)}`;
-
             tPatrimonio += utilidad;
             const tPasPat = tPasivo + tPatrimonio;
 
@@ -3446,15 +4638,16 @@
             document.getElementById('bal-tot-pas-pat').innerText = `$ ${fmtUI(tPasPat)}`;
 
             const verifEl = document.getElementById('bal-verificacion');
-            if (Math.abs(tActivo - tPasPat) < 0.01 && tActivo > 0) {
-                verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-emerald-500 text-white";
-                verifEl.innerText = "¡Balance Cuadrado Exactamente!";
-            } else if (tActivo === 0 && tPasPat === 0) {
-                verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-slate-100 text-slate-500";
-                verifEl.innerText = "Esperando Datos...";
+            const margenError = Math.abs(tActivo - tPasPat);
+            if (margenError < 0.01 && tActivo > 0) {
+                verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-emerald-500 text-white rounded-full shadow-md";
+                verifEl.innerText = `Balance ${sector} Cuadrado`;
+            } else if (tActivo === 0) {
+                verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-slate-100 text-slate-500 rounded-full";
+                verifEl.innerText = "Sin movimientos registrados";
             } else {
-                verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-rose-500 text-white";
-                verifEl.innerText = `Descuadre detectado por $ ${fmtUI(Math.abs(tActivo - tPasPat))}`;
+                verifEl.className = "p-4 text-center font-bold text-xs uppercase tracking-widest bg-rose-500 text-white rounded-full shadow-md";
+                verifEl.innerText = `Descuadre: $ ${fmtUI(margenError)}`;
             }
         }
 
@@ -3514,7 +4707,7 @@
                             <h3 class="sheet-title font-extrabold text-xl sm:text-2xl text-slate-800 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${s.title}</h3>
                             <p class="sheet-desc text-[10px] text-slate-400 font-bold uppercase mt-1 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${s.desc || 'Libro Diario General'}</p>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg w-full sm:w-auto">
+                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-full w-full sm:w-auto">
                             <i class="far fa-calendar text-slate-400 text-xs"></i>
                             <input type="date" class="doc-date text-xs font-bold text-slate-600 bg-transparent outline-none w-full" value="${s.date}" onchange="saveHistory()">
                         </div>
@@ -3546,7 +4739,7 @@
                             <button onclick="addRow('${s.id}', true)" class="btn-add text-[11px] font-black uppercase text-sky-600"><i class="fas fa-plus-circle mr-1"></i> Añadir Línea</button>
                             <span class="balance-status px-3 py-1 rounded-full text-[9px] font-black uppercase unbalanced">Descuadrado</span>
                         </div>
-                        <button onclick="toggleFreeze('${s.id}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-xl bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md"><i class="fas fa-check-double mr-2"></i> Finalizar Partida</button>
+                        <button onclick="toggleFreeze('${s.id}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-full bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md"><i class="fas fa-check-double mr-2"></i> Finalizar Partida</button>
                     </div>
                 </div>
             `;
@@ -3580,7 +4773,7 @@
                             <h3 class="sheet-title font-extrabold text-xl sm:text-2xl text-slate-800 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">Registro No. ${bookCounter}</h3>
                             <p class="sheet-desc text-[10px] text-slate-400 font-bold uppercase mt-1 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">Libro Diario General</p>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg w-full sm:w-auto">
+                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-full w-full sm:w-auto">
                             <i class="far fa-calendar text-slate-400 text-xs"></i>
                             <input type="date" class="doc-date text-xs font-bold text-slate-600 bg-transparent outline-none w-full" value="${new Date().toISOString().split('T')[0]}" onchange="saveHistory()">
                         </div>
@@ -3612,7 +4805,7 @@
                             <button onclick="addRow('${bookId}', true)" class="btn-add text-[11px] font-black uppercase text-sky-600"><i class="fas fa-plus-circle mr-1"></i> Añadir Línea</button>
                             <span class="balance-status px-3 py-1 rounded-full text-[9px] font-black uppercase unbalanced">Descuadrado</span>
                         </div>
-                        <button onclick="toggleFreeze('${bookId}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-xl bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md"><i class="fas fa-check-double mr-2"></i> Finalizar Partida</button>
+                        <button onclick="toggleFreeze('${bookId}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-full bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md"><i class="fas fa-check-double mr-2"></i> Finalizar Partida</button>
                     </div>
                 </div>
             `;
@@ -3740,7 +4933,24 @@
             if (!val) { suggestionsPanel.classList.add('hidden'); return; }
 
             // Incrementamos la cantidad de matches mostrados por ser un catálogo más grande
-            const matches = CATALOGO_MAESTRO.filter(c => (c.id || '').replace(/[.]/g, '').includes(val) || (c.name || '').toLowerCase().includes(val)).slice(0, 30);
+            // Filtrado Estricto por Sector del Proyecto Activo
+            const project = projects.find(p => p.id === currentProjectId);
+            const activeSector = (project?.sector || 'ALL').toUpperCase();
+
+            const matches = CATALOGO_MAESTRO.filter(c => {
+                const textMatch = (c.id || '').replace(/[.]/g, '').includes(val) || (c.name || '').toLowerCase().includes(val);
+                if (!textMatch) return false;
+
+                // Nueva Lógica de 4 Pilares
+                if (activeSector === 'ALL') return true;
+                const cCat = (c.cat || '').toUpperCase();
+
+                if (activeSector === 'SSF') return cCat === 'SSF' || cCat === 'BANCOS' || cCat === 'SEGUROS';
+                if (activeSector === 'NICS') return cCat === 'INV' || cCat === 'AGR' || cCat === 'COM' || cCat === 'PROD';
+                if (activeSector === 'GUB') return cCat === 'GUB' || cCat === 'SAFI';
+
+                return cCat === activeSector;
+            }).slice(0, 30);
 
             if (matches.length) {
                 const rect = input.getBoundingClientRect();
@@ -3788,7 +4998,7 @@
             const willBeFrozen = b.dataset.frozen !== 'true'; b.dataset.frozen = willBeFrozen;
             const btn = b.querySelector('.btn-freeze-toggle');
             btn.innerHTML = willBeFrozen ? '<i class="fas fa-edit mr-2"></i> Editar Partida' : '<i class="fas fa-check-double mr-2"></i> Finalizar Partida';
-            btn.className = `btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-xl text-white font-bold text-[10px] uppercase shadow-md ${willBeFrozen ? 'bg-amber-500' : 'bg-slate-800'}`;
+            btn.className = `btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-full text-white font-bold text-[10px] uppercase shadow-md ${willBeFrozen ? 'bg-amber-500' : 'bg-slate-800'}`;
             if (willBeFrozen) { if (!b.querySelector('.frozen-badge')) { const badge = document.createElement('div'); badge.className = 'frozen-badge'; badge.innerHTML = '<i class="fas fa-lock mr-2"></i> Cerrada'; b.appendChild(badge); } }
             else b.querySelector('.frozen-badge')?.remove();
             b.querySelectorAll('input, button.btn-remove-row').forEach(el => el.disabled = willBeFrozen);
@@ -4140,7 +5350,7 @@
                     if (!btnMaster) {
                         btnMaster = document.createElement('button');
                         btnMaster.id = 'btn-master-office';
-                        btnMaster.className = 'w-full px-4 py-3 rounded-xl bg-violet-600 text-white font-bold text-xs uppercase hover:bg-violet-500 transition-colors shadow-lg shadow-violet-200 mb-3';
+                        btnMaster.className = 'w-full px-4 py-3 rounded-full bg-[#6366f1] text-white font-bold text-xs uppercase hover:bg-[#4f46e5] transition-all shadow-lg shadow-indigo-100 mb-3';
                         btnMaster.title = 'Gestión Maestra Global';
                         btnMaster.innerHTML = '<i class="fas fa-rocket mr-2"></i> Panel de Administrador';
                         btnMaster.onclick = () => { closeProfileModal(); showMasterScreen(); };
@@ -4261,14 +5471,14 @@
             });
 
             if (usersArray.length === 0) {
-                tableBody.innerHTML = '<div class="col-span-full text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300"><i class="fas fa-ghost text-4xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold">No se encontraron usuarios coincidentes.</p></div>';
+                tableBody.innerHTML = '<div class="col-span-full text-center py-10 bg-white rounded-[28px] border border-dashed border-slate-300"><i class="fas fa-ghost text-4xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold">No se encontraron usuarios coincidentes.</p></div>';
                 return;
             }
 
             usersArray.forEach(u => {
                 const shortUID = (u.id || 'N/A').substring(0, 8);
                 const card = document.createElement('div');
-                card.className = "bg-white border text-left border-slate-200 shadow-sm hover:shadow-lg transition-all rounded-2xl p-6 flex flex-col justify-between group relative overflow-hidden";
+                card.className = "bg-white border text-left border-slate-200 shadow-sm hover:shadow-lg transition-all rounded-[28px] p-6 flex flex-col justify-between group relative overflow-hidden";
 
                 card.innerHTML = `
                     <div class="absolute -right-4 -bottom-4 opacity-[0.03] transform group-hover:scale-110 transition-transform">
@@ -4291,7 +5501,7 @@
                     </div>
 
                     <button onclick="viewUserProjects('${u.email || u.id}')"
-                        class="w-full relative z-10 py-3 bg-slate-900 text-white rounded-xl hover:bg-sky-500 transition-colors text-xs font-bold uppercase tracking-widest shadow-md">
+                        class="w-full relative z-10 py-3 bg-slate-900 text-white rounded-full hover:bg-sky-500 transition-colors text-xs font-bold uppercase tracking-widest shadow-md">
                         <i class="fas fa-folder-open mr-2"></i> Abrir Bóveda
                     </button>
                 `;
@@ -4351,7 +5561,7 @@
             });
 
             if (filtered.length === 0) {
-                tableBody.innerHTML = '<div class="col-span-full text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300"><i class="fas fa-box-open text-4xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold">La Bóveda está vacía o no coincide con la búsqueda.</p></div>';
+                tableBody.innerHTML = '<div class="col-span-full text-center py-10 bg-white rounded-[28px] border border-dashed border-slate-300"><i class="fas fa-box-open text-4xl text-slate-200 mb-3"></i><p class="text-slate-400 font-bold">La Bóveda está vacía o no coincide con la búsqueda.</p></div>';
                 return;
             }
 
@@ -4360,7 +5570,7 @@
                 const shortPID = (pData.id || item.id || 'N/A').substring(0, 8);
                 const isArchived = item.estado === 'archivado';
                 const card = document.createElement('div');
-                card.className = `bg-white border text-left shadow-sm hover:shadow-lg transition-all rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden ${isArchived ? 'border-rose-200 bg-rose-50/20' : 'border-slate-200'}`;
+                card.className = `bg-white border text-left shadow-sm hover:shadow-lg transition-all rounded-[28px] p-6 flex flex-col justify-between relative overflow-hidden ${isArchived ? 'border-rose-200 bg-rose-50/20' : 'border-slate-200'}`;
 
                 card.innerHTML = `
                     <div class="absolute -right-4 -bottom-4 opacity-[0.03] pointer-events-none">
@@ -4384,15 +5594,15 @@
                     <div class="flex flex-col gap-2 relative z-10">
                         ${isArchived ?
                         `<button onclick="restoreMasterProject('${item.id}')"
-                            class="w-full py-2 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-500 hover:text-white transition-all text-xs font-bold shadow-sm mb-2">
+                            class="w-full py-2 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full hover:bg-emerald-500 hover:text-white transition-all text-xs font-bold shadow-sm mb-2">
                             <i class="fas fa-trash-restore mr-1"></i> Restaurar Archivo
                         </button>
                         <button onclick="hardDeleteMasterProject('${item.id}')"
-                            class="w-full py-2 bg-rose-100 text-rose-700 border border-rose-200 rounded-lg hover:bg-rose-600 hover:text-white transition-all text-xs font-bold shadow-sm">
+                            class="w-full py-2 bg-rose-100 text-rose-700 border border-rose-200 rounded-full hover:bg-rose-600 hover:text-white transition-all text-xs font-bold shadow-sm">
                             <i class="fas fa-biohazard mr-1"></i> Eliminar Definitivamente
                         </button>` : ''}
                         <button onclick="auditMasterProject('${item.id}')"
-                            class="w-full py-2 bg-slate-800 text-white rounded-lg hover:bg-sky-600 transition-all text-xs font-bold shadow-md hover:-translate-y-0.5">
+                            class="w-full py-2 bg-slate-800 text-white rounded-full hover:bg-sky-600 transition-all text-xs font-bold shadow-md hover:-translate-y-0.5">
                             <i class="fas fa-eye mr-1"></i> Auditar
                         </button>
                     </div>
