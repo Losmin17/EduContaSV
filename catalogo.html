@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatÃ¡logo Maestro | EduConta SV</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="css/output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="pt-24 pb-12 relative">
+    <div id="shared-components-root"></div>
+    <main id="catalog-screen" class="max-w-5xl mx-auto px-6 md:px-8 mt-6 md:mt-12 no-print fade-in">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Catálogo <span
+                        class="text-indigo-500">Maestro</span></h2>
+                <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Listado Integral de
+                    Cuentas y Sectores (100% de Registros)</p>
+            </div>
+            <div class="relative w-full md:w-72">
+                <i class="fas fa-search absolute left-4 top-3 text-slate-400 z-10"></i>
+                <input type="text" id="catalog-search"
+                    class="w-full bg-white border border-slate-200 rounded-[36px] pl-10 pr-10 py-2 text-sm text-slate-700 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 outline-none transition-all"
+                    placeholder="Buscar cuenta o código..." oninput="filterCatalog()">
+                <button id="catalog-clear-search" onclick="clearCatalogSearch()"
+                    class="absolute right-3 top-2.5 text-slate-400 hover:text-rose-500 transition-colors z-10"
+                    title="Limpiar búsqueda">
+                    <i class="fas fa-times-circle text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="w-full overflow-x-auto overflow-y-scrollbar-hide no-print mb-6 px-4">
+            <div
+                class="relative flex gap-1 p-1.5 bg-slate-200/30 backdrop-blur-md border border-white/50 shadow-sm rounded-[28px] mx-auto max-w-6xl">
+                <!-- Indicador deslizante de fondo -->
+                <div id="catalog-tab-indicator"
+                    class="absolute top-1.5 bottom-1.5 left-0 rounded-[36px] bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(15,23,42,0.1)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-0">
+                </div>
+
+                <button onclick="setCatalogFilter('Todos')" data-cat="Todos"
+                    class="cat-filter-btn active relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-sky-600 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">Completo</button>
+                <button onclick="setCatalogFilter('SSF')" data-cat="SSF"
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">SSF
+                    (Banca/Seguros)</button>
+                <button onclick="setCatalogFilter('INV')" data-cat="INV"
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">NIC
+                    2
+                    (Inventarios)</button>
+                <button onclick="setCatalogFilter('AGR')" data-cat="AGR"
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">NIC
+                    41
+                    (Agricultura)</button>
+                <button onclick="setCatalogFilter('Gub')" data-cat="Gub"
+                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">Gubernamental</button>
+            </div>
+            <!-- Migas de Pan (Breadcrumbs) -->
+            <div id="catalog-breadcrumbs"
+                class="mb-4 text-xs font-bold text-slate-500 flex flex-wrap gap-2 items-center transition-all">
+            </div>
+
+            <div
+                class="bg-white rounded-[28px] shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-slate-200 overflow-mx-auto max-w-6xl">
+                <div class="max-h-[600px] overflow-y-auto overflow-x-auto relative">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead class="sticky top-0 bg-white z-10 shadow-sm border-b border-slate-200">
+                            <tr class="text-[10px] text-slate-500 uppercase font-black tracking-wider">
+                                <th
+                                    class="py-4 px-6 text-left w-32 sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Código</th>
+                                <th
+                                    class="py-4 px-6 text-left sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Nombre de la Cuenta</th>
+                                <th
+                                    class="py-4 px-6 text-left sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Rubro</th>
+                                <th
+                                    class="py-4 px-6 text-center w-32 sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
+                                    Sector</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalog-table-body" class="divide-y divide-slate-100">
+                            <!-- Llenado dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    </main>
+    <script src="js/core/supabase.js"></script>
+    <script src="js/core/db.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/core/components.js"></script>
+    <script src="js/pages/catalogo.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.injectSharedUI === 'function') {
+                window.injectSharedUI('shared-components-root');
+            }
+            setTimeout(() => {
+                const btnVolver = document.getElementById('btn-volver');
+                if (btnVolver) btnVolver.classList.remove('hidden');
+            }, 50);
+        });
+    </script>
+</body>
+</html>
