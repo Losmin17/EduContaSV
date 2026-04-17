@@ -1118,8 +1118,22 @@ window.exportarProyectoEduConta = function() {
         }).catch(() => {});
     }
 
-    // Crear el Blob "blindado" (.edc es un JSON renombrado con firma interna)
-    const blob = new Blob([JSON.stringify(paqueteRespaldo, null, 2)], { type: 'application/octet-stream' });
+    // --- PROCESO DE BLINDADO (OBFUSCATION) ---
+    // Convierte el JSON en un formato no legible para humanos (Base64 + Simple Cipher)
+    const blindarData = (str) => {
+        const key = "EDC_SHIELD_2024";
+        let output = "";
+        for (let i = 0; i < str.length; i++) {
+            output += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }
+        return btoa(unescape(encodeURIComponent(output)));
+    };
+
+    const jsonStr = JSON.stringify(paqueteRespaldo);
+    const dataBlindada = blindarData(jsonStr);
+
+    // Crear el Blob "blindado" (.edc ya no es JSON plano, es un stream binario/obfuscado)
+    const blob = new Blob([dataBlindada], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
