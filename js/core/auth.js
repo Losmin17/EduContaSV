@@ -154,8 +154,12 @@ window.handleRecoverPassword = async function() {
     }
     
     try {
+         const currentPath = window.location.pathname;
+         const basePath = currentPath.endsWith('/') ? currentPath : currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+         const redirectUrl = window.location.origin + basePath + 'reset-password.html';
+         
          const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
-             redirectTo: 'https://losmin17.github.io/EduContaSV/reset-password.html'
+             redirectTo: redirectUrl
          });
          if(error) throw error;
          if(successMsg) {
