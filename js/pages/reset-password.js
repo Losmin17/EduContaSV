@@ -18,9 +18,17 @@ function toggleVisibility() {
 document.addEventListener('DOMContentLoaded', () => {
     
     // Verificamos de entrada si al cargar la página Supabase ha detectado una sesión (usualmente derivada del hash de recuperación del URL de tipo recovery)
-    window.supabaseClient.auth.onAuthStateChange((event, session) => {
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (event === 'PASSWORD_RECOVERY') {
-            console.log("Detectado flujo de recuperación de contraseña.");
+            console.log("¡Token detectado con éxito!");
+            const errorMsg = document.getElementById('reset-error-msg');
+            if (errorMsg) errorMsg.classList.add('hidden');
+        } else if (event === 'SIGNED_OUT' || !session) {
+            const errorMsg = document.getElementById('reset-error-msg');
+            if (errorMsg) {
+                errorMsg.innerText = "No se ha detectado el token de seguridad. Por favor verifica el enlace de tu correo o solicita uno nuevo.";
+                errorMsg.classList.remove('hidden');
+            }
         }
     });
 
