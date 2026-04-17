@@ -626,7 +626,27 @@ window.edcFileSelected = function(file) {
 
     lector.onload = (e) => {
         try {
-            const contenido = JSON.parse(e.target.result);
+            let contenidoRaw = e.target.result;
+            let contenido;
+
+            // --- PROCESO DE DESBLINDADO (DE-OBFUSCATION) ---
+            const desblindarData = (b64) => {
+                const key = "EDC_SHIELD_2024";
+                const str = decodeURIComponent(escape(atob(b64)));
+                let output = "";
+                for (let i = 0; i < str.length; i++) {
+                    output += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+                }
+                return output;
+            };
+
+            try {
+                // Intentar cargar como JSON plano (compatibilidad hacia atrás)
+                contenido = JSON.parse(contenidoRaw);
+            } catch (e) {
+                // Si falla, intentar desblindar
+                contenido = JSON.parse(desblindarData(contenidoRaw));
+            }
 
             // VALIDACIÓN PRINCIPAL: firma oficial
             if (contenido.identificador_app !== 'EDUCONTA_SV_OFFICIAL') {
