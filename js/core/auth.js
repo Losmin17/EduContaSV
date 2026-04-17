@@ -154,7 +154,9 @@ window.handleRecoverPassword = async function() {
     }
     
     try {
-         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email);
+         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+             redirectTo: 'https://losmin17.github.io/EduContaSV/reset-password.html'
+         });
          if(error) throw error;
          if(successMsg) {
              successMsg.innerText = "Correo de recuperación enviado exitosamente.";
