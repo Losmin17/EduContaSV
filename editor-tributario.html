@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Tributario y Fiscal — EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Preconnects para rendimiento -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos del sistema EduContaSV -->
+    <link href="css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* ── Sistema de Tabs Tributario ── */
+        .trib-tab-btn {
+            flex: 1 1 0%;
+            min-width: 0;
+            height: 100%;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 clamp(12px, 1.2vw, 22px);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: clamp(10px, 0.7vw, 11px);
+            letter-spacing: 0.04em;
+            color: #64748b;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 32px;
+            transition: color 0.2s ease, text-shadow 0.2s ease;
+            position: relative;
+            z-index: 10;
+            white-space: nowrap;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .trib-tab-btn:hover:not(.active) { color: #1e293b; }
+        [data-theme="dark"] .trib-tab-btn { color: #94a3b8; }
+        [data-theme="dark"] .trib-tab-btn:hover:not(.active) { color: #f1f5f9; }
+
+        /* La pestaña activa (sombreada por la píldora) no tiene efecto de presión ni cursor de clic */
+        .trib-tab-btn.active {
+            cursor: default !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            transform: none !important;
+        }
+        .trib-tab-btn.active *,
+        .trib-tab-btn.active:active,
+        .trib-tab-btn.active:focus {
+            transform: none !important;
+            pointer-events: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .trib-tab-btn:active,
+        .trib-tab-btn:focus {
+            outline: none !important;
+        }
+
+        /* Activo para cada tab con su respectivo color temático */
+        #tab-f07.active {
+            color: #4338ca;
+            text-shadow: none;
+        }
+        [data-theme="dark"] #tab-f07.active {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(165, 180, 252, 0.5);
+        }
+        #tab-f07.active i { color: #4f46e5; }
+        [data-theme="dark"] #tab-f07.active i { color: #a5b4fc; }
+
+        #tab-f14.active {
+            color: #7e22ce;
+            text-shadow: none;
+        }
+        [data-theme="dark"] #tab-f14.active {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
+        }
+        #tab-f14.active i { color: #9333ea; }
+        [data-theme="dark"] #tab-f14.active i { color: #d8b4fe; }
+
+        #tab-libros.active {
+            color: #047857;
+            text-shadow: none;
+        }
+        [data-theme="dark"] #tab-libros.active {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+        }
+        #tab-libros.active i { color: #059669; }
+        [data-theme="dark"] #tab-libros.active i { color: #6ee7b7; }
+
+        #tab-dgii-otros.active {
+            color: #0369a1;
+            text-shadow: none;
+        }
+        [data-theme="dark"] #tab-dgii-otros.active {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+        }
+        #tab-dgii-otros.active i { color: #0284c7; }
+        [data-theme="dark"] #tab-dgii-otros.active i { color: #38bdf8; }
+
+        #tab-municipales.active {
+            color: #b45309;
+            text-shadow: none;
+        }
+        [data-theme="dark"] #tab-municipales.active {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+        }
+        #tab-municipales.active i { color: #d97706; }
+        [data-theme="dark"] #tab-municipales.active i { color: #fbbf24; }
+
+        /* ── Contenedor de Pestañas con Luz de Fondo Difuminada por Cristal ── */
+        #trib-tabs-container {
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        #trib-tabs-container.theme-f07 {
+            box-shadow: 0 6px 26px -4px rgba(99, 102, 241, 0.18), 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        #trib-tabs-container.theme-f14 {
+            box-shadow: 0 6px 26px -4px rgba(168, 85, 247, 0.18), 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        #trib-tabs-container.theme-dgii-otros {
+            box-shadow: 0 6px 26px -4px rgba(14, 165, 233, 0.18), 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        #trib-tabs-container.theme-municipales {
+            box-shadow: 0 6px 26px -4px rgba(245, 158, 11, 0.18), 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        #trib-tabs-container.theme-libros {
+            box-shadow: 0 6px 26px -4px rgba(16, 185, 129, 0.18), 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ── Indicador deslizante animado (Burbuja dentro del Cristal) ── */
+        #trib-tab-indicator {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 0;
+            border-radius: 30px;
+            z-index: 1;
+            pointer-events: none;
+            transform-origin: center center;
+            transition: transform 0.22s ease-out, width 0.22s ease-out, background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+            opacity: 0;
+        }
+
+        /* Tema F-07: Indigo Sutil Cristalino */
+        #trib-tab-indicator.theme-f07 {
+            background: #ffffff;
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                0 0 10px rgba(99, 102, 241, 0.12);
+        }
+        [data-theme="dark"] #trib-tab-indicator.theme-f07 {
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.20) 0%, rgba(79, 70, 229, 0.10) 100%);
+            border: 1px solid rgba(165, 180, 252, 0.45);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 0 10px rgba(99, 102, 241, 0.16),
+                0 0 12px rgba(99, 102, 241, 0.14);
+        }
+
+        /* Tema F-14: Purple Sutil Cristalino */
+        #trib-tab-indicator.theme-f14 {
+            background: #ffffff;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                0 0 10px rgba(168, 85, 247, 0.12);
+        }
+        [data-theme="dark"] #trib-tab-indicator.theme-f14 {
+            background: linear-gradient(180deg, rgba(168, 85, 247, 0.20) 0%, rgba(147, 51, 234, 0.10) 100%);
+            border: 1px solid rgba(192, 132, 252, 0.45);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 0 10px rgba(168, 85, 247, 0.16),
+                0 0 12px rgba(168, 85, 247, 0.14);
+        }
+
+        /* Tema DGII Nacionales: Sky Sutil Cristalino */
+        #trib-tab-indicator.theme-dgii-otros {
+            background: #ffffff;
+            border: 1px solid rgba(14, 165, 233, 0.35);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                0 0 10px rgba(14, 165, 233, 0.12);
+        }
+        [data-theme="dark"] #trib-tab-indicator.theme-dgii-otros {
+            background: linear-gradient(180deg, rgba(14, 165, 233, 0.20) 0%, rgba(2, 132, 199, 0.10) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 0 10px rgba(14, 165, 233, 0.16),
+                0 0 12px rgba(14, 165, 233, 0.14);
+        }
+
+        /* Tema Municipales: Amber Sutil Cristalino */
+        #trib-tab-indicator.theme-municipales {
+            background: #ffffff;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                0 0 10px rgba(245, 158, 11, 0.12);
+        }
+        [data-theme="dark"] #trib-tab-indicator.theme-municipales {
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.20) 0%, rgba(217, 119, 6, 0.10) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 0 10px rgba(245, 158, 11, 0.16),
+                0 0 12px rgba(245, 158, 11, 0.14);
+        }
+
+        /* Tema Libros IVA: Emerald Sutil Cristalino */
+        #trib-tab-indicator.theme-libros {
+            background: #ffffff;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                0 0 10px rgba(16, 185, 129, 0.12);
+        }
+        [data-theme="dark"] #trib-tab-indicator.theme-libros {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.20) 0%, rgba(5, 150, 105, 0.10) 100%);
+            border: 1px solid rgba(52, 211, 153, 0.45);
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 0 10px rgba(16, 185, 129, 0.16),
+                0 0 12px rgba(16, 185, 129, 0.14);
+        }
+
+        /* ── Optimización de Rendimiento de la Hoja Principal (Cero Doble Blur) ── */
+        .sheet-card-glass {
+            transform: translateZ(0);
+            contain: layout style;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        /* ── Hover en casillas optimizado sin relayout ── */
+        .casilla-row {
+            transition: background-color 0.12s ease;
+            contain: layout;
+        }
+        .casilla-row:hover { background-color: rgba(99,102,241,0.04); }
+        [data-theme="dark"] .casilla-row:hover { background-color: rgba(99,102,241,0.07); }
+
+        /* ── Panel de Auditoría ── */
+        #panel-audit-tributario { transition: all 0.3s ease; }
+
+        /* ── Modo Asistido/Práctica toggle ── */
+        .mode-pill-btn {
+            padding: 7px 16px;
+            border-radius: 36px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+        }
+        .mode-pill-btn.active-mode {
+            background: white;
+            color: #6366f1;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25), 0 0 22px rgba(99, 102, 241, 0.2), inset 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+        .mode-pill-btn.inactive-mode { background: transparent; color: #94a3b8; }
+        .mode-pill-btn.inactive-mode:hover { color: #475569; }
+        [data-theme="dark"] .mode-pill-btn.active-mode {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(168, 85, 247, 0.22) 100%);
+            color: #d8b4fe;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3), 0 0 24px rgba(168, 85, 247, 0.4), inset 0 0 0 1px rgba(192, 132, 252, 0.45);
+        }
+        [data-theme="dark"] .mode-pill-btn.inactive-mode:hover { color: #cbd5e1; }
+
+        /* ── Vista panels ── */
+        .trib-view { animation: fade-in-view 0.28s ease; }
+        .trib-view.hidden { display: none; }
+        @keyframes fade-in-view {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Cabecera del formulario MH ── */
+        .form-header-gradient {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 35%, #1e1b4b 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .form-header-gradient::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 85% 50%, rgba(129,101,255,0.35) 0%, transparent 55%),
+                radial-gradient(circle at 10% 80%, rgba(167,139,250,0.18) 0%, transparent 45%);
+            pointer-events: none;
+        }
+
+        /* ── Sistema de glow tipográfico nítido y ligero ── */
+        .glow-indigo  { text-shadow: 0 0 8px rgba(129, 140, 248, 0.45); }
+        .glow-emerald { text-shadow: 0 0 8px rgba(52, 211, 153, 0.45); }
+        .glow-violet  { text-shadow: 0 0 8px rgba(192, 132, 252, 0.45); }
+        .glow-white   { text-shadow: 0 0 10px rgba(255, 255, 255, 0.6); }
+
+        /* ── Cards de sección con iluminación contenida ── */
+        [data-theme="dark"] .section-total-indigo {
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 4px 16px rgba(99, 102, 241, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+        [data-theme="dark"] .section-total-emerald {
+            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.22), 0 4px 16px rgba(16, 185, 129, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+        [data-theme="dark"] .casilla-auto-indigo {
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.18), 0 2px 8px rgba(99, 102, 241, 0.08);
+        }
+        [data-theme="dark"] .casilla-auto-emerald {
+            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.18), 0 2px 8px rgba(16, 185, 129, 0.06);
+        }
+
+        /* ── Tarjeta de resultado final con micro-borde y profundidad ── */
+        .result-card-indigo {
+            background: linear-gradient(135deg, #3730a3 0%, #4f46e5 50%, #6366f1 100%);
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            box-shadow:
+                0 14px 36px -6px rgba(79, 70, 229, 0.4),
+                0 0 0 1px rgba(129, 140, 248, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        [data-theme="dark"] .result-card-indigo {
+            background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #4f46e5 100%);
+            border: 1px solid rgba(129, 140, 248, 0.35);
+            box-shadow:
+                0 16px 36px -8px rgba(0, 0, 0, 0.5),
+                0 0 30px -5px rgba(99, 102, 241, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        /* ── Pago a Cuenta strip ── */
+        .pac-strip {
+            background: linear-gradient(135deg, rgba(248,250,252,1) 0%, rgba(238,242,255,0.6) 100%);
+            border: 1px solid rgba(99,102,241,0.15);
+        }
+        [data-theme="dark"] .pac-strip {
+            background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(30,27,75,0.45) 100%);
+            border-color: rgba(99,102,241,0.25);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        /* ── Badges numerados de sección ── */
+        [data-theme="dark"] .section-badge-indigo {
+            background: rgba(99,102,241,0.18) !important;
+            border-color: rgba(129,101,255,0.35) !important;
+            box-shadow: 0 0 10px rgba(99,102,241,0.25);
+            color: #a78bfa !important;
+        }
+        [data-theme="dark"] .section-badge-emerald {
+            background: rgba(16,185,129,0.18) !important;
+            border-color: rgba(52,211,153,0.35) !important;
+            box-shadow: 0 0 10px rgba(16,185,129,0.25);
+            color: #34d399 !important;
+        }
+
+        /* ── Botones de acción Neón Glassmorphic Optimizados ── */
+        .btn-glow-emerald {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            border: 1px solid rgba(167, 243, 208, 0.4) !important;
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4), 0 0 26px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .btn-glow-emerald:hover {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+            box-shadow: 0 6px 28px rgba(5, 150, 105, 0.55), 0 0 38px rgba(52, 211, 153, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] .btn-glow-emerald {
+            background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%) !important;
+            border: 1px solid rgba(52, 211, 153, 0.45) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 26px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        [data-theme="dark"] .btn-glow-emerald:hover {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 42px rgba(52, 211, 153, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-glow-indigo {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+            border: 1px solid rgba(199, 210, 254, 0.4) !important;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4), 0 0 26px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .btn-glow-indigo:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%) !important;
+            box-shadow: 0 6px 28px rgba(79, 70, 229, 0.55), 0 0 38px rgba(129, 140, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] .btn-glow-indigo {
+            background: linear-gradient(135deg, #3730a3 0%, #4338ca 50%, #6366f1 100%) !important;
+            border: 1px solid rgba(129, 140, 248, 0.45) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 26px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        [data-theme="dark"] .btn-glow-indigo:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 42px rgba(129, 140, 248, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+            transform: translateY(-1px);
+        }
+
+        /* ── Estilos Temáticos Formulario F-14 (Púrpura / Violeta) ── */
+        .btn-glow-purple {
+            background: linear-gradient(135deg, #7e22ce 0%, #9333ea 100%) !important;
+            border: 1px solid rgba(233, 213, 255, 0.4) !important;
+            box-shadow: 0 4px 20px rgba(126, 34, 206, 0.4), 0 0 26px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .btn-glow-purple:hover {
+            background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%) !important;
+            box-shadow: 0 6px 28px rgba(126, 34, 206, 0.55), 0 0 38px rgba(192, 132, 252, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] .btn-glow-purple {
+            background: linear-gradient(135deg, #581c87 0%, #6b21a8 50%, #7e22ce 100%) !important;
+            border: 1px solid rgba(192, 132, 252, 0.45) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 26px rgba(168, 85, 247, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        [data-theme="dark"] .btn-glow-purple:hover {
+            background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 100%) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 42px rgba(192, 132, 252, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+            transform: translateY(-1px);
+        }
+        .result-card-purple {
+            background: linear-gradient(135deg, #581c87 0%, #7e22ce 50%, #9333ea 100%);
+            border: 1px solid rgba(216, 180, 254, 0.35);
+            box-shadow:
+                0 14px 36px -6px rgba(126, 34, 206, 0.4),
+                0 0 0 1px rgba(192, 132, 252, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        [data-theme="dark"] .result-card-purple {
+            background: linear-gradient(135deg, #3b0764 0%, #581c87 50%, #7e22ce 100%);
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            box-shadow:
+                0 16px 36px -8px rgba(0, 0, 0, 0.5),
+                0 0 30px -5px rgba(168, 85, 247, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        [data-theme="dark"] .section-badge-purple {
+            background: rgba(168, 85, 247, 0.18) !important;
+            border-color: rgba(192, 132, 252, 0.35) !important;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
+            color: #c084fc !important;
+        }
+        [data-theme="dark"] .casilla-auto-purple {
+            box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.18), 0 2px 8px rgba(168, 85, 247, 0.08);
+        }
+
+        /* Glassmorphism Tempered */
+        .tempered-glass {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.12), 0 6px 16px -4px rgba(0, 0, 0, 0.06);
+        }
+        [data-theme="dark"] .tempered-glass {
+            background: rgba(15, 23, 42, 0.82) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 20px 50px -8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
+        }
+
+        /* Ocultar botón flotante genérico para integrarlo limpiamente en la píldora inferior derecha */
+        #floating-support-btn {
+            display: none !important;
+        }
+
+        /* Reglas de Impresión */
+        @media print {
+            #tributario-transform-wrapper {
+                transform: none !important;
+                margin-bottom: 0 !important;
+            }
+            #doc-zoom-pill,
+            #sync-toast {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="min-h-screen text-slate-800 antialiased font-sans">
+
+    <!-- ══════════════════════════════════════════════════════
+         PRELOADER CORPORATIVO EDUCONTA
+    ══════════════════════════════════════════════════════ -->
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- ══════════════════════════════════════════════════════
+         CABECERA STICKY GLASSMORPHIC
+    ══════════════════════════════════════════════════════ -->
+    <div id="editor-sticky-controls"
+         class="fixed top-[70px] lg:top-[85px] left-0 right-0 z-[900] pt-4 lg:pt-5 pb-6 lg:pb-8 px-4 lg:px-10 pointer-events-none no-print"
+         style="overflow: visible !important;">
+
+        <!-- ── Desktop: TODO EN UNA SOLA LÍNEA HORIZONTAL FIJA (Sin recorte de sombras) ── -->
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto gap-3.5 xl:gap-5 flex-nowrap py-3 px-1"
+             style="overflow: visible !important;">
+
+            <!-- ── ZONA IZQUIERDA: Píldora del Proyecto + Selector Modo (Manual/Asistido) ── -->
+            <div class="flex items-center gap-2.5 xl:gap-3 shrink-0">
+                <!-- 1. Píldora del Proyecto -->
+                <div class="glass-pill flex items-center gap-2.5 border border-white/60 dark:border-slate-700/50 shadow-xl rounded-[36px] shrink-0 h-[54px] px-4"
+                     style="min-width: 175px; max-width: 220px; border-radius: 36px;">
+                    <div class="bg-indigo-100 dark:bg-indigo-950/60 rounded-full p-2 shrink-0">
+                        <i class="fas fa-file-invoice-dollar text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5 truncate">Módulo Tributario</span>
+                        <h1 id="current-project-name"
+                            class="font-black text-slate-800 dark:text-white leading-tight bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded transition-all truncate text-xs"
+                            contenteditable="false"
+                            onclick="event.stopPropagation(); this.contentEditable='true'; this.focus();"
+                            onkeydown="handleTitleKey(event);"
+                            onblur="updateProjectNameInPlace(this); this.contentEditable='false';"
+                            title="Clic para renombrar proyecto">
+                            Cargando...
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- 2. Selector de Modo: Asistido vs Práctica (donde estaba la otra píldora) -->
+                <div class="glass-pill rounded-[36px] border border-slate-200/60 dark:border-slate-700/50 shadow-xl flex items-center p-1 shrink-0 h-[54px] gap-1"
+                     style="border-radius: 36px;">
+                    <button type="button" id="btn-trib-mode-asistido"
+                            onclick="setTributarioMode('asistido')"
+                            class="mode-pill-btn inactive-mode h-[44px] px-3.5 text-[10px]"
+                            style="border-radius: 36px;"
+                            title="Cálculos automáticos asistidos según legislación">
+                        <i class="fas fa-magic text-[10px]"></i>
+                        <span class="font-black">Asistido</span>
+                    </button>
+                    <button type="button" id="btn-trib-mode-practica"
+                            onclick="setTributarioMode('practica')"
+                            class="mode-pill-btn active-mode h-[44px] px-3.5 text-[10px]"
+                            style="border-radius: 36px;"
+                            title="Permite llenar las casillas manualmente y evaluar con auditoría MINED">
+                        <i class="fas fa-pencil-alt text-[10px]"></i>
+                        <span class="font-black">Práctica</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── ZONA CENTRO: Tipos de Formularios (F-07, F-14, DGII, Municipales, Libros) al Centro ── -->
+            <div class="flex-1 flex items-center justify-center min-w-0 px-2">
+                <div id="trib-tabs-container"
+                     class="glass-pill relative border border-slate-200/50 dark:border-slate-700/50 rounded-[36px] flex items-center justify-between shrink-0 theme-f07"
+                     style="min-width: 580px; max-width: 720px; height: 52px; padding: 4px; border-radius: 36px;">
+                    <!-- Indicador deslizante animado (Squash & Stretch con origen al centro) -->
+                    <div id="trib-tab-indicator" class="theme-f07" style="width:0; opacity: 0; border-radius: 30px;"></div>
+                    <button type="button" id="tab-f07" data-idx="0" onclick="switchTributarioView('f07')" class="trib-tab-btn active" style="border-radius: 30px;">
+                        <i class="fas fa-receipt text-xs"></i>
+                        <span class="z-10 relative">F-07 (IVA)</span>
+                    </button>
+                    <button type="button" id="tab-f14" data-idx="1" onclick="switchTributarioView('f14')" class="trib-tab-btn" style="border-radius: 30px;">
+                        <i class="fas fa-percent text-xs"></i>
+                        <span class="z-10 relative">F-14 (Ret.)</span>
+                    </button>
+                    <button type="button" id="tab-dgii-otros" data-idx="2" onclick="switchTributarioView('dgii-otros')" class="trib-tab-btn" style="border-radius: 30px;">
+                        <i class="fas fa-landmark text-xs"></i>
+                        <span class="z-10 relative">DGII Nacionales</span>
+                    </button>
+                    <button type="button" id="tab-municipales" data-idx="3" onclick="switchTributarioView('municipales')" class="trib-tab-btn" style="border-radius: 30px;">
+                        <i class="fas fa-city text-xs"></i>
+                        <span class="z-10 relative">Municipales</span>
+                    </button>
+                    <button type="button" id="tab-libros" data-idx="4" onclick="switchTributarioView('libros')" class="trib-tab-btn" style="border-radius: 30px;">
+                        <i class="fas fa-book text-xs"></i>
+                        <span class="z-10 relative">Libros IVA</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── ZONA DERECHA: Acciones + Sync + Cerrar ── -->
+            <div class="flex items-center gap-2 xl:gap-3 shrink-0">
+                <!-- Botones de Acción con mismo border radius 36px -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="auditTributarioPractice()"
+                            class="btn-glow-emerald h-[50px] px-4 text-white rounded-[36px] font-black text-[11px] uppercase tracking-wider flex items-center gap-1.5 shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all"
+                            style="border-radius: 36px;"
+                            title="Auditar casillas con reglas del MINED">
+                        <i class="fas fa-graduation-cap text-xs"></i>
+                        <span class="hidden xl:inline">Auditar</span> MINED
+                    </button>
+                    <button type="button" id="btn-partida-diario-header" onclick="handlePartidaDiarioClick()"
+                            class="btn-glow-indigo h-[50px] px-4 text-white rounded-[36px] font-black text-[11px] uppercase tracking-wider flex items-center gap-1.5 shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all"
+                            style="border-radius: 36px;"
+                            title="Generar partida contable en el Libro Diario">
+                        <i class="fas fa-book-open text-xs"></i>
+                        <span class="hidden xl:inline">Partida</span> Diario
+                    </button>
+                    <button type="button" onclick="exportarExcelTributario()"
+                            class="glass-pill h-[50px] px-3.5 rounded-[36px] border border-slate-200/70 dark:border-slate-700/50 font-black text-xs uppercase flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:-translate-y-0.5 transition-all shadow-lg hover:border-emerald-500/50 hover:shadow-[0_6px_22px_rgba(16,185,129,0.4)]"
+                            style="border-radius: 36px;"
+                            title="Exportar a Microsoft Excel">
+                        <i class="fas fa-file-excel text-emerald-600 dark:text-emerald-400 text-sm"></i>
+                        <span class="text-[10px]">Excel</span>
+                    </button>
+                    <button type="button" id="btn-export-pdf-header" onclick="handleExportarPDFClick()"
+                            class="glass-pill h-[50px] px-3.5 rounded-[36px] border border-slate-200/70 dark:border-slate-700/50 font-black text-xs uppercase flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:-translate-y-0.5 transition-all shadow-lg hover:border-rose-500/50 hover:shadow-[0_6px_22px_rgba(244,63,94,0.4)]"
+                            style="border-radius: 36px;"
+                            title="Exportar Declaración Oficial a PDF">
+                        <i class="fas fa-file-pdf text-rose-600 dark:text-rose-400 text-sm"></i>
+                        <span class="text-[10px]">PDF</span>
+                    </button>
+                </div>
+
+                <!-- Bóveda de Sincronización + Salida con mismo border radius 36px -->
+                <div class="flex items-center gap-2">
+                    <div class="glass-pill flex flex-col items-center justify-center rounded-[36px] border border-white/70 dark:border-slate-700/50 shrink-0 h-[54px] shadow-xl"
+                         style="padding: 4px 10px; gap: 3px; border-radius: 36px;">
+                        <div id="save-indicator"
+                             class="flex items-center justify-center gap-1 w-full text-emerald-600 font-black bg-emerald-50/80 dark:bg-emerald-950/50 rounded-full border border-emerald-100 dark:border-emerald-900/40 shadow-[0_0_10px_rgba(16,185,129,0.25)]"
+                             style="padding: 2px 8px; font-size: 8px; line-height: 1;">
+                            <i class="fas fa-check-circle"></i><span>LOCAL</span>
+                        </div>
+                        <div id="cloud-indicator"
+                             class="flex items-center justify-center gap-1 w-full text-slate-400 font-black bg-white dark:bg-slate-800/80 rounded-full border border-slate-100 dark:border-slate-700 transition-all"
+                             style="padding: 2px 8px; font-size: 8px; line-height: 1;">
+                            <i class="fas fa-cloud-upload"></i><span>PENDIENTE</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="window.closeProject()"
+                            class="bg-rose-500 hover:bg-rose-600 text-white rounded-[36px] flex items-center justify-center shrink-0 group transition-all shadow-[0_6px_25px_rgba(244,63,94,0.5)] hover:shadow-[0_0_35px_rgba(244,63,94,0.75)] h-[50px] w-[50px]"
+                            style="border-radius: 36px;"
+                            title="Cerrar Módulo">
+                        <i class="fas fa-times text-base transition-transform group-hover:rotate-90"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── Móvil ── -->
+        <div class="flex lg:hidden items-center justify-between w-full gap-2 pointer-events-auto">
+            <div class="flex-1 min-w-0">
+                <div class="glass-pill rounded-2xl border border-slate-200/50 shadow-sm px-3 py-2 flex items-center gap-2">
+                    <div class="p-1.5 bg-indigo-50 dark:bg-indigo-950/50 rounded-[36px] shrink-0">
+                        <i class="fas fa-file-invoice-dollar text-indigo-500 text-[11px]"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Módulo Tributario</p>
+                        <p id="mobile-project-name" class="font-black text-slate-800 dark:text-white text-sm leading-none truncate">Cargando...</p>
+                    </div>
+                    <div class="flex items-center gap-1 text-emerald-600 font-black text-[9px] bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1.5 rounded-[36px] shrink-0 uppercase whitespace-nowrap border border-emerald-100 dark:border-emerald-900/40">
+                        <i class="fas fa-check-circle"></i> LOCAL
+                    </div>
+                </div>
+            </div>
+            <!-- Tabs móvil -->
+            <div class="flex items-center gap-1 glass-pill rounded-2xl border border-slate-200/50 px-2 py-1.5 overflow-x-auto scrollbar-hide">
+                <button type="button" id="mob-tab-f07" onclick="switchTributarioView('f07')" class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 px-2 py-1 rounded-xl bg-white/60 dark:bg-indigo-950/40">F-07</button>
+                <button type="button" id="mob-tab-f14" onclick="switchTributarioView('f14')" class="text-[9px] font-black text-slate-500 px-2 py-1 rounded-xl hover:bg-white/40 transition-all">F-14</button>
+                <button type="button" id="mob-tab-dgii-otros" onclick="switchTributarioView('dgii-otros')" class="text-[9px] font-black text-slate-500 px-2 py-1 rounded-xl hover:bg-white/40 transition-all">DGII</button>
+                <button type="button" id="mob-tab-municipales" onclick="switchTributarioView('municipales')" class="text-[9px] font-black text-slate-500 px-2 py-1 rounded-xl hover:bg-white/40 transition-all">Muni</button>
+                <button type="button" id="mob-tab-libros" onclick="switchTributarioView('libros')" class="text-[9px] font-black text-slate-500 px-2 py-1 rounded-xl hover:bg-white/40 transition-all">Libros</button>
+            </div>
+            <button type="button" onclick="window.closeProject()"
+                    class="h-[50px] px-3.5 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-tight transition-all shadow-md flex items-center gap-1.5 shrink-0">
+                <i class="fas fa-times text-[11px]"></i>
+            </button>
+        </div>
+
+        <!-- ── Móvil: Barra de Acciones y Modo ── -->
+        <div class="flex lg:hidden mt-2 pointer-events-auto overflow-x-auto scrollbar-hide gap-1.5 pb-1">
+            <button type="button" onclick="setTributarioMode('asistido')"
+                    class="shrink-0 h-8 px-2.5 glass-pill text-indigo-600 dark:text-indigo-400 font-bold text-[10px] uppercase rounded-xl flex items-center gap-1 shadow-sm border border-indigo-200/50 dark:border-indigo-800/50">
+                <i class="fas fa-magic text-[9px]"></i> Asistido
+            </button>
+            <button type="button" onclick="setTributarioMode('practica')"
+                    class="shrink-0 h-8 px-2.5 glass-pill text-slate-600 dark:text-slate-300 font-bold text-[10px] uppercase rounded-xl flex items-center gap-1 shadow-sm border border-slate-200 dark:border-slate-700">
+                <i class="fas fa-pencil-alt text-[9px]"></i> Práctica
+            </button>
+            <button type="button" onclick="auditTributarioPractice()"
+                    class="shrink-0 h-8 px-2.5 bg-emerald-500 text-white font-bold text-[10px] uppercase rounded-xl flex items-center gap-1 shadow-sm">
+                <i class="fas fa-graduation-cap text-[9px]"></i> Auditar
+            </button>
+            <button type="button" onclick="handlePartidaDiarioClick()"
+                    class="shrink-0 h-8 px-2.5 bg-indigo-600 text-white font-bold text-[10px] uppercase rounded-xl flex items-center gap-1 shadow-sm">
+                <i class="fas fa-book-open text-[9px]"></i> Partida
+            </button>
+            <button type="button" onclick="exportarExcelTributario()"
+                    class="shrink-0 h-8 px-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] uppercase rounded-xl flex items-center gap-1 shadow-sm">
+                <i class="fas fa-file-excel text-emerald-600 text-[9px]"></i> Excel
+            </button>
+            <button type="button" onclick="handleExportarPDFClick()"
+                    class="shrink-0 h-8 px-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[10px] uppercase rounded-xl flex items-center gap-1 shadow-sm">
+                <i class="fas fa-file-pdf text-rose-600 text-[9px]"></i> PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         CONTENIDO PRINCIPAL
+    ══════════════════════════════════════════════════════ -->
+    <main class="w-full px-4 lg:px-6 pt-[195px] lg:pt-[250px] pb-24 max-w-7xl mx-auto flex-1 flex flex-col">
+
+        <!-- Contenedor Transformable para Zoom Virtual (1:1 / Zoom In / Zoom Out) -->
+        <div id="tributario-transform-wrapper" class="w-full transition-transform duration-200 origin-top flex-1 flex flex-col">
+
+            <!-- Panel de Auditoría MINED -->
+            <div id="panel-audit-tributario" class="hidden mb-6 p-6 rounded-3xl border transition-all duration-300"></div>
+
+        <!-- ═══════════════════════════════════════════════
+             VISTA 1: FORMULARIO F-07 (IVA MENSUAL)
+        ═══════════════════════════════════════════════ -->
+        <div id="view-f07" class="trib-view space-y-6">
+            <div class="sheet-card-glass bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl overflow-hidden" style="overflow: hidden !important;">
+
+                <!-- Cabecera Oficial MH -->
+                <div class="form-header-gradient p-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative rounded-t-3xl">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="px-3 py-1 rounded-full bg-indigo-500/35 text-indigo-100 text-[10px] font-black uppercase tracking-widest border border-indigo-400/30">
+                                Formulario Oficial F-07
+                            </span>
+                            <span class="flex items-center gap-1.5 text-slate-300 text-xs font-bold">
+                                <i class="fas fa-landmark text-[10px]"></i> Ministerio de Hacienda · DGII
+                            </span>
+                        </div>
+                        <h2 class="text-lg font-black uppercase tracking-tight leading-snug max-w-xl">
+                            Declaración Mensual de Pago del Impuesto a la Transferencia de Bienes Muebles y a la Prestación de Servicios
+                        </h2>
+                        <p class="text-indigo-300/90 text-xs font-bold mt-1 uppercase tracking-wider">IVA — Período Fiscal Mensual • Art. 54 Ley de IVA</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:items-end gap-2 shrink-0">
+                        <div class="text-right">
+                            <span class="text-xs text-indigo-300 font-black uppercase tracking-widest block mb-0.5">Tasa Legal Vigente</span>
+                            <span class="text-4xl font-black tabular-nums text-white" style="text-shadow: 0 0 16px rgba(129,140,248,0.7), 0 0 28px rgba(99,102,241,0.4);">13<span class="text-indigo-300 text-2xl">%</span></span>
+                        </div>
+                        <button type="button" onclick="conciliarLibrosToF07()"
+                                class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm">
+                            <i class="fas fa-sync-alt text-[9px]"></i> Conciliar con Libros IVA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenido del Formulario F-07 -->
+                <div class="p-6 space-y-8">
+
+                    <!-- SECCIÓN 1: DÉBITO FISCAL -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="section-badge-indigo w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xs shrink-0">1</div>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                                    I. Débito Fiscal — Ventas y Operaciones del Período
+                                </h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Arts. 16, 54 y 64 Ley de IVA</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+
+                            <!-- Ventas Gravadas con CCF [10] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Ventas Gravadas con CCF</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [10]</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-10" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Débito Fiscal Ventas Gravadas (13%) [15] -->
+                            <div class="casilla-row casilla-auto-indigo flex items-center justify-between p-3.5 bg-indigo-50/60 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/40">
+                                <div>
+                                    <span class="font-bold text-indigo-900 dark:text-indigo-300 block">Débito Fiscal CCF (13%)</span>
+                                    <p class="text-[10px] text-indigo-400 font-semibold mt-0.5">Casilla [15] = [10] × 13%</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fas fa-calculator text-indigo-400 dark:text-indigo-500 text-[10px]"></i>
+                                    <span id="f07-cas-15" class="tabular-nums font-black text-sm text-indigo-600 dark:text-indigo-300 glow-indigo">$ 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Ventas a Consumidor Final [20] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Ventas a Consumidor Final</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [20] (Facturas)</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-20" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Débito Fiscal Consumidor Final [25] -->
+                            <div class="casilla-row casilla-auto-indigo flex items-center justify-between p-3.5 bg-indigo-50/60 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/40">
+                                <div>
+                                    <span class="font-bold text-indigo-900 dark:text-indigo-300 block">Débito Consumidor Final</span>
+                                    <p class="text-[10px] text-indigo-400 font-semibold mt-0.5">Casilla [25] = [20] × 13%</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fas fa-calculator text-indigo-400 dark:text-indigo-500 text-[10px]"></i>
+                                    <span id="f07-cas-25" class="tabular-nums font-black text-sm text-indigo-600 dark:text-indigo-300 glow-indigo">$ 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Ventas a Zonas Francas y DPA [30] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Zonas Francas y DPA (0%)</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [30] Asimiladas</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-30" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Exportaciones Fuera de CA [35] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Exportaciones Fuera CA (0%)</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [35] Tasa 0%</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-35" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Exportaciones a Centroamérica [40] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Exportaciones a CA (0%)</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [40] FAUCA</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-40" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Ventas Internas Exentas [85] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Ventas Internas Exentas</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [85] Art. 46</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-85" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Ventas Internas No Sujetas [86] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Ventas Internas No Sujetas</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [86] Fuera de Objeto</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-86" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Débito Fiscal -->
+                        <div class="section-total-indigo p-4 bg-indigo-100/60 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200/80 dark:border-indigo-800/60 flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-sigma text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                                <span class="text-xs font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-200">Total Débito Fiscal del Período (Casillas 15 + 25):</span>
+                            </div>
+                            <span id="f07-total-debito" class="text-lg font-black tabular-nums text-indigo-600 dark:text-indigo-300 glow-indigo">$ 0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 2: CRÉDITO FISCAL -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="section-badge-emerald w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-black text-xs shrink-0">2</div>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                                    II. Crédito Fiscal — Compras y Adquisiciones del Período
+                                </h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Arts. 65 y 66 Ley de IVA</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+
+                            <!-- Compras Gravadas Locales (CCF) [50] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Compras Gravadas Locales</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [50] CCF</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-50" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Crédito Fiscal Compras Locales (13%) [55] -->
+                            <div class="casilla-row casilla-auto-emerald flex items-center justify-between p-3.5 bg-emerald-50/60 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                                <div>
+                                    <span class="font-bold text-emerald-900 dark:text-emerald-300 block">Crédito Compras Locales</span>
+                                    <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">Casilla [55] = [50] × 13%</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fas fa-calculator text-emerald-400 dark:text-emerald-500 text-[10px]"></i>
+                                    <span id="f07-cas-55" class="tabular-nums font-black text-sm text-emerald-600 dark:text-emerald-300 glow-emerald">$ 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Importaciones Gravadas Bienes [60] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Importaciones de Bienes</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [60] Aduana</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-60" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Crédito Fiscal Importaciones Bienes [65] -->
+                            <div class="casilla-row casilla-auto-emerald flex items-center justify-between p-3.5 bg-emerald-50/60 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                                <div>
+                                    <span class="font-bold text-emerald-900 dark:text-emerald-300 block">Crédito Import. Bienes</span>
+                                    <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">Casilla [65] = [60] × 13%</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fas fa-calculator text-emerald-400 dark:text-emerald-500 text-[10px]"></i>
+                                    <span id="f07-cas-65" class="tabular-nums font-black text-sm text-emerald-600 dark:text-emerald-300 glow-emerald">$ 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Importaciones de Servicios [62] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Importaciones de Servicios</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [62] Exterior</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-62" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Crédito Fiscal Importaciones Servicios [67] -->
+                            <div class="casilla-row casilla-auto-emerald flex items-center justify-between p-3.5 bg-emerald-50/60 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                                <div>
+                                    <span class="font-bold text-emerald-900 dark:text-emerald-300 block">Crédito Import. Servicios</span>
+                                    <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">Casilla [67] = [62] × 13%</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fas fa-calculator text-emerald-400 dark:text-emerald-500 text-[10px]"></i>
+                                    <span id="f07-cas-67" class="tabular-nums font-black text-sm text-emerald-600 dark:text-emerald-300 glow-emerald">$ 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Compras a Sujetos Excluidos [66] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Compras a Sujetos Excluidos</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [66] Facturas SE</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-66" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Compras Exentas y No Sujetas [70] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Compras Exentas/No Sujetas</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [70] Sin Crédito</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-70" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Remanente de Crédito Fiscal Anterior [75] -->
+                            <div class="casilla-row flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-750/50">
+                                <div>
+                                    <span class="font-bold text-slate-700 dark:text-slate-300 block">Remanente Crédito Anterior</span>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Casilla [75] Mes previo</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-75" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-28 p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors duration-150">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Crédito Fiscal -->
+                        <div class="section-total-emerald p-4 bg-emerald-100/60 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-sigma text-emerald-600 dark:text-emerald-400 text-xs"></i>
+                                <span class="text-xs font-black uppercase tracking-wider text-emerald-900 dark:text-emerald-200">Total Crédito Fiscal (Casillas 55 + 65 + 67 + 75):</span>
+                            </div>
+                            <span id="f07-total-credito" class="text-lg font-black tabular-nums text-emerald-600 dark:text-emerald-300 glow-emerald">$ 0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 3: LIQUIDACIÓN DEL IMPUESTO Y RETENCIONES SUFRIDAS -->
+                    <div class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 font-black text-xs shrink-0">3</div>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                                    III. Determinación del Impuesto y Créditos de IVA a Favor
+                                </h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Arts. 65, 161, 162 y 163 C.T.</span>
+                        </div>
+
+                        <!-- Cards de resultados y deducciones de IVA sufridas -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Impuesto Determinado</span>
+                                <span class="text-xs text-slate-500 block mb-2">Si Débito &gt; Crédito</span>
+                                <div id="f07-impuesto-determinado" class="text-xl font-black tabular-nums text-indigo-600 dark:text-indigo-300 glow-indigo">$ 0.00</div>
+                            </div>
+
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Remanente Siguiente</span>
+                                <span class="text-xs text-slate-500 block mb-2">Si Crédito &gt; Débito</span>
+                                <div id="f07-remanente-siguiente" class="text-xl font-black tabular-nums text-emerald-600 dark:text-emerald-300 glow-emerald">$ 0.00</div>
+                            </div>
+
+                            <!-- Retención 1% Sufrida [162] -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Retenciones 1% Sufridas</span>
+                                <span class="text-[10px] text-slate-400 block mb-1.5">Casilla [162] Grandes Contrib.</span>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-162" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-colors duration-150">
+                                </div>
+                            </div>
+
+                            <!-- Percepciones 1% Sufridas [161] -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/50">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Percepciones 1% Sufridas</span>
+                                <span class="text-[10px] text-slate-400 block mb-1.5">Casilla [161] Proveedores</span>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-slate-400 font-medium text-xs">$</span>
+                                    <input type="number" step="0.01" id="f07-cas-161" oninput="calcF07Live()" placeholder="0.00"
+                                           class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-colors duration-150">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TOTAL FINAL F-07: LIQUIDACIÓN PURA DE IVA -->
+                        <div class="result-card-indigo p-6 text-white rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-3xl shrink-0 border border-white/20">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-indigo-200 font-black uppercase tracking-widest block">Total Liquidación Mensual — Formulario F-07</span>
+                                    <h4 class="text-base font-black leading-snug">Impuesto Neto de IVA a Enterar al Fisco</h4>
+                                    <p class="text-[11px] text-indigo-200/80 font-medium mt-0.5">El Pago a Cuenta de Renta se declara de forma independiente en el Formulario F-14</p>
+                                </div>
+                            </div>
+                            <div class="text-center sm:text-right shrink-0">
+                                <span class="text-xs text-indigo-200 uppercase font-black tracking-widest block mb-1">IVA Neto a Pagar</span>
+                                <div id="f07-total-pagar-final" class="text-4xl lg:text-5xl font-black tabular-nums tracking-tight glow-white">$ 0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             VISTA 2: FORMULARIO F-14 (PAGO A CUENTA Y RETENCIONES)
+        ═══════════════════════════════════════════════ -->
+        <div id="view-f14" class="trib-view hidden space-y-6">
+            <div class="sheet-card-glass bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl overflow-hidden" style="overflow: hidden !important;">
+
+                <!-- Cabecera Oficial F-14 -->
+                <div class="p-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden rounded-t-3xl"
+                     style="background: linear-gradient(135deg, #3b0764 0%, #4c1d95 30%, #1e1b4b 100%);">
+                    <div class="absolute inset-0" style="background: radial-gradient(circle at 80% 50%, rgba(139,92,246,0.3) 0%, transparent 50%), radial-gradient(circle at 15% 80%, rgba(99,102,241,0.2) 0%, transparent 40%); pointer-events:none;"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="px-3 py-1 rounded-full bg-purple-500/35 text-purple-100 text-[10px] font-black uppercase tracking-widest border border-purple-400/30">
+                                Formulario Oficial F-14
+                            </span>
+                            <span class="text-slate-300 text-xs font-bold">
+                                <i class="fas fa-landmark text-[10px] mr-1"></i> Ministerio de Hacienda · DGII
+                            </span>
+                        </div>
+                        <h2 class="text-lg font-black uppercase tracking-tight leading-snug max-w-xl">
+                            Declaración Mensual de Pago a Cuenta e Impuestos Retenidos de Renta e IVA
+                        </h2>
+                        <p class="text-purple-300/90 text-xs font-bold mt-1 uppercase tracking-wider">Anticipo Propio de ISR (Art. 151 C.T.) y Entero de Retenciones a Terceros</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:items-end gap-2 shrink-0">
+                        <button type="button" onclick="importFromPlanillasToF14()"
+                                class="px-3 py-1.5 rounded-xl bg-purple-500/30 hover:bg-purple-500/45 border border-purple-400/40 text-purple-100 font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm">
+                            <i class="fas fa-users text-[10px]"></i> Sincronizar desde Planilla
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-8">
+
+                    <!-- SECCIÓN A: PAGO A CUENTA DEL IMPUESTO SOBRE LA RENTA -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="section-badge-purple w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400 font-black text-xs shrink-0">A</div>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-purple-700 dark:text-purple-300">
+                                    A. Anticipo de Pago a Cuenta del Impuesto sobre la Renta (Art. 151 C.T.)
+                                </h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Obligación Mensual Propia</span>
+                        </div>
+
+                        <div class="p-5 bg-slate-50/80 dark:bg-slate-800/40 rounded-3xl border border-slate-200/70 dark:border-slate-700/50 space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                <div>
+                                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Ingresos Brutos Gravados del Mes:</label>
+                                    <p class="text-[10px] text-slate-400 mb-1.5">Casilla [110] — Base imponible</p>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-slate-400 font-medium text-xs">$</span>
+                                        <input type="number" step="0.01" id="f14-ingresos-mes" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-purple-500 outline-none transition-colors duration-150">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Tasa Aplicable según Actividad:</label>
+                                    <p class="text-[10px] text-slate-400 mb-1.5">Régimen legal Art. 151 C.T.</p>
+                                    <select id="f14-pago-cuenta-tasa-select" onchange="calcF14Live()"
+                                            class="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl font-bold text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-purple-500 outline-none">
+                                        <option value="0.0175" selected>1.75% — Comercial, Servicios e Industrial</option>
+                                        <option value="0.0030">0.30% — Distribuidores de Combustibles y Medicamentos</option>
+                                        <option value="0.0075">0.75% — Sector Agropecuario Primario</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Acreditaciones Período Anterior:</label>
+                                    <p class="text-[10px] text-slate-400 mb-1.5">Casilla [125] — Saldo a favor previo</p>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-slate-400 font-medium text-xs">$</span>
+                                        <input type="number" step="0.01" id="f14-acreditaciones-previas" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-purple-500 outline-none transition-colors duration-150">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 rounded-2xl border border-purple-100 dark:border-purple-900/50 flex justify-between items-center">
+                                <div>
+                                    <span class="text-xs font-black uppercase text-purple-900 dark:text-purple-200">Subtotal Pago a Cuenta Propio a Enterar:</span>
+                                    <span class="text-[10px] text-purple-500 dark:text-purple-400 block mt-0.5">Casilla [120] = ([110] × Tasa) − Acreditaciones</span>
+                                </div>
+                                <span id="f14-subtotal-pago-cuenta" class="font-black tabular-nums text-purple-700 dark:text-purple-300 text-lg glow-violet">$ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN B: RETENCIONES DE IMPUESTO SOBRE LA RENTA A TERCEROS -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="section-badge-purple w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400 font-black text-xs shrink-0">B</div>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-purple-700 dark:text-purple-300">
+                                    B. Retenciones de Impuesto sobre la Renta Practicadas a Terceros
+                                </h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Arts. 155, 156, 156-A C.T. y Art. 72-A LISR</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+
+                            <!-- Retención Sueldos y Salarios (Art. 155 CT) -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-users text-indigo-500 text-sm"></i>
+                                        <h5 class="font-bold text-slate-800 dark:text-white">Rentas de Trabajo / Salarios</h5>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase">Art. 155 C.T.</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Base Devengada ($):</label>
+                                        <input type="number" step="0.01" id="f14-base-salarios" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Renta Retenida ($):</label>
+                                        <input type="number" step="0.01" id="f14-retencion-salarios" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs text-indigo-600 dark:text-indigo-400 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Retención Servicios Profesionales (Art. 156 CT - 10%) -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-user-tie text-purple-500 text-sm"></i>
+                                        <h5 class="font-bold text-slate-800 dark:text-white">Servicios Profesionales (10%)</h5>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase">Art. 156 C.T.</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Base Honorarios ($):</label>
+                                        <input type="number" step="0.01" id="f14-base-profesionales" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-purple-500 outline-none">
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-500 font-semibold block mb-1">Retención 10%:</span>
+                                        <span id="f14-retencion-10" class="tabular-nums font-black text-sm text-purple-600 dark:text-purple-300 glow-violet block pt-1">$ 0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Retención Arrendamientos (Art. 156-A CT - 10%) -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-home text-amber-500 text-sm"></i>
+                                        <h5 class="font-bold text-slate-800 dark:text-white">Arrendamientos a PN (10%)</h5>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase">Art. 156-A C.T.</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Base Alquileres ($):</label>
+                                        <input type="number" step="0.01" id="f14-base-arrendamientos" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-amber-500 outline-none">
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-500 font-semibold block mb-1">Retención 10%:</span>
+                                        <span id="f14-retencion-arrendamientos" class="tabular-nums font-black text-sm text-amber-600 dark:text-amber-300 block pt-1">$ 0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Retención Dividendos (Art. 72-A LISR - 5%) -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-chart-pie text-emerald-500 text-sm"></i>
+                                        <h5 class="font-bold text-slate-800 dark:text-white">Dividendos y Utilidades (5%)</h5>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase">Art. 72-A LISR</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Base Dividendos ($):</label>
+                                        <input type="number" step="0.01" id="f14-base-dividendos" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-500 font-semibold block mb-1">Retención 5%:</span>
+                                        <span id="f14-retencion-dividendos" class="tabular-nums font-black text-sm text-emerald-600 dark:text-emerald-300 block pt-1">$ 0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subtotal Retenciones Renta -->
+                        <div class="p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 flex justify-between items-center">
+                            <span class="text-xs font-black uppercase text-indigo-900 dark:text-indigo-200">Subtotal Retenciones de Renta a Enterar:</span>
+                            <span id="f14-subtotal-renta" class="font-black tabular-nums text-indigo-700 dark:text-indigo-300 text-base glow-indigo">$ 0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN C: RETENCIONES Y PERCEPCIONES DE IVA A TERCEROS -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="section-badge-purple w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400 font-black text-xs shrink-0">C</div>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-purple-700 dark:text-purple-300">
+                                    C. Retenciones de IVA Practicadas a Terceros (Agente Designado)
+                                </h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Arts. 161 y 162 Código Tributario</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+
+                            <!-- Retención 1% IVA Grandes Contribuyentes (Art. 162 CT) -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-building text-purple-500 text-sm"></i>
+                                        <h5 class="font-bold text-slate-800 dark:text-white">Retención 1% IVA (Grandes Contribuyentes)</h5>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase">Art. 162 C.T.</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                                    Aplicable en compras de bienes y servicios a otros contribuyentes con valor neto ≥ $100.00.
+                                </p>
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Base Compras ≥ $100 ($):</label>
+                                        <input type="number" step="0.01" id="f14-base-iva1" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-purple-500 outline-none">
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-500 font-semibold block mb-1">Retención 1% IVA:</span>
+                                        <span id="f14-retencion-iva1" class="tabular-nums font-black text-sm text-purple-600 dark:text-purple-300 glow-violet block pt-1">$ 0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Retención 13% IVA a No Domiciliados (Art. 161 CT) -->
+                            <div class="p-4 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-globe text-sky-500 text-sm"></i>
+                                        <h5 class="font-bold text-slate-800 dark:text-white">Retención 13% IVA (No Domiciliados)</h5>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase">Art. 161 C.T.</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                                    Aplicable sobre servicios intangibles prestados por sujetos del exterior utilizados en el país.
+                                </p>
+                                <div class="grid grid-cols-2 gap-2 items-center">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 font-semibold block mb-1">Base Servicios Ext. ($):</label>
+                                        <input type="number" step="0.01" id="f14-base-iva13" oninput="calcF14Live()" placeholder="0.00"
+                                               class="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg tabular-nums font-bold text-right text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-500 font-semibold block mb-1">Retención 13% IVA:</span>
+                                        <span id="f14-retencion-iva13" class="tabular-nums font-black text-sm text-sky-600 dark:text-sky-300 block pt-1">$ 0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subtotal Retenciones IVA -->
+                        <div class="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 rounded-2xl border border-purple-100 dark:border-purple-900/50 flex justify-between items-center">
+                            <span class="text-xs font-black uppercase text-purple-900 dark:text-purple-200">Subtotal Retenciones de IVA a Enterar:</span>
+                            <span id="f14-subtotal-iva" class="font-black tabular-nums text-purple-700 dark:text-purple-300 text-base glow-violet">$ 0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN D: TOTAL CONSOLIDADO A ENTERAR AL FISCO (F-14) -->
+                    <div class="result-card-purple p-6 text-white rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-3xl shrink-0 border border-white/20">
+                                <i class="fas fa-hand-holding-dollar"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-purple-200 font-black uppercase tracking-widest block">Liquidación Total — Formulario Oficial F-14</span>
+                                <h4 class="text-base font-black leading-snug">Pago a Cuenta ISR + Retenciones Renta e IVA a Terceros</h4>
+                                <div class="flex flex-wrap items-center gap-3 mt-1 text-[11px] text-purple-200/90 font-medium">
+                                    <span>PAC: <strong id="f14-resumen-pac" class="tabular-nums">$ 0.00</strong></span>
+                                    <span>•</span>
+                                    <span>Ret. Renta: <strong id="f14-resumen-renta" class="tabular-nums">$ 0.00</strong></span>
+                                    <span>•</span>
+                                    <span>Ret. IVA: <strong id="f14-resumen-iva" class="tabular-nums">$ 0.00</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center sm:text-right shrink-0">
+                            <span class="text-xs text-purple-200 uppercase font-black tracking-widest block mb-1">Total a Enterar (DGII)</span>
+                            <div id="f14-total-pagar" class="text-4xl lg:text-5xl font-black tabular-nums tracking-tight glow-white">$ 0.00</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             VISTA 4: OTROS FORMULARIOS NACIONALES DGII (F-11, F-06, F-09, F-10, F-910, F-915...)
+        ═══════════════════════════════════════════════ -->
+        <div id="view-dgii-otros" class="trib-view hidden space-y-6">
+            <!-- Barra de Filtro Nacional DGII -->
+            <div class="sheet-card-glass bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl p-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                            <i class="fas fa-layer-group text-sky-500 mr-1"></i> 1. Categoría Tributaria (DGII)
+                        </label>
+                        <select id="select-dgii-categoria" onchange="onDgiiCategoriaChange()" class="w-full">
+                            <option value="TODOS">Todas las Categorías (21 Formularios)</option>
+                            <option value="DECLARACION_PAGO" selected>Declaraciones de Pago e Impuestos (F-11, F-06, F-09, F-10)</option>
+                            <option value="INFORME_TRIBUTARIO">Informes Tributarios Obligatorios (F-910, F-915, F-930, F-944...)</option>
+                            <option value="REGISTRO_SOLICITUD">Registros y Solicitudes (F-210, F-211, F-28, F-36, F-940...)</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                            <i class="fas fa-file-signature text-indigo-500 mr-1"></i> 2. Formulario Oficial del Ministerio de Hacienda
+                        </label>
+                        <select id="select-dgii-formulario" onchange="onDgiiFormularioChange()" class="w-full">
+                            <!-- Poblado dinámicamente desde window.CATALOGO_FORMULARIOS_TRIBUTARIOS (ambito = 'DGII') -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor donde se renderiza dinámicamente el formulario DGII seleccionado -->
+            <div id="dgii-dynamic-form-container" class="space-y-6"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             VISTA 5: DECLARACIONES MUNICIPALES POR DEPARTAMENTO, MUNICIPIO Y DISTRITO
+        ═══════════════════════════════════════════════ -->
+        <div id="view-municipales" class="trib-view hidden space-y-6">
+            <!-- Barra de Filtros Territoriales en Cascada (14 Deptos -> 44 Municipios -> 262 Distritos) -->
+            <div class="sheet-card-glass bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 mb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 font-black text-xs">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
+                                Selector Territorial de Tributación Municipal (Decreto N.° 762)
+                            </h3>
+                            <p class="text-[10px] font-semibold text-slate-400">
+                                Filtra entre los 14 Departamentos, 44 Municipios (Alcaldías) y 262 Distritos de El Salvador
+                            </p>
+                        </div>
+                    </div>
+                    <span id="badge-territorio-resumen" class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 text-[10px] font-black uppercase tracking-wider">
+                        San Salvador • San Salvador Centro • Distrito de San Salvador
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    <!-- 1. Selector de Departamento -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                            <i class="fas fa-globe-americas text-indigo-500 mr-1"></i> 1. Departamento (14)
+                        </label>
+                        <select id="select-trib-depto" onchange="onTribDeptoChange()" class="w-full"></select>
+                    </div>
+
+                    <!-- 2. Selector de Municipio (Alcaldía) -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                            <i class="fas fa-building-columns text-purple-500 mr-1"></i> 2. Municipio / Alcaldía (44)
+                        </label>
+                        <select id="select-trib-municipio" onchange="onTribMunicipioChange()" class="w-full"></select>
+                    </div>
+
+                    <!-- 3. Selector de Distrito -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                            <i class="fas fa-location-dot text-emerald-500 mr-1"></i> 3. Distrito Municipal (262)
+                        </label>
+                        <select id="select-trib-distrito" onchange="onTribDistritoChange()" class="w-full"></select>
+                    </div>
+
+                    <!-- 4. Selector de Formulario del Distrito -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                            <i class="fas fa-file-invoice text-amber-500 mr-1"></i> 4. Formulario Municipal
+                        </label>
+                        <select id="select-trib-form-municipal" onchange="onTribFormMunicipalChange()" class="w-full"></select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor donde se renderiza dinámicamente el formulario municipal del distrito -->
+            <div id="municipal-dynamic-form-container" class="space-y-6"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             VISTA 3: LIBROS LEGALES DE IVA
+        ═══════════════════════════════════════════════ -->
+        <div id="view-libros" class="trib-view hidden space-y-6">
+
+            <!-- LIBRO DE COMPRAS -->
+            <div class="sheet-card-glass bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl overflow-hidden" style="overflow: hidden !important;">
+                <div class="p-5 border-b border-slate-200/80 dark:border-slate-800/80 flex justify-between items-center bg-slate-50/80 dark:bg-slate-850/70 rounded-t-3xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold border border-emerald-500/20 shadow-sm shrink-0">
+                            <i class="fas fa-cart-shopping text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">Libro de Compras — Crédito Fiscal</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black border border-emerald-500/20 uppercase tracking-widest">IVA</span>
+                            </div>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-widest block mt-0.5">Art. 141 Código Tributario</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openAddDocModal('compras')"
+                            class="btn-glow-emerald px-4 py-2 text-white rounded-2xl text-xs font-black flex items-center gap-2 no-print">
+                        <i class="fas fa-plus text-[10px]"></i> Añadir Compra
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 dark:bg-slate-800 text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200 dark:border-slate-700 tracking-widest">
+                                <th class="py-3 px-4">Fecha</th>
+                                <th class="py-3 px-4">No. Documento</th>
+                                <th class="py-3 px-4">Nombre del Proveedor</th>
+                                <th class="py-3 px-4">NRC</th>
+                                <th class="py-3 px-4 text-right">Compras Gravadas ($)</th>
+                                <th class="py-3 px-4 text-right">Crédito Fiscal ($)</th>
+                                <th class="py-3 px-4 text-right">Total ($)</th>
+                                <th class="py-3 px-3 text-center no-print">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="libro-compras-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-black bg-slate-50/80 dark:bg-slate-800/80 border-t-2 border-slate-300 dark:border-slate-700">
+                                <td colspan="4" class="py-3 px-4 uppercase text-slate-600 dark:text-slate-300 text-xs tracking-wider">Totales del Período:</td>
+                                <td id="libro-compras-tot-grav" class="py-3 px-4 text-right tabular-nums">$ 0.00</td>
+                                <td id="libro-compras-tot-iva" class="py-3 px-4 text-right tabular-nums text-emerald-600 dark:text-emerald-300 glow-emerald">$ 0.00</td>
+                                <td id="libro-compras-tot-final" class="py-3 px-4 text-right tabular-nums">$ 0.00</td>
+                                <td class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LIBRO DE VENTAS A CONTRIBUYENTES -->
+            <div class="sheet-card-glass bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl overflow-hidden" style="overflow: hidden !important;">
+                <div class="p-5 border-b border-slate-200/80 dark:border-slate-800/80 flex justify-between items-center bg-slate-50/80 dark:bg-slate-850/70 rounded-t-3xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold border border-indigo-500/20 shadow-sm shrink-0">
+                            <i class="fas fa-tags text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">Libro de Ventas a Contribuyentes — Débito Fiscal</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[9px] font-black border border-indigo-500/20 uppercase tracking-widest">IVA</span>
+                            </div>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-widest block mt-0.5">Art. 141 Código Tributario</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openAddDocModal('ventas')"
+                            class="btn-glow-indigo px-4 py-2 text-white rounded-2xl text-xs font-black flex items-center gap-2 no-print">
+                        <i class="fas fa-plus text-[10px]"></i> Añadir Venta
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 dark:bg-slate-800 text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200 dark:border-slate-700 tracking-widest">
+                                <th class="py-3 px-4">Fecha</th>
+                                <th class="py-3 px-4">No. Documento</th>
+                                <th class="py-3 px-4">Nombre del Cliente</th>
+                                <th class="py-3 px-4">NRC</th>
+                                <th class="py-3 px-4 text-right">Ventas Gravadas ($)</th>
+                                <th class="py-3 px-4 text-right">Débito Fiscal ($)</th>
+                                <th class="py-3 px-4 text-right">Total ($)</th>
+                                <th class="py-3 px-3 text-center no-print">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="libro-ventas-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-black bg-slate-50/80 dark:bg-slate-800/80 border-t-2 border-slate-300 dark:border-slate-700">
+                                <td colspan="4" class="py-3 px-4 uppercase text-slate-600 dark:text-slate-300 text-xs tracking-wider">Totales del Período:</td>
+                                <td id="libro-ventas-tot-grav" class="py-3 px-4 text-right tabular-nums">$ 0.00</td>
+                                <td id="libro-ventas-tot-iva" class="py-3 px-4 text-right tabular-nums text-indigo-600 dark:text-indigo-300 glow-indigo">$ 0.00</td>
+                                <td id="libro-ventas-tot-final" class="py-3 px-4 text-right tabular-nums">$ 0.00</td>
+                                <td class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Fin de tributario-transform-wrapper -->
+        </div>
+
+    </main>
+
+    <!-- ══════════════════════════════════════════════════════
+         PÍLDORA FLOTANTE DE CONTROL DE ZOOM Y SOPORTE
+    ══════════════════════════════════════════════════════ -->
+    <div id="doc-zoom-pill" class="fixed bottom-5 right-5 lg:right-6 z-40 flex items-center no-print transition-all pointer-events-none">
+        <div class="glass-pill tempered-glass px-3 py-1.5 flex items-center gap-2 rounded-full shadow-2xl border border-white/60 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl h-11 transition-all pointer-events-auto">
+            <!-- Zoom Out -->
+            <button type="button" onclick="window.PageLayoutManager?.zoomOut()" id="btn-zoom-out" class="w-7 h-7 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all text-xs active:scale-95 shadow-sm cursor-pointer" title="Reducir Zoom (Alejar) (Ctrl+−)">
+                <i class="fas fa-search-minus text-[11px]"></i>
+            </button>
+
+            <!-- Nivel de Zoom / Restablecer -->
+            <button type="button" onclick="window.PageLayoutManager?.resetZoom()" id="zoom-level-statusbar" class="px-2.5 py-1 text-xs font-black text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-100/60 dark:bg-slate-800/60 rounded-full min-w-[50px] text-center transition-colors cursor-pointer" title="Restablecer Zoom (100%) (Ctrl+0)">
+                100%
+            </button>
+
+            <!-- Zoom In -->
+            <button type="button" onclick="window.PageLayoutManager?.zoomIn()" id="btn-zoom-in" class="w-7 h-7 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all text-xs active:scale-95 shadow-sm cursor-pointer" title="Aumentar Zoom (Acercar) (Ctrl++)">
+                <i class="fas fa-search-plus text-[11px]"></i>
+            </button>
+
+            <!-- Proporción 1:1 -->
+            <button type="button" onclick="window.PageLayoutManager?.resetZoom()" id="btn-reset-zoom" class="px-2.5 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase transition-all shadow-sm active:scale-95 cursor-pointer" title="Tamaño Original (1:1)">
+                1:1
+            </button>
+
+            <!-- Divisor Vertical -->
+            <div class="h-4 w-px bg-slate-200/80 dark:bg-slate-700/80 mx-0.5"></div>
+
+            <!-- Botón Asistente de Soporte Técnico Integrado -->
+            <button type="button" id="btn-support-pill" onclick="if(typeof window.openSupportModal==='function') window.openSupportModal();" onmouseenter="if(typeof window.startFloatingAnim==='function') window.startFloatingAnim();" onmouseleave="if(typeof window.stopFloatingAnim==='function') window.stopFloatingAnim();" class="w-7 h-7 rounded-full bg-sky-500/15 dark:bg-sky-500/25 hover:bg-sky-500 hover:text-white text-sky-500 dark:text-sky-400 flex items-center justify-center transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer group/sup" title="Soporte y Asistencia Técnica">
+                <svg class="support-avatar-svg w-5 h-5 pointer-events-none transition-transform group-hover/sup:scale-110" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" id="floating-support-svg">
+                    <circle cx="50" cy="50" r="45" fill="currentColor" fill-opacity="0.15"/>
+                    <path class="headset-arc" d="M32 52C32 36 40 30 50 30C60 30 68 36 68 52" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <rect class="headset-ear-l" x="27" y="46" width="9" height="15" rx="4.5" fill="currentColor"/>
+                    <rect class="headset-ear-r" x="64" y="46" width="9" height="15" rx="4.5" fill="currentColor"/>
+                    <path class="headset-mic" d="M33 60C36 66 42 66 45 62" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <circle class="headset-mic-tip" cx="46" cy="61" r="4" fill="#0ea5e9"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TOAST DE SINCRONIZACIÓN
+    ══════════════════════════════════════════════════════ -->
+    <div id="sync-toast"
+         class="fixed bottom-20 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print"
+         style="box-shadow: 0 16px 40px -8px rgba(5,150,105,0.5);">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Declaración Guardada</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Bóveda tributaria actualizada</p>
+        </div>
+    </div>
+
+    <!-- Scripts Esenciales -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/bridge-diario.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script defer src="js/core/export.js"></script>
+    <script defer src="js/core/custom-select-date.js"></script>
+    <script defer src="js/pages/editor-tributario.js"></script>
+
+    <!-- Inicializador del indicador de tabs y componentes -->
+    <script>
+        // Sincronizar indicador de tabs con la pestaña activa
+        function syncTribTabIndicator(activeId) {
+            if (typeof window.updateTabIndicator === 'function') {
+                window.updateTabIndicator();
+                return;
+            }
+            const indicator = document.getElementById('trib-tab-indicator');
+            const container = document.getElementById('trib-tabs-container');
+            const activeBtn = activeId ? document.getElementById(activeId) : document.querySelector('.trib-tab-btn.active');
+            if (!indicator || !activeBtn) return;
+            const tabKey = (activeBtn.id || 'tab-f07').replace('tab-', '');
+            indicator.classList.remove('theme-f07', 'theme-f14', 'theme-dgii-otros', 'theme-municipales', 'theme-libros');
+            indicator.classList.add(`theme-${tabKey}`);
+            if (container) {
+                container.classList.remove('theme-f07', 'theme-f14', 'theme-dgii-otros', 'theme-municipales', 'theme-libros');
+                container.classList.add(`theme-${tabKey}`);
+            }
+            indicator.style.transition = 'none';
+            indicator.style.left = '0px';
+            indicator.style.top = activeBtn.offsetTop + 'px';
+            indicator.style.height = activeBtn.offsetHeight + 'px';
+            indicator.style.width = activeBtn.offsetWidth + 'px';
+            indicator.style.transform = `translateX(${activeBtn.offsetLeft}px) scaleX(1) scaleY(1)`;
+            indicator.style.opacity = '1';
+            void indicator.offsetWidth;
+            requestAnimationFrame(() => {
+                indicator.style.transition = '';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // ── Inyectar header global de EduContaSV ──
+            const tryInjectUI = () => {
+                if (typeof window.injectSharedUI === 'function') {
+                    window.injectSharedUI('shared-components-root');
+                } else {
+                    setTimeout(tryInjectUI, 80);
+                }
+            };
+            tryInjectUI();
+
+            // Sincronizar indicador inicial al renderizarse la vista
+            setTimeout(() => syncTribTabIndicator('tab-f07'), 100);
+            setTimeout(() => syncTribTabIndicator('tab-f07'), 350);
+
+            // Sincronizar mobile project name con el h1
+            const h1 = document.getElementById('current-project-name');
+            const mobileEl = document.getElementById('mobile-project-name');
+            if (h1 && mobileEl) {
+                const observer = new MutationObserver(() => {
+                    mobileEl.textContent = h1.textContent;
+                });
+                observer.observe(h1, { childList: true, characterData: true, subtree: true });
+                mobileEl.textContent = h1.textContent;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            syncTribTabIndicator();
+        });
+    </script>
+
+</body>
+
+</html>
+
+

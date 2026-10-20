@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Documentos - EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+    
+    <style>
+        /* Preloader unificado via styles.css */
+        
+        /* Ajustes específicos para el retaceo en EduConta */
+        .retaceo-config-grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
+
+        /* === ESTRUCTURA MAQUETA FIJA SIN SCROLL GLOBAL === */
+        @media (min-width: 1024px) {
+            html, body {
+                height: 100vh !important;
+                overflow: hidden !important;
+            }
+            main {
+                height: calc(100vh - 106px) !important;
+                overflow: hidden !important;
+                padding-bottom: 0 !important;
+            }
+            .main-grid {
+                height: 100% !important;
+            }
+            .left-sidebar-col {
+                height: 100% !important;
+                overflow-y: auto !important;
+                padding-bottom: 30px !important;
+                scrollbar-width: none; /* Ocultar barra de scroll en Firefox */
+            }
+            .left-sidebar-col::-webkit-scrollbar {
+                display: none; /* Ocultar barra de scroll en Chrome/Safari */
+            }
+            .right-editor-col {
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+            .editor-scroll-container {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                padding-bottom: 50px !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="min-h-screen text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 antialiased font-sans pt-28 lg:pt-32">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-amber" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- CABECERA STICKY -->
+    <div id="editor-sticky-controls" class="fixed top-[94px] md:top-[106px] left-0 right-0 z-[900] pt-2 md:pt-3 pb-2 px-4 md:px-[2.5rem] pointer-events-none">
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto" style="gap: 5px;">
+            <!-- Lado Izquierdo: Info del Proyecto -->
+            <div class="header-side-wrapper flex justify-start items-center transition-all relative min-w-0" style="height: 68px;">
+                <div class="glass-pill project-card tempered-glass flex flex-col justify-center border border-white/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md cursor-pointer group shadow-xl z-50 transition-all w-full max-w-[340px] rounded-xl" style="margin-bottom: 0; min-height: 64px; padding: 0 24px; margin-right: 5px;">
+                    <div class="flex items-center min-w-0 w-full" style="gap: 14px;">
+                        <div class="bg-amber-100 dark:bg-amber-950/50 rounded-[36px] shrink-0 p-2 text-amber-600 dark:text-amber-400">
+                            <i class="fas fa-file-pen" style="font-size: 15px;"></i>
+                        </div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden">
+                            <span class="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Hojas / Documentos</span>
+                            <h1 id="current-project-name" class="font-black text-slate-800 dark:text-white leading-tight truncate" style="font-size: 15px;">Cargando...</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado Derecho: Sincronización y Salida -->
+            <div id="header-right-side" class="flex justify-end items-center transition-all min-w-0" style="gap: 12px;">
+                <div id="main-sync-pill" class="glass-pill flex flex-col items-center justify-center rounded-[36px] shrink-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md" style="height: 64px; padding: 5px 8px; gap: 4px; border: 1px solid rgba(255,255,255,0.7) !important;">
+                    <div id="save-indicator" class="flex items-center justify-center gap-1.5 w-full text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-950/20 rounded-[36px] border border-emerald-100 dark:border-emerald-900/30" style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-check-circle"></i> <span>LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator" class="flex items-center justify-center gap-1.5 w-full text-slate-400 dark:text-slate-500 font-black bg-white dark:bg-slate-800 rounded-[36px] border border-slate-100 dark:border-slate-700 transition-all duration-300" style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-cloud-check"></i> <span>SINCRONIZADO</span>
+                    </div>
+                </div>
+                <!-- Botón de Compartir -->
+                <button onclick="openShareModal()" class="pointer-events-auto glass-pill border border-white/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md hover:bg-slate-50 dark:hover:bg-slate-800 text-sky-500 dark:text-sky-400 hover:text-sky-650 dark:hover:text-sky-350 rounded-[36px] flex items-center justify-center transition-all shadow-md active:scale-95 shrink-0" style="width: 64px; height: 64px;" title="Compartir Documento">
+                    <i class="fas fa-user-plus text-lg"></i>
+                </button>
+                <!-- Botón de Salir -->
+                <button onclick="closeProject()" class="pointer-events-auto glass-pill border border-white/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-[36px] flex items-center justify-center transition-all shadow-md active:scale-95 shrink-0" style="width: 64px; height: 64px;">
+                    <i class="fas fa-arrow-left-from-line text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 md:px-8 w-full mt-6 pb-24">
+        
+        <!-- SELECTOR DE DOCUMENTO / HOJA -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 no-print">
+            <div class="flex items-center gap-2">
+                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Documento:</label>
+                <div class="relative">
+                    <select id="hojas-sheet-select" onchange="switchHojasSheet(this.value)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[36px] px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all cursor-pointer min-w-[200px]"></select>
+                </div>
+                <button onclick="openNewSheetModal()" class="w-8 h-8 rounded-full bg-sky-50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-600 dark:text-sky-400 flex items-center justify-center transition-all" title="Nuevo Documento"><i class="fas fa-plus"></i></button>
+                <button onclick="confirmDeleteSheet()" class="w-8 h-8 rounded-full bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 flex items-center justify-center transition-all" title="Eliminar Documento"><i class="far fa-trash-alt"></i></button>
+            </div>
+            
+            <!-- Acciones -->
+            <div class="flex items-center gap-2 w-full md:w-auto">
+                <button onclick="exportarProyectoEduConta()" class="glow-hover btn-bloom-sky flex-1 md:flex-none px-4 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-shield-alt"></i> Exportar backup
+                </button>
+                <button onclick="window.print()" class="glow-hover btn-bloom-slate flex-1 md:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYOUT DE COLUMNAS -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- COLUMNA IZQUIERDA: PLANTILLAS (3 cols) -->
+            <div class="lg:col-span-3 flex flex-col gap-6 no-print">
+                <!-- Tarjeta: Catálogo de Plantillas -->
+                <div class="glass-card tempered-glass p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
+                    <h3 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider mb-4">Catálogo de Plantillas</h3>
+                    <div class="space-y-3">
+                        <div onclick="canvasManager.loadTemplate('BTVAC-3.4-RETACEO')" class="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 hover:border-brand-500 rounded-xl cursor-pointer transition-all hover:translate-x-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-table text-emerald-500 dark:text-emerald-400 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-700 dark:text-white leading-tight">Retaceo de Importaciones</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 leading-normal">Cálculo CIF/FOB, DAI y prorrateo local de costos.</p>
+                        </div>
+                        <div onclick="canvasManager.loadTemplate('BTVAC-3.4-PROFORMA')" class="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 hover:border-brand-500 rounded-xl cursor-pointer transition-all hover:translate-x-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-file-invoice-dollar text-sky-500 dark:text-sky-400 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-700 dark:text-white leading-tight">Cotización Proforma</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 leading-normal">Factura proforma internacional con Incoterms.</p>
+                        </div>
+                        <div onclick="canvasManager.loadTemplate('BTVAC-3.4-CARTA-CREDITO')" class="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 hover:border-brand-500 rounded-xl cursor-pointer transition-all hover:translate-x-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-project-diagram text-purple-500 dark:text-purple-400 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-700 dark:text-white leading-tight">Carta de Crédito</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 leading-normal">Diagrama de flujo bancario y borrador de contrato.</p>
+                        </div>
+                        <div onclick="canvasManager.loadTemplate('BTVAC-3.4-LOGISTICA')" class="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 hover:border-brand-500 rounded-xl cursor-pointer transition-all hover:translate-x-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-route text-amber-500 dark:text-amber-400 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-700 dark:text-white leading-tight">Ruta Logística Internacional</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 leading-normal">Canal de distribución aduanero y tabla de costos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: LIENZO DE TRABAJO (9 cols) -->
+            <div class="lg:col-span-9 right-editor-col flex flex-col gap-6">
+                <!-- Barra de Control Superior -->
+                <div class="glass-card tempered-glass p-4 flex flex-wrap justify-between items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm no-print">
+                    <div class="flex-1 min-w-[200px]">
+                        <input type="text" id="canvas-doc-title" class="bg-transparent border-b border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 focus:border-brand-500 text-base font-extrabold text-slate-800 dark:text-white outline-none w-full pb-1 px-1 transition-colors" placeholder="Título del Documento..." value="Documento Sin Título">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="btn-save-canvas" onclick="saveActiveCanvas()" class="btn-primary bg-sky-500 hover:bg-sky-600 text-white px-5 py-2.5 rounded-[36px] text-xs font-bold flex items-center gap-2 transition-all shadow-md">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Herramientas Word + Bloques -->
+                <div class="glass-card tempered-glass p-3 flex flex-wrap gap-4 items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-[158px] md:top-[174px] z-40 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm no-print">
+                    <!-- Botones de inserción de bloques -->
+                    <div class="flex items-center gap-1.5 border-r border-slate-200 dark:border-slate-800 pr-3 mr-1 flex-wrap">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mr-1">Insertar:</span>
+                        <button onclick="canvasManager.addTextBlock('text')" class="px-2.5 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors" title="Añadir Párrafo de Texto">
+                            <i class="fas fa-paragraph text-slate-400"></i> Texto
+                        </button>
+                        <button onclick="canvasManager.addTextBlock('h2')" class="px-2.5 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors" title="Añadir Título">
+                            <i class="fas fa-heading text-slate-400 text-[10px]"></i> Título
+                        </button>
+                        <button onclick="canvasManager.addTableBlock()" class="px-2.5 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors" title="Añadir Hoja de Cálculo (Excel)">
+                            <i class="fas fa-table text-emerald-500"></i> Tabla/Excel
+                        </button>
+                        <button onclick="canvasManager.addDiagramBlock()" class="px-2.5 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors" title="Añadir Lienzo de Diagramación (Visio)">
+                            <i class="fas fa-project-diagram text-purple-500"></i> Diagrama
+                        </button>
+                    </div>
+
+                    <!-- Barra Word para Formato de Texto -->
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mr-1">Formato:</span>
+                        <button onclick="canvasManager.formatText('bold')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg font-bold transition-colors" title="Negrita">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button onclick="canvasManager.formatText('italic')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg italic transition-colors" title="Cursiva">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button onclick="canvasManager.formatText('underline')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg underline transition-colors" title="Subrayado">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                        <button onclick="canvasManager.formatText('justifyLeft')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors" title="Alinear a la Izquierda">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                        <button onclick="canvasManager.formatText('justifyCenter')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors" title="Centrar">
+                            <i class="fas fa-align-center"></i>
+                        </button>
+                        <button onclick="canvasManager.formatText('justifyRight')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors" title="Alinear a la Derecha">
+                            <i class="fas fa-align-right"></i>
+                        </button>
+                        <button onclick="canvasManager.formatText('insertUnorderedList')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors" title="Lista con Viñetas">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-850 mx-1"></div>
+                        <!-- Color Selectors -->
+                        <button onclick="canvasManager.formatText('foreColor', '#0ea5e9')" class="w-6 h-6 rounded bg-sky-500 border border-sky-450" title="Texto Celeste"></button>
+                        <button onclick="canvasManager.formatText('foreColor', '#10b981')" class="w-6 h-6 rounded bg-emerald-500 border border-emerald-450" title="Texto Verde"></button>
+                        <button onclick="canvasManager.formatText('foreColor', '#ffffff')" class="w-6 h-6 rounded bg-white border border-slate-300" title="Texto Blanco"></button>
+                        <button onclick="canvasManager.formatText('hiliteColor', '#f59e0b')" class="w-6 h-6 rounded bg-amber-500 flex items-center justify-center text-[10px] text-black font-black border border-amber-450" title="Resaltar Amarillo"><i class="fas fa-highlighter"></i></button>
+                        <button onclick="canvasManager.formatText('removeFormat')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-rose-450 hover:text-rose-400 rounded-lg transition-colors" title="Limpiar Formato">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- El Documento Central (Lienzo tipo Notion / Hoja Universal) -->
+                <div class="editor-scroll-container flex-1 overflow-y-auto pr-1">
+                    <div id="universal-document-canvas" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl min-h-[75vh] p-8 flex flex-col gap-6 shadow-2xl relative">
+                        <div class="flex-1 flex flex-col items-center justify-center text-center text-slate-500 py-16" id="canvas-empty-state">
+                            <i class="fas fa-file-alt text-5xl mb-4 text-slate-400 opacity-45"></i>
+                            <h4 class="font-extrabold text-sm text-slate-500 uppercase tracking-widest">Lienzo en Blanco</h4>
+                            <p class="text-xs text-slate-400 mt-1.5 max-w-sm">Haz clic en los botones de inserción superiores o elige una plantilla del catálogo lateral para comenzar.</p>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="sheet-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-sm w-full relative p-6">
+            <button onclick="closeSheetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 dark:hover:text-slate-350"><i class="fas fa-times text-lg"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/30 flex items-center justify-center mb-4 mx-auto text-sky-500"><i class="fas fa-plus text-xl"></i></div>
+            <h4 class="text-lg font-black text-slate-800 dark:text-white text-center mb-4">Nuevo Documento</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Nombre del Documento</label>
+                    <input type="text" id="sheet-input-name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[36px] px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-350 focus:border-sky-400 outline-none transition-all" placeholder="Ej: Cotización de Exportación...">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeSheetModal()" class="flex-1 px-4 py-2.5 rounded-[36px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase hover:bg-slate-200 dark:hover:bg-slate-750 transition-colors">Cancelar</button>
+                <button onclick="saveNewSheet()" class="glow-hover btn-bloom-sky flex-1 px-4 py-2.5 rounded-[36px] bg-sky-500 text-white font-bold text-xs uppercase hover:bg-sky-600 transition-colors shadow-lg">Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="share-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full relative p-6">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 dark:hover:text-slate-350"><i class="fas fa-times text-lg"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/30 flex items-center justify-center mb-4 mx-auto text-sky-500"><i class="fas fa-share-nodes text-xl"></i></div>
+            <h4 class="text-lg font-black text-slate-800 dark:text-white text-center mb-4">Compartir Documento</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Añadir Colaborador por su ID</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-uid-input" class="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[36px] px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-350 focus:border-sky-400 outline-none transition-all" placeholder="Pegar ID único del usuario...">
+                        <button onclick="addCollaborator()" class="glow-hover btn-bloom-sky px-4 py-2.5 rounded-[36px] bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs uppercase transition-colors shadow-lg">Añadir</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Personas con acceso</label>
+                    <div id="collaborators-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        <!-- Se poblará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeShareModal()" class="px-5 py-2.5 rounded-[36px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase hover:bg-slate-200 dark:hover:bg-slate-750 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Proyectos respaldados</p>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/custom-select-date.js"></script>
+    <script defer src="js/pages/editor-hojas.js"></script>
+</body>
+
+</html>
+
+

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramas | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* Preloader unificado via styles.css */
+
+        /* GRID PATTERN PARA DIAGRAMAS */
+        .diagram-grid {
+            background-color: #fafaf9;
+            background-image: 
+                linear-gradient(#f1f5f9 1.5px, transparent 1.5px),
+                linear-gradient(90deg, #f1f5f9 1.5px, transparent 1.5px);
+            background-size: 30px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .diagram-grid {
+            background-color: #0d1117;
+            background-image: 
+                linear-gradient(#1e293b 1px, transparent 1px),
+                linear-gradient(90deg, #1e293b 1px, transparent 1px);
+        }
+
+        /* ESTILOS DE LOS NODOS DEL DIAGRAMA */
+        .diagram-node {
+            position: absolute;
+            background-color: #ffffff;
+            border: 2px solid #b45309;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #78350f;
+            cursor: move;
+            user-select: none;
+            outline: none;
+            padding: 8px;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+
+        [data-theme="dark"] .diagram-node {
+            background-color: #1a1e26;
+            color: #fed7aa;
+            border-color: #b45309;
+        }
+
+        .diagram-node:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
+        }
+
+        .diagram-node.selected {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+        }
+
+        /* Formas específicas de nodos */
+        .node-startend {
+            border-radius: 9999px;
+            width: 110px;
+            height: 50px;
+        }
+
+        .node-process {
+            border-radius: 8px;
+            width: 120px;
+            height: 60px;
+        }
+
+        .node-decision {
+            width: 80px;
+            height: 80px;
+            transform: rotate(45deg);
+        }
+
+        .node-decision span {
+            transform: rotate(-45deg);
+        }
+
+        .node-database {
+            border-radius: 8px / 20px;
+            width: 90px;
+            height: 75px;
+        }
+
+        /* Botón borrar nodo */
+        .node-delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            font-size: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            visibility: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .diagram-node:hover .node-delete-btn {
+            visibility: visible;
+        }
+
+        .node-decision .node-delete-btn {
+            transform: rotate(-45deg);
+            top: -10px;
+            right: 30px;
+        }
+
+        .toolbar-btn {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar-btn:hover {
+            background-color: #f1f5f9;
+            color: #d97706;
+        }
+
+        .toolbar-btn.active {
+            background-color: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        [data-theme="dark"] .toolbar-btn {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .toolbar-btn:hover {
+            background-color: #1e293b;
+            color: #fbbf24;
+        }
+
+        [data-theme="dark"] .toolbar-btn.active {
+            background-color: #451a03;
+            color: #fbbf24;
+            border: 1px solid #78350f;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            main { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            #diagram-canvas-container {
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+            }
+            .diagram-node {
+                box-shadow: none !important;
+                border: 2px solid #000 !important;
+                color: #000 !important;
+                background: white !important;
+            }
+        }
+
+        /* === ESTRUCTURA MAQUETA FIJA SIN SCROLL GLOBAL === */
+        @media (min-width: 1024px) {
+            html, body {
+                height: 100vh !important;
+                overflow: hidden !important;
+            }
+            main {
+                height: calc(100vh - 106px) !important;
+                overflow: hidden !important;
+                padding-bottom: 0 !important;
+            }
+            .main-grid {
+                height: 100% !important;
+            }
+            .left-sidebar-col {
+                height: 100% !important;
+                overflow-y: auto !important;
+                padding-bottom: 30px !important;
+                scrollbar-width: none;
+            }
+            .left-sidebar-col::-webkit-scrollbar {
+                display: none;
+            }
+            .right-editor-col {
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+            .editor-scroll-container {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                padding-bottom: 50px !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="min-h-screen text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 antialiased font-sans pt-[160px] md:pt-[180px]">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-amber" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- CABECERA STICKY -->
+    <div id="editor-sticky-controls" class="fixed top-[94px] md:top-[106px] left-0 right-0 z-[900] pt-2 md:pt-3 pb-2 px-4 md:px-[2.5rem] pointer-events-none">
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto" style="gap: 5px;">
+            <!-- Lado Izquierdo: Info del Documento -->
+            <div class="header-side-wrapper flex justify-start items-center transition-all relative min-w-0" style="height: 68px;">
+                <div class="glass-pill project-card tempered-glass flex flex-col justify-center border border-white/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md cursor-pointer group shadow-xl z-50 transition-all w-full max-w-[340px] rounded-xl" style="margin-bottom: 0; min-height: 64px; padding: 0 24px; margin-right: 5px;">
+                    <div class="flex items-center min-w-0 w-full" style="gap: 14px;">
+                        <div class="bg-amber-100 dark:bg-amber-950/50 rounded-[36px] shrink-0 p-2 text-amber-600 dark:text-amber-400">
+                            <i class="fas fa-project-diagram" style="font-size: 15px;"></i>
+                        </div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden">
+                            <span class="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Diagrama</span>
+                            <h1 id="current-project-name" class="font-black text-slate-800 dark:text-white leading-tight truncate" style="font-size: 15px;">Cargando...</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado Derecho: Sincronización y Salida -->
+            <div id="header-right-side" class="flex justify-end items-center transition-all min-w-0" style="gap: 12px;">
+                <div id="main-sync-pill" class="glass-pill flex flex-col items-center justify-center rounded-[36px] shrink-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md" style="height: 64px; padding: 5px 8px; gap: 4px; border: 1px solid rgba(255,255,255,0.7) !important;">
+                    <div id="save-indicator" class="flex items-center justify-center gap-1.5 w-full text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-950/20 rounded-[36px] border border-emerald-100 dark:border-emerald-900/30" style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-check-circle"></i> <span>LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator" class="flex items-center justify-center gap-1.5 w-full text-slate-400 dark:text-slate-500 font-black bg-white dark:bg-slate-800 rounded-[36px] border border-slate-100 dark:border-slate-700 transition-all duration-300" style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-cloud-check"></i> <span>SINCRONIZADO</span>
+                    </div>
+                </div>
+                <!-- Botón de Compartir -->
+                <button onclick="openShareModal()" class="pointer-events-auto glass-pill border border-white/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md hover:bg-slate-50 dark:hover:bg-slate-800 text-sky-500 dark:text-sky-400 hover:text-sky-650 dark:hover:text-sky-350 rounded-[36px] flex items-center justify-center transition-all shadow-md active:scale-95 shrink-0" style="width: 64px; height: 64px;" title="Compartir Diagrama">
+                    <i class="fas fa-user-plus text-lg"></i>
+                </button>
+                <!-- Botón de Salir -->
+                <button onclick="closeProject()" class="pointer-events-auto glass-pill border border-white/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-[36px] flex items-center justify-center transition-all shadow-md active:scale-95 shrink-0" style="width: 64px; height: 64px;">
+                    <i class="fas fa-arrow-left-from-line text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 md:px-8 w-full mt-6 pb-24">
+
+        <!-- Selector de hojas internas / páginas -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 no-print">
+            <div class="flex items-center gap-2">
+                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Diagrama:</label>
+                <div class="relative">
+                    <select id="diagramas-sheet-select" onchange="switchDiagramSheet(this.value)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[36px] px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all cursor-pointer min-w-[200px]"></select>
+                </div>
+                <button onclick="openNewSheetModal()" class="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center transition-all" title="Nuevo Diagrama"><i class="fas fa-plus"></i></button>
+                <button onclick="confirmDeleteSheet()" class="w-8 h-8 rounded-full bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-450 flex items-center justify-center transition-all" title="Eliminar Diagrama"><i class="far fa-trash-alt"></i></button>
+            </div>
+            
+            <div class="flex items-center gap-2 w-full md:w-auto">
+                <button onclick="exportarBackupDiagramas()" class="glow-hover flex-1 md:flex-none px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-shield-alt"></i> Exportar backup
+                </button>
+                <button onclick="window.print()" class="glow-hover flex-1 md:flex-none px-4 py-2.5 bg-slate-850 hover:bg-slate-750 dark:bg-slate-900 dark:hover:bg-slate-800 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+
+        <!-- Layout de Columnas -->
+        <div class="main-grid grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+            <!-- COLUMNA IZQUIERDA: PLANTILLAS (3 cols) -->
+            <div class="left-sidebar-col lg:col-span-3 flex flex-col gap-6 no-print">
+                <div class="glass-card tempered-glass p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
+                    <h3 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider mb-4">Plantillas de Flujo</h3>
+                    <div class="space-y-3">
+                        <div onclick="cargarPlantillaDiagrama('flujo-compras')" class="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 hover:border-amber-500 rounded-xl cursor-pointer transition-all hover:translate-x-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-cart-shopping text-amber-500 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-700 dark:text-white leading-tight">Flujo de Compras</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 leading-normal">Diagrama desde la requisición interna hasta la orden de compra.</p>
+                        </div>
+                        <div onclick="cargarPlantillaDiagrama('control-calidad')" class="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 hover:border-amber-500 rounded-xl cursor-pointer transition-all hover:translate-x-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-clipboard-check text-amber-500 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-700 dark:text-white leading-tight">Control de Calidad</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 leading-normal">Flujo de inspección al recibir materiales en bodega.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: DIAGRAMA (9 cols) -->
+            <div class="lg:col-span-9 right-editor-col flex flex-col gap-4">
+                <!-- BARRA DE HERRAMIENTAS DE DIAGRAMAS -->
+                <div class="glass-card tempered-glass p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm flex flex-wrap gap-3 items-center no-print">
+                    
+                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Insertar Nodo:</span>
+                    <!-- Insertar Formas -->
+                    <button onclick="addNode('startend')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-750 dark:text-slate-300 rounded-xl text-xs font-bold transition-all shadow-sm border border-slate-200 dark:border-slate-700" title="Inicio / Fin">
+                        Inicio/Fin
+                    </button>
+                    <button onclick="addNode('process')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-750 dark:text-slate-300 rounded-xl text-xs font-bold transition-all shadow-sm border border-slate-200 dark:border-slate-700" title="Proceso">
+                        Proceso
+                    </button>
+                    <button onclick="addNode('decision')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-750 dark:text-slate-300 rounded-xl text-xs font-bold transition-all shadow-sm border border-slate-200 dark:border-slate-700" title="Decisión / Condición">
+                        Decisión
+                    </button>
+                    <button onclick="addNode('database')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-750 dark:text-slate-300 rounded-xl text-xs font-bold transition-all shadow-sm border border-slate-200 dark:border-slate-700" title="Almacén de Datos">
+                        Almacén/DB
+                    </button>
+
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Conectar:</span>
+
+                    <!-- Conector de Nodos -->
+                    <div class="flex items-center gap-1.5">
+                        <select id="connector-from" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 h-8 w-24">
+                            <option value="">Desde...</option>
+                        </select>
+                        <i class="fas fa-arrow-right text-[10px] text-slate-400"></i>
+                        <select id="connector-to" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 h-8 w-24">
+                            <option value="">Hacia...</option>
+                        </select>
+                        <input type="text" id="connector-label" placeholder="Etiqueta..." class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 h-8 w-24">
+                        <button onclick="createConnector()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm" title="Crear Conexión">
+                            <i class="fas fa-plus"></i> Conectar
+                        </button>
+                    </div>
+
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Limpieza:</span>
+                    <button onclick="clearAllDiagram()" class="px-2.5 py-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600 dark:text-rose-450 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors" title="Limpiar todo el Diagrama">
+                        <i class="fas fa-trash-can"></i> Limpiar Todo
+                    </button>
+                </div>
+
+                <!-- Título editable del Diagrama -->
+                <div class="glass-card tempered-glass p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm flex items-center gap-3 no-print">
+                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest shrink-0">Título del Diagrama:</span>
+                    <input type="text" id="canvas-doc-title" oninput="updateSheetTitle(this.value)" class="flex-1 bg-transparent border-0 border-b border-transparent hover:border-slate-200 dark:hover:border-slate-700 focus:border-amber-400 outline-none text-sm font-bold text-slate-800 dark:text-white transition-all pb-1" placeholder="Escribe el título de este diagrama...">
+                    
+                    <button onclick="saveActiveDiagramManual()" id="btn-save-canvas" class="glow-hover px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center gap-1.5 shrink-0">
+                        <i class="fas fa-cloud-upload"></i> Guardar
+                    </button>
+                </div>
+
+                <!-- EL LIENZO DE DIAGRAMACIÓN -->
+                <div class="editor-scroll-container flex-1 overflow-y-auto pr-1">
+                    <div id="diagram-canvas-container" class="diagram-grid border border-slate-200 dark:border-slate-850 shadow-2xl rounded-3xl min-h-[75vh] w-full relative">
+                        <!-- SVG Overlay para conexiones/flechas -->
+                        <svg id="diagram-svg-connections" class="absolute inset-0 w-full h-full z-10 pointer-events-none">
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309" />
+                                </marker>
+                            </defs>
+                            <!-- Las líneas de conexión se renderizan aquí dinámicamente -->
+                        </svg>
+                        
+                        <!-- Capa para los nodos de diagramas -->
+                        <div id="diagram-nodes-layer" class="absolute inset-0 w-full h-full z-20 pointer-events-none"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="sheet-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-sm w-full relative p-6">
+            <button onclick="closeSheetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 dark:hover:text-slate-350"><i class="fas fa-times text-lg"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mb-4 mx-auto text-amber-500"><i class="fas fa-plus text-xl"></i></div>
+            <h4 class="text-lg font-black text-slate-800 dark:text-white text-center mb-4">Nuevo Diagrama</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Nombre del Diagrama</label>
+                    <input type="text" id="sheet-input-name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[36px] px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 focus:border-amber-450 outline-none transition-all" placeholder="Ej: Diagrama de Flujo de Caja Chica...">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeSheetModal()" class="flex-1 px-4 py-2.5 rounded-[36px] bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase hover:bg-slate-200 dark:hover:bg-slate-750 transition-colors">Cancelar</button>
+                <button onclick="saveNewSheet()" class="glow-hover flex-1 px-4 py-2.5 rounded-[36px] bg-amber-500 text-white font-bold text-xs uppercase hover:bg-amber-600 transition-colors shadow-lg">Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="share-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full relative p-6">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 dark:hover:text-slate-350"><i class="fas fa-times text-lg"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/30 flex items-center justify-center mb-4 mx-auto text-sky-500"><i class="fas fa-share-nodes text-xl"></i></div>
+            <h4 class="text-lg font-black text-slate-800 dark:text-white text-center mb-4">Compartir Documento</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Añadir Colaborador por su ID</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-uid-input" class="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[36px] px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-350 focus:border-sky-400 outline-none transition-all" placeholder="Pegar ID único del usuario...">
+                        <button onclick="addCollaborator()" class="glow-hover btn-bloom-sky px-4 py-2.5 rounded-[36px] bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs uppercase transition-colors shadow-lg">Añadir</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Personas con acceso</label>
+                    <div id="collaborators-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        <!-- Se poblará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeShareModal()" class="px-5 py-2.5 rounded-[36px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase hover:bg-slate-200 dark:hover:bg-slate-750 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Diagramas respaldados</p>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/custom-select-date.js"></script>
+    <script defer src="js/pages/editor-diagramas.js"></script>
+</body>
+
+</html>
+
+

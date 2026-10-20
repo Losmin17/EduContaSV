@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark" data-env="admin">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bóveda Global de Auditoría | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/styles.css?v=1.1.1">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1.0.5">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- PDF.js, Mammoth.js y SheetJS para Extracción de Documentos PDF, Word y Excel en Admin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Preloader unificado via styles.css */
+
+        /* ================================================================
+           TEMA OSCURO ABSOLUTO
+           ================================================================ */
+        html[data-theme="dark"], html { background-color: #000000 !important; }
+        body { background-color: #000000 !important; color: #f8fafc !important; }
+        [data-theme="dark"] body { background-color: #000000 !important; }
+        body::before { display: none !important; content: none !important; }
+
+        /* HEADER MONOCROMÁTICO B/N — SIN BLOOM CELESTE */
+        .main-header.glowinglass {
+            background: rgba(6, 6, 7, 0.97) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 1px 16px rgba(0, 0, 0, 0.98) !important;
+        }
+        
+        /* SCROLLBAR MINIMALISTA */
+        ::-webkit-scrollbar { width: 7px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #1c1c1e; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2c2c2e; }
+
+        /* ================================================================
+           CARPETA GLASSMORPHIC PREMIUM
+           ================================================================ */
+        .educonta-folder-card {
+            background: transparent;
+            border: none;
+            padding: 1.25rem 0.75rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 220px;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            margin: 0 auto;
+        }
+        .educonta-folder-card:hover { transform: translateY(-5px); }
+        .educonta-folder-card.archived-card { cursor: default; }
+
+        .folder-visual-wrapper {
+            position: relative;
+            width: 160px;
+            height: 135px;
+            overflow: visible;
+            margin-bottom: 6px;
+        }
+
+        /* Animación ultra-suave de hojas al hover */
+        .folder-sheet { transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) !important; }
+        .educonta-folder-card:hover .sheet-1 { transform: translateY(-3px) rotate(-4.5deg) scale(1.005) !important; }
+        .educonta-folder-card:hover .sheet-2 { transform: translateY(-4px) rotate(1.2deg) scale(1.01) !important; }
+        .educonta-folder-card:hover .sheet-3 { transform: translateY(-2px) rotate(7.5deg) scale(1.005) !important; }
+
+        .folder-title-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-top: 4px;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            width: 100%;
+        }
+        .educonta-folder-card:hover .folder-title-text { color: #38bdf8; }
+        .educonta-folder-card.archived-card .folder-title-text { color: #f87171; }
+        .educonta-folder-card.archived-card:hover .folder-title-text { color: #fca5a5 !important; }
+
+        .folder-subtitle-text {
+            font-size: 10px;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .educonta-folder-card.archived-card .folder-subtitle-text { color: rgba(248,113,113,0.6); }
+
+        .folder-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* ================================================================
+           BARRA DE HERRAMIENTAS FIJA DEL EXPLORADOR
+           ================================================================ */
+        .explorer-toolbar {
+            position: fixed !important;
+            top: 64px !important;
+            left: 1.5rem !important;
+            right: 1.5rem !important;
+            z-index: 950 !important;
+            background: rgba(6, 6, 7, 0.97) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9) !important;
+            padding: 0.65rem 1.25rem !important;
+            border-radius: 14px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            gap: 0.5rem !important;
+        }
+        .explorer-breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .explorer-breadcrumb-item { cursor: pointer; transition: color 0.2s ease; }
+        .explorer-breadcrumb-item:hover { color: #e2e8f0; }
+        .explorer-breadcrumb-item.active { color: #f8fafc; cursor: default; }
+
+        .view-toggle-btn {
+            background-color: #131315 !important;
+            border: 1px solid #222225 !important;
+            color: #94a3b8 !important;
+            width: 30px !important;
+            height: 30px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            font-size: 12px !important;
+        }
+        .view-toggle-btn:hover { color: #e2e8f0 !important; border-color: rgba(255,255,255,0.25) !important; background-color: #1a1a1c !important; }
+        .view-toggle-btn.active { color: #ffffff !important; border-color: rgba(255,255,255,0.35) !important; background-color: rgba(255,255,255,0.08) !important; }
+
+        /* ================================================================
+           GRID Y LISTA
+           ================================================================ */
+        .explorer-grid-container {
+            display: grid !important;
+            gap: 0.25rem !important;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)) !important;
+            width: 100% !important;
+        }
+        .explorer-list-container {
+            display: flex !important; flex-direction: column !important; width: 100% !important;
+            background-color: #050506 !important; border: 1px solid #141416 !important;
+            border-radius: 18px !important; overflow: hidden !important;
+        }
+        .explorer-list-header {
+            display: grid !important; grid-template-columns: 2fr 100px 160px 1.2fr !important;
+            align-items: center !important; padding: 0.75rem 1.5rem !important;
+            border-bottom: 1px solid #141416 !important; color: #64748b !important;
+            font-size: 10px !important; font-weight: 800 !important;
+            text-transform: uppercase !important; letter-spacing: 0.1em !important;
+            background-color: #0A0A0C !important;
+        }
+        .explorer-list-row {
+            display: grid !important; grid-template-columns: 2fr 100px 160px 1.2fr !important;
+            align-items: center !important; padding: 0.85rem 1.5rem !important;
+            border-bottom: 1px solid #0f0f11 !important; transition: all 0.2s ease !important;
+            cursor: pointer !important; background: transparent !important;
+        }
+        .explorer-list-row:hover { background-color: #0d0d0f !important; }
+        .explorer-list-row:last-child { border-bottom: none !important; }
+        .explorer-list-row.archived-list-row { color: #f43f5e !important; cursor: default !important; }
+        .explorer-list-row.archived-list-row:hover { background-color: #150a0a !important; }
+
+        .list-action-btn {
+            width: 28px !important; height: 28px !important; border-radius: 6px !important;
+            display: inline-flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 11px !important; transition: all 0.15s ease !important;
+            background-color: #141416 !important; border: 1px solid #222225 !important;
+            color: #94a3b8 !important; margin-left: 4px !important; cursor: pointer !important;
+        }
+        .list-action-btn:hover { transform: scale(1.05) !important; }
+        .list-action-btn.btn-audit:hover { color: #38bdf8 !important; border-color: rgba(56,189,248,0.5) !important; background-color: rgba(56,189,248,0.1) !important; }
+        .list-action-btn.btn-restore:hover { color: #34d399 !important; border-color: rgba(52,211,153,0.5) !important; background-color: rgba(52,211,153,0.1) !important; }
+        .list-action-btn.btn-delete:hover { color: #f87171 !important; border-color: rgba(248,113,113,0.5) !important; background-color: rgba(248,113,113,0.1) !important; }
+        .list-action-btn.btn-download:hover { color: #c084fc !important; border-color: rgba(192,132,252,0.5) !important; background-color: rgba(192,132,252,0.1) !important; }
+
+        /* ================================================================
+           MONOCROMÁTICO B/N — CONTROLES DEL HEADER
+           ================================================================ */
+        .text-svg .char-stroke, .text-svg .char-fill,
+        .char-stroke.d-s, .char-stroke.d-v,
+        .char-fill.d-s-f, .char-fill.d-v-f { color: #ffffff !important; fill: #ffffff !important; }
+
+        #master-search { background-color: #161619 !important; border: 1px solid #2d2d30 !important; color: #ffffff !important; }
+        #master-search:focus { outline: none !important; border-color: rgba(255,255,255,0.35) !important; box-shadow: 0 0 0 2px rgba(255,255,255,0.04) !important; }
+        #btn-clear-master-search { background: transparent !important; border: none !important; box-shadow: none !important; color: #94a3b8 !important; }
+        #btn-clear-master-search:hover { background: transparent !important; color: #38bdf8 !important; border: none !important; }
+
+        #header-admin-controls button:not(#btn-clear-master-search), #auth-container button, #btn-volver {
+            background-color: #161619 !important; border: 1px solid #2d2d30 !important;
+            color: #ffffff !important; transition: all 0.2s ease !important;
+        }
+        #header-admin-controls button:not(#btn-clear-master-search):hover, #auth-container button:hover, #btn-volver:hover {
+            background-color: #ffffff !important; color: #000000 !important; border-color: #ffffff !important;
+        }
+        #header-admin-controls span.bg-sky-500\/20 { background-color: rgba(255,255,255,0.1) !important; color: #ffffff !important; }
+        #user-info-header { background-color: #161619 !important; border-color: #2d2d30 !important; }
+        #user-info-header span { color: #ffffff !important; }
+        #user-info-header div { background-color: #2d2d30 !important; color: #ffffff !important; }
+
+        @media (max-width: 768px) {
+            .explorer-toolbar { top: 56px !important; left: 0.75rem !important; right: 0.75rem !important; padding: 0.55rem 1rem !important; }
+            .explorer-list-header { grid-template-columns: 1.5fr 1fr !important; }
+            .explorer-list-row { grid-template-columns: 1.5fr 1fr !important; }
+        }
+
+        /* DESACTIVAR DEGRADADO EN EL FONDO DE LA PÁGINA (SÓLO NEGRO PURO) */
+        body::before {
+            display: none !important;
+            content: none !important;
+            background: #000000 !important;
+        }
+
+        /* ESTILOS PARA LAS TARJETAS DE CARPETAS DE ADMINISTRACIÓN (SIN RECUADROS NI BORDES) */
+        .admin-folder-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0px !important;
+            padding: 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            width: 100% !important;
+            max-width: 240px !important;
+            margin: 0 auto !important;
+            cursor: pointer !important;
+            transition: transform 0.2s ease-in-out !important;
+            position: relative !important;
+            overflow: visible !important;
+        }
+
+        .admin-folder-card:hover {
+            transform: translateY(-4px) !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Ajustar tamaño del SVG de la carpeta */
+        .admin-folder-svg {
+            width: 140px !important;
+            height: 120px !important;
+            transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out !important;
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.75)) !important;
+        }
+
+        .admin-folder-card:hover .admin-folder-svg {
+            transform: scale(1.06) !important;
+            filter: drop-shadow(0 16px 32px rgba(56, 189, 248, 0.25)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.85)) !important;
+        }
+
+        /* Para proyectos archivados */
+        .admin-folder-card.archived-folder .admin-folder-svg {
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.75)) !important;
+        }
+        .admin-folder-card.archived-folder:hover .admin-folder-svg {
+            filter: drop-shadow(0 16px 32px rgba(244, 63, 94, 0.25)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.85)) !important;
+        }
+
+        /* Barra de herramientas y breadcrumbs del Explorador */
+        .explorer-toolbar {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            gap: 1rem !important;
+            background-color: #050506 !important;
+            border: 1px solid #141416 !important;
+            padding: 0.85rem 1.5rem !important;
+            border-radius: 18px !important;
+            margin-bottom: 2rem !important;
+            width: 100% !important;
+        }
+
+        .explorer-breadcrumbs {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            flex-wrap: wrap !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            color: #64748b !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+        }
+
+        .explorer-breadcrumb-item {
+            cursor: pointer !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .explorer-breadcrumb-item:hover {
+            color: #38bdf8 !important;
+        }
+
+        .explorer-breadcrumb-item.active {
+            color: #f8fafc !important;
+            cursor: default !important;
+        }
+
+        /* Botón de alternancia de vista */
+        .view-toggle-btn {
+            background-color: #141416 !important;
+            border: 1px solid #222225 !important;
+            color: #94a3b8 !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .view-toggle-btn:hover {
+            color: #38bdf8 !important;
+            border-color: #38bdf8 !important;
+            background-color: #1e1e24 !important;
+        }
+
+        .view-toggle-btn.active {
+            color: #ffffff !important;
+            border-color: #38bdf8 !important;
+            background-color: rgba(56, 189, 248, 0.15) !important;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.1) !important;
+        }
+
+        /* Contenedor del listado (Lista vs Cuadrícula) */
+        .explorer-grid-container {
+            display: grid !important;
+            gap: 1.5rem !important;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+            width: 100% !important;
+        }
+
+        .explorer-list-container {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            background-color: #050506 !important;
+            border: 1px solid #141416 !important;
+            border-radius: 18px !important;
+            overflow: hidden !important;
+            margin-bottom: 2rem !important;
+        }
+
+        .explorer-list-header {
+            display: grid !important;
+            grid-template-columns: 2fr 100px 160px 1.2fr !important;
+            align-items: center !important;
+            padding: 0.75rem 1.5rem !important;
+            border-bottom: 1px solid #141416 !important;
+            color: #64748b !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            background-color: #0A0A0C !important;
+        }
+
+        .explorer-list-row {
+            display: grid !important;
+            grid-template-columns: 2fr 100px 160px 1.2fr !important;
+            align-items: center !important;
+            padding: 0.85rem 1.5rem !important;
+            border-bottom: 1px solid #0f0f11 !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            background: transparent !important;
+        }
+
+        .explorer-list-row:hover {
+            background-color: #0d0d0f !important;
+        }
+
+        .explorer-list-row:last-child {
+            border-bottom: none !important;
+        }
+
+        .explorer-list-row.archived-list-row {
+            color: #f43f5e !important;
+        }
+
+        .explorer-list-row.archived-list-row:hover {
+            background-color: #1a0808 !important;
+        }
+
+        /* Botones de acción de lista compactos */
+        .list-action-btn {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 6px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 11px !important;
+            transition: all 0.15s ease !important;
+            background-color: #141416 !important;
+            border: 1px solid #222225 !important;
+            color: #94a3b8 !important;
+            margin-left: 0.35rem !important;
+        }
+        
+        .list-action-btn:hover {
+            transform: scale(1.05) !important;
+        }
+
+        .list-action-btn.btn-audit:hover {
+            color: #38bdf8 !important;
+            border-color: rgba(56, 189, 248, 0.5) !important;
+            background-color: rgba(56, 189, 248, 0.1) !important;
+        }
+        
+        .list-action-btn.btn-restore:hover {
+            color: #34d399 !important;
+            border-color: rgba(52, 211, 153, 0.5) !important;
+            background-color: rgba(52, 211, 153, 0.1) !important;
+        }
+
+        .list-action-btn.btn-delete:hover {
+            color: #f87171 !important;
+            border-color: rgba(248, 113, 113, 0.5) !important;
+            background-color: rgba(248, 113, 113, 0.1) !important;
+        }
+        
+        .list-action-btn.btn-download:hover {
+            color: #c084fc !important;
+            border-color: rgba(192, 132, 252, 0.5) !important;
+            background-color: rgba(192, 132, 252, 0.1) !important;
+        }
+
+        @media (max-width: 768px) {
+            .explorer-list-header {
+                grid-template-columns: 1.5fr 1fr !important;
+            }
+            .explorer-list-row {
+                grid-template-columns: 1.5fr 1fr !important;
+            }
+        }
+
+        /* OVERRIDES PARA HEADER MONOCROMÁTICO Y SIN SOMBRA BLOOM */
+        body .main-header.glowinglass,
+        [data-theme="dark"] .main-header.glowinglass {
+            background: rgba(10, 10, 10, 0.65) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important; /* Sin brillo de color */
+        }
+
+        /* Hacer que el logotipo sea monocromático blanco y sin resplandor */
+        body .main-header .icon-svg,
+        body .main-header .text-svg,
+        [data-theme="dark"] .main-header .icon-svg,
+        [data-theme="dark"] .main-header .text-svg {
+            filter: none !important;
+            text-shadow: none !important;
+        }
+
+        .text-svg .char-stroke, 
+        .text-svg .char-fill,
+        .char-stroke.d-s, .char-stroke.d-v,
+        .char-fill.d-s-f, .char-fill.d-v-f {
+            color: rgba(255, 255, 255, 0.85) !important;
+            fill: rgba(255, 255, 255, 0.85) !important;
+            filter: none !important;
+            text-shadow: none !important;
+        }
+
+        body .main-header .icon-svg .bar,
+        body .main-header .icon-svg .base-line,
+        [data-theme="dark"] .main-header .icon-svg .bar,
+        [data-theme="dark"] .main-header .icon-svg .base-line {
+            fill: rgba(255, 255, 255, 0.85) !important;
+            filter: none !important;
+        }
+
+        /* Buscador en tonos de gris monocromáticos */
+        #master-search {
+            background-color: #161619 !important;
+            border: 1px solid #2d2d30 !important;
+            color: #ffffff !important;
+        }
+        #master-search:focus {
+            outline: none !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Botones de cabecera con efecto cristal (excluyendo Inicio y Proyectos) */
+        #header-admin-controls button,
+        #auth-container button {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            transition: all 0.2s ease !important;
+        }
+
+        #header-admin-controls button:hover,
+        #auth-container button:hover {
+            background-color: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        /* Quitar fondo a los botones de texto de navegación */
+        #btn-volver, #btn-nav-projects {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        #header-admin-controls span.bg-sky-500\/20 {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+
+        /* Nombre de usuario en cabecera */
+        #user-info-header {
+            background-color: #161619 !important;
+            border-color: #2d2d30 !important;
+        }
+        #user-info-header span {
+            color: #ffffff !important;
+        }
+        #user-info-header div {
+            background-color: #2d2d30 !important;
+            color: #ffffff !important;
+        }
+
+        /* Posición fija de la barra de herramientas directamente debajo del header */
+        .explorer-toolbar {
+            position: fixed !important;
+            top: 96px !important;
+            left: 2rem !important;
+            right: 2rem !important;
+            width: auto !important; /* Corrige el overflow horizontal */
+            z-index: 999 !important;
+            background: rgba(10, 10, 10, 0.65) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
+            padding: 0.85rem 1.5rem !important;
+            border-radius: 18px !important;
+            margin-bottom: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+            .explorer-toolbar {
+                top: 86px !important;
+                left: 1rem !important;
+                right: 1rem !important;
+            }
+        }
+
+        /* Centro de Soporte Premium Theme */
+        #support-screen {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .inbox-ticket-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .inbox-ticket-row:hover {
+            background: rgba(56, 189, 248, 0.04) !important;
+            box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.02);
+        }
+
+        .inbox-ticket-row.active-row {
+            background: rgba(56, 189, 248, 0.08) !important;
+            border-left: 3px solid #38bdf8 !important;
+        }
+
+        /* Custom Scrollbar for Inbox */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+
+<body class="bg-[#000000] text-slate-100 font-sans antialiased min-h-screen pb-12 transition-colors duration-300" style="background-color: #000000 !important;">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-purple" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- BARRA FIJA DEL EXPLORADOR (fuera del scroll, posicionada correctamente) -->
+    <div id="explorer-fixed-toolbar" class="explorer-toolbar no-print">
+        <div id="breadcrumbs-mount-point" class="explorer-breadcrumbs">
+            <i class="fas fa-folder-open" style="color:#38bdf8;font-size:13px;margin-right:6px;"></i>
+            <span class="explorer-breadcrumb-item active">Bóveda Global</span>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <div id="view-toggle-mount-point"></div>
+            <div class="flex items-center gap-2 border-l border-slate-800 pl-3">
+                <div class="relative flex items-center p-1 bg-slate-900 border border-slate-800 rounded-full">
+                    <div id="admin-main-pill" class="absolute top-1 bottom-1 left-0 rounded-full bg-slate-800 border border-slate-700 pointer-events-none transition-all duration-300 ease-out shadow-sm" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                    <button id="btn-tab-explorer" data-idx="0" onclick="window.switchAdminTab('explorer')" class="relative z-10 px-4 py-1.5 rounded-full text-slate-100 text-[10px] uppercase font-black tracking-wider transition-all flex items-center gap-1.5">
+                        <i class="fas fa-folder"></i> Archivos
+                    </button>
+                    <button id="btn-tab-support" data-idx="1" onclick="window.switchAdminTab('support')" class="relative z-10 px-4 py-1.5 rounded-full text-slate-400 text-[10px] uppercase font-black tracking-wider transition-all flex items-center gap-1.5 hover:text-slate-200">
+                        <i class="fas fa-headset"></i> Soporte
+                    </button>
+                    <button id="btn-tab-library" data-idx="2" onclick="window.switchAdminTab('library')" class="relative z-10 px-4 py-1.5 rounded-full text-slate-400 text-[10px] uppercase font-black tracking-wider transition-all flex items-center gap-1.5 hover:text-slate-200">
+                        <i class="fas fa-book-bookmark text-emerald-400"></i> Biblioteca
+                    </button>
+                </div>
+                <button onclick="window.location.href='educonvert.html'" class="px-3.5 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[10px] uppercase font-black tracking-wider transition-all flex items-center gap-1.5 shadow-md" title="Abrir espacio de trabajo EduConvert">
+                    <i class="fas fa-bolt"></i> EduConvert Studio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 1: MASTER BACK-OFFICE (EXPLORADOR) -->
+    <main id="master-screen" class="w-full no-print fade-in pb-12 pt-0" style="margin-top: 160px !important;">
+        <div class="w-full max-w-[1600px] mx-auto px-4 md:px-8">
+            <div class="w-full overflow-visible">
+                <div id="master-table-body" class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-4 md:p-6 bg-transparent overflow-visible">
+                    <!-- Cargando dinámicamente -->
+                    <div class="col-span-full text-center py-20 bg-[#161618] rounded-[24px] border border-[#262629] shadow-md">
+                        <i class="fas fa-spinner fa-spin text-sky-500 text-4xl mb-4"></i>
+                        <p class="text-slate-400 font-bold">Cargando base de datos global...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PANTALLA 2: GESTOR DE SOPORTE -->
+    <main id="support-screen" class="w-full no-print fade-in pb-12 pt-0 hidden" style="margin-top: 160px !important;">
+        <div class="w-full max-w-[1500px] mx-auto px-4 md:px-8">
+            <!-- Header principal del Gestor -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                    <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                        <i class="fas fa-headset text-sky-400"></i> Centro de Soporte Técnico
+                    </h2>
+                    <p class="text-slate-400 text-xs mt-1">Monitorea, audita y resuelve reportes de errores y dudas contables de los alumnos en tiempo real.</p>
+                </div>
+                <button onclick="window.loadSupportTickets()" class="px-5 py-2.5 bg-slate-900 border border-[#2d2d30] text-slate-100 rounded-xl hover:bg-white hover:text-black transition-all flex items-center gap-2 text-xs font-bold shadow-lg">
+                    <i class="fas fa-sync-alt"></i> Sincronizar Bandeja
+                </button>
+            </div>
+            
+            <!-- Split Pane Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- PANEL IZQUIERDO: BANDEJA INBOX (40%) -->
+                <div id="support-inbox-pane" class="lg:col-span-5 bg-[#0a0a0c]/90 border border-white/5 rounded-3xl flex flex-col overflow-hidden backdrop-blur-xl shadow-2xl min-h-[550px]">
+                    <div class="p-5 border-b border-white/5 bg-[#0d0d0f]/40 flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fas fa-inbox text-slate-500"></i> Bandeja de Entrada
+                        </span>
+                        <span id="ticket-count-badge" class="px-2.5 py-0.5 rounded bg-slate-800 text-[10px] font-black text-slate-400">0 Tickets</span>
+                    </div>
+                    
+                    <div id="support-tickets-body" class="divide-y divide-white/5 overflow-y-auto max-h-[550px] custom-scrollbar flex-1">
+                        <div class="text-center py-20">
+                            <i class="fas fa-spinner fa-spin text-sky-500 text-3xl mb-4"></i>
+                            <p class="text-slate-400 text-xs font-bold">Cargando bandeja de soporte...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PANEL DERECHO: DETALLE DEL TICKET (60%) -->
+                <div id="support-detail-pane" class="lg:col-span-7 bg-[#0a0a0c]/90 border border-white/5 rounded-3xl p-8 flex flex-col justify-center items-center relative backdrop-blur-xl shadow-2xl min-h-[550px] overflow-hidden">
+                    <div id="detail-blank-state" class="text-center max-w-sm flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center text-slate-600 text-2xl mb-4 shadow-inner">
+                            <i class="fas fa-envelope-open"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-300">Ningún ticket seleccionado</h4>
+                        <p class="text-slate-500 text-xs mt-1 leading-relaxed">Selecciona uno de los reportes en la bandeja de entrada para auditar sus detalles e imagen de evidencia.</p>
+                    </div>
+                    
+                    <div id="detail-content-area" class="w-full h-full hidden flex flex-col">
+                        <!-- Inyectado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PANTALLA 3: GESTOR CMS DE BIBLIOTECA & PUENTE EDUCONVERT -->
+    <main id="library-screen" class="w-full no-print fade-in pb-16 pt-0 hidden" style="margin-top: 160px !important;">
+        <div class="w-full max-w-[1500px] mx-auto px-4 md:px-8">
+            <!-- Header principal del Gestor CMS -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                    <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                        <i class="fas fa-book-bookmark text-emerald-400"></i> Gestor CMS de Biblioteca & EduConvert
+                    </h2>
+                    <p class="text-slate-400 text-xs mt-1">Administra glosarios, actualiza parámetros fiscales de El Salvador y sincroniza leyes procesadas con EduConvert.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="cms-cloud-status" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-2">
+                        <i class="fas fa-cloud-check text-emerald-400"></i> Conectado a Supabase
+                    </span>
+                    <button onclick="window.refreshLibraryCMS()" class="px-4 py-2 bg-slate-900 border border-[#2d2d30] text-slate-100 rounded-xl hover:bg-white hover:text-black transition-all flex items-center gap-2 text-xs font-bold shadow-lg">
+                        <i class="fas fa-sync-alt"></i> Sincronizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sub-Navegación del CMS (Pestañas internas) -->
+            <div class="relative flex items-center p-1.5 bg-[#0a0a0c] border border-white/5 rounded-2xl mb-8 w-fit">
+                <div id="cms-sub-pill" class="absolute top-1.5 bottom-1.5 left-0 rounded-xl bg-emerald-500 pointer-events-none transition-all duration-300 ease-out shadow-sm" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                <button id="btn-cms-sub-educonvert" data-idx="0" onclick="window.switchLibrarySubTab('educonvert')" class="relative z-10 px-5 py-2.5 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2">
+                    <i class="fas fa-bolt"></i> EduConvert & Leyes
+                </button>
+                <button id="btn-cms-sub-glosario" data-idx="1" onclick="window.switchLibrarySubTab('glosario')" class="relative z-10 px-5 py-2.5 rounded-xl text-slate-400 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 hover:text-slate-200">
+                    <i class="fas fa-book-open"></i> Glosario Contable
+                </button>
+                <button id="btn-cms-sub-parametros" data-idx="2" onclick="window.switchLibrarySubTab('parametros')" class="relative z-10 px-5 py-2.5 rounded-xl text-slate-400 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 hover:text-slate-200">
+                    <i class="fas fa-percent"></i> Parámetros Fiscales 2026
+                </button>
+            </div>
+
+            <!-- SUB-PANEL 1: PUENTE EDUCONVERT & GESTIÓN DE LEYES -->
+            <div id="cms-pane-educonvert" class="space-y-8">
+                <!-- Gateway Card a EduConvert Studio -->
+                <div class="bg-[#0a0a0c]/90 border border-emerald-500/20 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group">
+                    <div class="absolute -top-24 -right-24 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all pointer-events-none"></div>
+                    
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 relative z-10">
+                        <div class="max-w-2xl space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-[10px] uppercase tracking-wider border border-emerald-500/30">
+                                    Entorno Dedicado MPA
+                                </span>
+                                <span class="text-xs text-slate-500">•</span>
+                                <span class="text-xs text-slate-400 font-bold">Compilador & Gestor de Legislación</span>
+                            </div>
+                            <h3 class="text-2xl font-black text-white tracking-tight">EduConvert Studio</h3>
+                            <p class="text-slate-400 text-xs leading-relaxed">
+                                Ingesta y segmentación automática de leyes salvadoreñas desde archivos PDF (Diario Oficial), Word (.docx) o JSON. Edita artículos en caliente, valida la correlatividad y sincroniza en 1 clic con la base de datos de los alumnos.
+                            </p>
+                            
+                            <!-- Métricas Rápidas -->
+                            <div class="flex items-center gap-4 pt-2 flex-wrap text-xs font-bold text-slate-300">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-scale-balanced text-emerald-400"></i>
+                                    <span id="cms-gateway-laws-count">0 Leyes en Nube</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-bolt text-teal-400"></i>
+                                    <span>Parser Heurístico & PDF.js</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-cloud-check text-sky-400"></i>
+                                    <span>Sincronización en Tiempo Real</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones Principales -->
+                        <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+                            <button onclick="window.location.href='educonvert.html'" class="px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Abrir EduConvert Studio
+                            </button>
+                            <button onclick="window.location.href='educonvert.html?tab=compiler'" class="px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-2 border border-white/10">
+                                <i class="fas fa-plus text-emerald-400"></i> Compilar Nueva Ley
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Leyes Existentes en la Base de Datos -->
+                <div class="bg-[#0a0a0c]/90 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-white/5">
+                        <div>
+                            <h3 class="text-base font-black text-white flex items-center gap-2">
+                                <i class="fas fa-scale-balanced text-emerald-400"></i> Catálogo de Leyes Publicadas en Supabase
+                            </h3>
+                            <p class="text-slate-400 text-xs mt-1">Leyes activas disponibles para consulta en la biblioteca de los alumnos.</p>
+                        </div>
+                        <span id="published-laws-count" class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-bold">Cargando...</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 uppercase font-black border-b border-white/5 text-[10px] tracking-wider">
+                                    <th class="pb-3 pl-2">Nombre de la Ley</th>
+                                    <th class="pb-3 px-3">Decreto / Abreviatura</th>
+                                    <th class="pb-3 px-3">Categoría</th>
+                                    <th class="pb-3 pr-2 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cms-laws-table-body" class="divide-y divide-white/5 font-medium text-slate-300">
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-slate-500 font-bold">Cargando leyes de Supabase...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-PANEL 2: GESTOR DE GLOSARIO CONTABLE (GRID ALFABÉTICO & TABLA) -->
+            <div id="cms-pane-glosario" class="hidden space-y-6">
+                <div class="bg-[#0a0a0c]/90 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl">
+                    <!-- Cabecera de Gestión del Glosario -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-white/5">
+                        <div>
+                            <h3 class="text-base font-black text-white flex items-center gap-2">
+                                <i class="fas fa-book text-emerald-400"></i> Términos y Definiciones Contables
+                            </h3>
+                            <p class="text-slate-400 text-xs mt-1">Organización alfabética A-Z con soporte para adición individual e importación masiva.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="window.syncOfficialGlosarioToCloud()" title="Subir los 30 términos contables base de El Salvador a la base de datos Supabase" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 border border-slate-700">
+                                <i class="fas fa-cloud-arrow-up text-emerald-400"></i> Sincronizar Oficiales (30)
+                            </button>
+                            <button onclick="window.openBatchImportModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 border border-emerald-500/30 shadow-md">
+                                <i class="fas fa-layer-group"></i> + Añadir por Lotes
+                            </button>
+                            <button onclick="window.openNewTermModal()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg">
+                                <i class="fas fa-plus"></i> + Nuevo Término
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Herramientas y Filtros -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center gap-3 flex-1 min-w-[280px]">
+                            <div class="relative flex-1">
+                                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                <input type="text" id="cms-glosario-search" oninput="window.filterCMSGlosario()" placeholder="Buscar término, definición o base legal..." class="w-full bg-[#121214] border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none">
+                            </div>
+                            <select id="cms-glosario-category-filter" onchange="window.filterCMSGlosario()" class="bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:border-emerald-500 focus:outline-none">
+                                <option value="all">Todas las Categorías</option>
+                                <option value="financiera">Contabilidad Financiera</option>
+                                <option value="fiscal">Tributaria & Fiscal (SV)</option>
+                                <option value="laboral">Laboral & Planillas</option>
+                                <option value="costos">Costos & Kardex</option>
+                                <option value="niif">NIIF / Principios</option>
+                            </select>
+                        </div>
+
+                        <!-- Toggle de Vistas (Grid vs Tabla) y Contador -->
+                        <div class="flex items-center gap-2">
+                            <span id="cms-glosario-count-badge" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold border border-slate-700">0 Términos</span>
+                            <div class="flex items-center bg-[#121214] p-1 rounded-xl border border-slate-700">
+                                <button id="btn-glosario-view-grid" onclick="window.setGlosarioViewMode('grid')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-emerald-500 text-slate-950" title="Vista Cuadrícula Alfabética">
+                                    <i class="fas fa-th-large mr-1"></i> Grid A-Z
+                                </button>
+                                <button id="btn-glosario-view-table" onclick="window.setGlosarioViewMode('table')" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all" title="Vista Tabla">
+                                    <i class="fas fa-list mr-1"></i> Tabla
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Navegación Alfabética Rápida (A-Z) -->
+                    <div id="cms-glosario-alpha-bar" class="flex flex-wrap items-center gap-1 mb-6 p-2 rounded-2xl bg-[#121214]/60 border border-white/5 overflow-x-auto">
+                        <!-- Generado por JS -->
+                    </div>
+
+                    <!-- Contenedor 1: VISTA GRID ALFABÉTICO -->
+                    <div id="cms-terms-grid-container" class="space-y-8">
+                        <div class="text-center py-12 text-slate-500">
+                            <i class="fas fa-spinner fa-spin text-emerald-400 text-2xl mb-2"></i>
+                            <p class="text-xs font-bold">Cargando catálogo contable...</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor 2: VISTA TABLA DETALLADA -->
+                    <div id="cms-terms-table-container" class="hidden overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 uppercase font-black border-b border-white/5">
+                                    <th class="pb-3">Término</th>
+                                    <th class="pb-3">Categoría</th>
+                                    <th class="pb-3">Base Legal SV</th>
+                                    <th class="pb-3">Definición</th>
+                                    <th class="pb-3 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cms-terms-table-body" class="divide-y divide-white/5 font-medium text-slate-300">
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-500 font-bold">Cargando glosario...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-PANEL 3: PARÁMETROS FISCALES 2026 -->
+            <div id="cms-pane-parametros" class="hidden space-y-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0a0a0c]/90 border border-white/5 rounded-3xl p-6 backdrop-blur-xl">
+                    <div>
+                        <h3 class="text-base font-black text-white flex items-center gap-2">
+                            <i class="fas fa-sliders text-emerald-400"></i> Configuración de Tasas y Parámetros Oficiales (2026)
+                        </h3>
+                        <p class="text-slate-400 text-xs mt-1">Al guardar cambios aquí, se actualizarán instantáneamente las calculadoras, tablas y editores de EduConta SV.</p>
+                    </div>
+                    <button onclick="window.saveCMSFiscalParameters()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg">
+                        <i class="fas fa-floppy-disk"></i> Guardar Parámetros en la Nube
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Formulario: Salarios Mínimos -->
+                    <div class="bg-[#0a0a0c]/90 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl">
+                        <h4 class="text-sm font-black text-white flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
+                            <i class="fas fa-money-bill-wave text-emerald-400"></i> Salarios Mínimos Mensuales ($)
+                        </h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Comercio y Servicios</label>
+                                <input type="number" step="0.01" id="param-salario-comercio" value="365.00" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Industria y Manufactura</label>
+                                <input type="number" step="0.01" id="param-salario-industria" value="365.00" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Maquila Textil y Confección</label>
+                                <input type="number" step="0.01" id="param-salario-maquila" value="359.16" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Agropecuario (Café y Azúcar)</label>
+                                <input type="number" step="0.01" id="param-salario-agro1" value="272.66" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Agropecuario (Otras labores)</label>
+                                <input type="number" step="0.01" id="param-salario-agro2" value="243.46" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario: Seguridad Social & Tasas -->
+                    <div class="bg-[#0a0a0c]/90 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl">
+                        <h4 class="text-sm font-black text-white flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
+                            <i class="fas fa-shield-heart text-sky-400"></i> Seguridad Social y Techos
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">ISSS Laboral (%)</label>
+                                    <input type="number" step="0.01" id="param-isss-lab" value="3.0" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">ISSS Patronal (%)</label>
+                                    <input type="number" step="0.01" id="param-isss-pat" value="7.5" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Techo Máximo ISSS ($ / mes)</label>
+                                <input type="number" step="0.01" id="param-isss-techo" value="1000.00" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">AFP Laboral (%)</label>
+                                    <input type="number" step="0.01" id="param-afp-lab" value="7.25" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">AFP Patronal (%)</label>
+                                    <input type="number" step="0.01" id="param-afp-pat" value="8.75" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">IVA General (%)</label>
+                                    <input type="number" step="0.01" id="param-iva" value="13.0" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Pago a Cuenta (%)</label>
+                                    <input type="number" step="0.01" id="param-pago-cuenta" value="1.75" class="w-full bg-[#121214] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL PARA CREAR / EDITAR TÉRMINO CONTABLE -->
+    <div id="admin-term-modal" class="fixed inset-0 z-[1050] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-[#0f0f12] border border-white/10 rounded-3xl w-full max-w-xl p-6 md:p-8 shadow-2xl relative">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/5">
+                <h3 id="term-modal-title" class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fas fa-book text-emerald-400"></i> Nuevo Término Contable
+                </h3>
+                <button onclick="window.closeAdminTermModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <form id="admin-term-form" onsubmit="window.saveAdminTerm(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="modal-term-id">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-400 mb-1">Nombre del Término *</label>
+                        <input type="text" id="modal-term-name" required placeholder="Ej: Crédito Fiscal" class="w-full bg-[#16161a] border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1">Categoría *</label>
+                        <select id="modal-term-cat" required class="w-full bg-[#16161a] border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:border-emerald-500 focus:outline-none">
+                            <option value="financiera">Financiera</option>
+                            <option value="fiscal">Fiscal (SV)</option>
+                            <option value="laboral">Laboral</option>
+                            <option value="costos">Costos</option>
+                            <option value="niif">NIIF / NIC</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1">Definición Técnica *</label>
+                    <textarea id="modal-term-def" rows="3" required placeholder="Explicación técnica contable..." class="w-full bg-[#16161a] border border-slate-700 rounded-xl p-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1">Base Legal en El Salvador</label>
+                        <input type="text" id="modal-term-legal" placeholder="Ej: Ley de IVA Art. 64" class="w-full bg-[#16161a] border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-400 mb-1">Términos Relacionados (coma)</label>
+                        <input type="text" id="modal-term-related" placeholder="Ej: Débito Fiscal, IVA, F-07" class="w-full bg-[#16161a] border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1">Ejemplo Práctico Numérico</label>
+                    <textarea id="modal-term-example" rows="2" placeholder="Ej: Venta de $1,000 + IVA $130 = $1,130..." class="w-full bg-[#16161a] border border-slate-700 rounded-xl p-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-white/5 flex items-center justify-end gap-3">
+                    <button type="button" onclick="window.closeAdminTermModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase tracking-wider transition-colors shadow-lg">
+                        Guardar Término
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PARA AÑADIR POR LOTES (EXCEL, WORD, JSON) -->
+    <div id="admin-batch-term-modal" class="fixed inset-0 z-[1050] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-[#0f0f12] border border-white/10 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden">
+            <!-- Cabecera del Modal -->
+            <div class="flex items-center justify-between p-6 pb-4 border-b border-white/5 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white flex items-center gap-2">
+                            Ingesta e Importación por Lotes de Términos
+                        </h3>
+                        <p class="text-slate-400 text-xs">Añade múltiples terminologías contables simultáneamente desde Excel, Word, JSON o texto copiado.</p>
+                    </div>
+                </div>
+                <button onclick="window.closeBatchImportModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Navegación entre Pestañas del Modal -->
+            <div class="flex items-center gap-2 px-6 pt-3 border-b border-white/5 bg-[#141418]/50 shrink-0">
+                <button id="btn-batch-tab-upload" onclick="window.switchBatchSubTab('upload')" class="px-4 py-2 rounded-t-xl text-xs font-black uppercase tracking-wider transition-all border-b-2 border-emerald-500 text-white bg-white/5">
+                    <i class="fas fa-file-arrow-up mr-1.5 text-emerald-400"></i> Subir Archivo
+                </button>
+                <button id="btn-batch-tab-paste" onclick="window.switchBatchSubTab('paste')" class="px-4 py-2 rounded-t-xl text-xs font-bold uppercase tracking-wider transition-all border-b-2 border-transparent text-slate-400 hover:text-slate-200">
+                    <i class="fas fa-paste mr-1.5"></i> Pegar Texto / JSON
+                </button>
+                <button id="btn-batch-tab-templates" onclick="window.switchBatchSubTab('templates')" class="px-4 py-2 rounded-t-xl text-xs font-bold uppercase tracking-wider transition-all border-b-2 border-transparent text-slate-400 hover:text-slate-200">
+                    <i class="fas fa-download mr-1.5 text-amber-400"></i> Plantillas & Formatos
+                </button>
+            </div>
+
+            <!-- Cuerpo Scrolleable del Modal -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+                
+                <!-- PESTAÑA 1: SUBIR ARCHIVO -->
+                <div id="batch-pane-upload" class="space-y-4">
+                    <div id="batch-dropzone" 
+                         ondragover="window.handleBatchDragOver(event)" 
+                         ondragleave="window.handleBatchDragLeave(event)" 
+                         ondrop="window.handleBatchDrop(event)"
+                         class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-3xl p-8 text-center transition-all bg-[#141418]/60 cursor-pointer group">
+                        <input type="file" id="batch-file-input" onchange="window.handleBatchFileSelect(event)" accept=".json,.xlsx,.xls,.csv,.docx,.doc,.txt" class="hidden">
+                        <div onclick="document.getElementById('batch-file-input').click()" class="space-y-3">
+                            <div class="w-14 h-14 mx-auto rounded-3xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                <i class="fas fa-cloud-arrow-up"></i>
+                            </div>
+                            <h4 class="text-sm font-black text-white">Arrastra y suelta tu archivo aquí o haz clic para explorar</h4>
+                            <p class="text-slate-400 text-xs max-w-md mx-auto">
+                                Formatos admitidos: <span class="text-emerald-400 font-bold">Excel (.xlsx, .csv)</span>, <span class="text-sky-400 font-bold">JSON (.json)</span>, <span class="text-amber-400 font-bold">Word (.docx)</span> o Texto estructurado.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 2: PEGAR TEXTO / JSON DIRECTO -->
+                <div id="batch-pane-paste" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-slate-300">Pega aquí el contenido JSON o tabla copiada de Excel:</label>
+                        <button onclick="window.loadExampleInBatchTextarea()" class="text-emerald-400 hover:underline font-bold text-[11px]">
+                            <i class="fas fa-magic mr-1"></i> Cargar Ejemplo en Editor
+                        </button>
+                    </div>
+                    <textarea id="batch-paste-textarea" rows="8" placeholder="Pega un arreglo JSON ej. [{ 'termino': 'Caja', 'definicion': '...' }] o filas tabuladas de Excel..." class="w-full bg-[#141418] border border-slate-700 rounded-2xl p-4 font-mono text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
+                    <button onclick="window.parseBatchPastedContent()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center gap-2 border border-slate-700">
+                        <i class="fas fa-sync-alt text-emerald-400"></i> Procesar y Detectar Términos
+                    </button>
+                </div>
+
+                <!-- PESTAÑA 3: PLANTILLAS Y FORMATOS -->
+                <div id="batch-pane-templates" class="hidden space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Tarjeta Plantilla JSON -->
+                        <div class="p-5 rounded-2xl bg-[#141418] border border-white/5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-sky-400 flex items-center gap-2">
+                                    <i class="fas fa-code"></i> Plantilla Formato JSON
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 text-[10px] font-bold">Recomendado</span>
+                            </div>
+                            <p class="text-slate-400 text-xs">Ideal para importar definiciones completas con bases legales y ejemplos estructurados.</p>
+                            <button onclick="window.downloadGlosarioJSONTemplate()" class="w-full py-2.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-bold border border-sky-500/40 flex items-center justify-center gap-2 transition-all">
+                                <i class="fas fa-download"></i> Descargar plantilla_glosario.json
+                            </button>
+                        </div>
+
+                        <!-- Tarjeta Plantilla Excel / CSV -->
+                        <div class="p-5 rounded-2xl bg-[#141418] border border-white/5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-emerald-400 flex items-center gap-2">
+                                    <i class="fas fa-file-excel"></i> Plantilla Formato Excel / CSV
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">Hojas de Cálculo</span>
+                            </div>
+                            <p class="text-slate-400 text-xs">Columnas: Término, Categoría, Definición, Base Legal, Ejemplo, Relacionados.</p>
+                            <button onclick="window.downloadGlosarioCSVTemplate()" class="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold border border-emerald-500/40 flex items-center justify-center gap-2 transition-all">
+                                <i class="fas fa-download"></i> Descargar plantilla_glosario.csv
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Guía rápida de estructura -->
+                    <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2 text-[11px] text-slate-300">
+                        <div class="font-bold text-white mb-1">Estructura para Documentos de Texto o Word (.docx):</div>
+                        <p class="text-slate-400">Puedes escribir o pegar términos estructurados de la siguiente forma:</p>
+                        <pre class="font-mono text-emerald-400 leading-relaxed bg-[#0a0a0c] p-3 rounded-xl border border-white/5">Término: Caja Chica
+Categoría: Financiera
+Definición: Fondo fijo en efectivo para pagos menores de la entidad.
+Base Legal: Normas de Control Interno
+Ejemplo: Fondo establecido por $200.00 en Tesorería.
+
+Término: Depreciación
+Categoría: Financiera
+Definición: Distribución del costo de un activo fijo durante su vida útil.
+Base Legal: Art. 30 LISR</pre>
+                    </div>
+                </div>
+
+                <!-- PREVISUALIZACIÓN DE TÉRMINOS PROCESADOS -->
+                <div id="batch-preview-section" class="space-y-3 pt-4 border-t border-white/5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-black text-white flex items-center gap-2">
+                            <i class="fas fa-list-check text-emerald-400"></i> Previsualización del Lote
+                        </h4>
+                        <span id="batch-preview-badge" class="px-3 py-1 rounded-full bg-slate-800 text-slate-400 text-[11px] font-bold">
+                            0 Términos listos
+                        </span>
+                    </div>
+
+                    <!-- Estado Vacío -->
+                    <div id="batch-preview-empty" class="p-8 text-center bg-[#141418]/40 border border-white/5 rounded-2xl text-slate-500 font-bold">
+                        <i class="fas fa-inbox text-3xl mb-2 text-slate-600 block"></i>
+                        Aún no has cargado o procesado ningún archivo o texto.
+                    </div>
+
+                    <!-- Lista de Previsualización -->
+                    <div id="batch-preview-container" class="hidden max-h-56 overflow-y-auto space-y-2 pr-1">
+                        <!-- Filas de muestra inyectadas dinámicamente -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Pie de Acciones del Modal -->
+            <div class="p-6 py-4 border-t border-white/5 bg-[#141418]/80 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                    <input type="checkbox" id="batch-overwrite-checkbox" checked class="rounded bg-[#121214] border-slate-700 text-emerald-500 focus:ring-0">
+                    <span>Sobrescribir términos si ya existen con el mismo nombre</span>
+                </label>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <button type="button" onclick="window.closeBatchImportModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button id="btn-save-batch-terms" type="button" onclick="window.saveBatchTermsToCloud()" disabled class="px-6 py-2.5 rounded-xl bg-slate-700 text-slate-400 font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-not-allowed">
+                        <i class="fas fa-cloud-arrow-up"></i> Guardar Lote en la Biblioteca
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS CORE -->
+    <script src="js/core/security.js"></script>
+    <script src="js/core/supabase.js"></script>
+    <script src="js/core/db.js"></script>
+    <script src="js/core/glosario-seeds.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/core/components.js?v=2.4"></script>
+    <script src="js/pages/admin.js?v=1.2.2"></script>
+
+    <!-- INICIALIZADOR GLOBAL -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inyectar el Header UI Global
+            if (typeof window.injectSharedUI === 'function') {
+                window.injectSharedUI('shared-components-root');
+            }
+            
+            // Personalizar el header para el panel Master
+            setTimeout(() => {
+                // Ocultar botón de tema
+                const themeBtn = document.getElementById('theme-toggle-btn');
+                if (themeBtn) themeBtn.style.display = 'none';
+
+                // Ocultar enlace "Mis Proyectos"
+                const btnProjects = document.getElementById('btn-nav-projects');
+                if (btnProjects) btnProjects.style.display = 'none';
+
+                // Convertir "Inicio" en una píldora "Volver al inicio"
+                const btnVolver = document.getElementById('btn-volver');
+                if (btnVolver) {
+                    btnVolver.classList.remove('hidden');
+                    btnVolver.style.display = 'inline-block';
+                    btnVolver.className = "px-3 py-1.5 bg-rose-100 text-rose-600 font-bold rounded-[36px] text-[10px] uppercase tracking-wider hover:bg-rose-200 transition-colors";
+                    btnVolver.innerHTML = '<i class="fas fa-chevron-left mr-1"></i> Volver al Inicio';
+                    btnVolver.onclick = () => { window.location.href = 'index.html'; };
+                }
+            }, 50);
+        });
+    </script>
+</body>
+
+</html>
+
+

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kardex de Inventarios (Arts. 142-A y 143 C.T.) - EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+    
+    <style>
+        .kardex-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .kardex-input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 4px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+        .kardex-input:hover {
+            border-color: rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .dark .kardex-input:hover {
+            border-color: rgba(100, 116, 139, 0.4);
+            background: rgba(30, 41, 59, 0.5);
+        }
+        .kardex-input:focus {
+            background: #ffffff;
+            border-color: #0ea5e9;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+        .dark .kardex-input:focus {
+            background: #1e293b;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+        .cell-practice-correct {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            border: 1px solid #10b981 !important;
+        }
+        .cell-practice-incorrect {
+            background-color: rgba(244, 63, 94, 0.15) !important;
+            border: 1px solid #f43f5e !important;
+        }
+        .kardex-cell-dash {
+            color: #94a3b8;
+            font-weight: bold;
+            user-select: none;
+            text-align: center;
+        }
+        .dark .kardex-cell-dash {
+            color: #475569;
+        }
+
+        /* Estilos formales de impresión fiscal (Art. 142-A C.T.) */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                font-size: 10px !important;
+            }
+            #global-preloader,
+            #editor-sticky-controls,
+            #shared-components-root,
+            #practice-mode-banner,
+            .no-print,
+            .btn-action-col,
+            .tool-buttons-container {
+                display: none !important;
+            }
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .kardex-table {
+                width: 100% !important;
+                border: 1px solid #000000 !important;
+            }
+            .kardex-table th, .kardex-table td {
+                border: 1px solid #000000 !important;
+                color: #000000 !important;
+                padding: 4px 6px !important;
+            }
+            .kardex-input {
+                border: none !important;
+                padding: 0 !important;
+                font-weight: bold !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="min-h-screen text-slate-800 dark:text-slate-100 antialiased font-sans bg-slate-50 dark:bg-slate-900">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- CABECERA STICKY SUPERIOR -->
+    <div id="editor-sticky-controls" class="fixed top-[70px] lg:top-[85px] left-0 right-0 z-[900] pt-2 lg:pt-3 pb-2 px-4 lg:px-[2.5rem] pointer-events-none no-print">
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto" style="gap: 8px;">
+            <!-- Lado Izquierdo: Info del Proyecto y Ficha Legal -->
+            <div class="header-side-wrapper flex justify-start items-center transition-all relative min-w-0" style="height: 68px;">
+                <div class="glass-pill project-card flex flex-col justify-center border border-white/60 dark:border-slate-700 cursor-pointer group shadow-xl z-50 transition-all w-full max-w-[340px] rounded-2xl" style="margin-bottom: 0; min-height: 64px; padding: 0 20px; margin-right: 5px;">
+                    <div class="flex items-center min-w-0 w-full" style="gap: 12px;">
+                        <div class="bg-sky-100 dark:bg-sky-900/40 rounded-xl shrink-0 p-2.5">
+                            <i class="fas fa-boxes-stacked text-sky-600 dark:text-sky-400" style="font-size: 15px;"></i>
+                        </div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden">
+                            <span class="text-[9px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest leading-none mb-1 flex items-center gap-1">
+                                <i class="fas fa-scale-balanced text-[9px]"></i> Kardex • Arts. 142-A y 143 C.T.
+                            </span>
+                            <h1 id="current-project-name" class="font-black text-slate-800 dark:text-white leading-tight truncate" style="font-size: 14px;">Cargando...</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centro: Selector de Método y Modo Didáctico (Práctica vs Asistido) -->
+            <div class="flex flex-col items-center justify-center min-w-0" style="padding: 0; gap: 4px;">
+                <div class="pointer-events-auto glass-pill border border-slate-200/50 dark:border-slate-700 shadow-sm rounded-full flex items-center overflow-x-auto no-scrollbar relative" style="height: 44px; padding: 4px; gap: 4px;">
+                    <div id="kardex-method-indicator" class="absolute top-1 bottom-1 left-0 rounded-full bg-sky-500 pointer-events-none transition-all duration-300 ease-out shadow-md" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                    <button onclick="switchValuationMethod('promedio')" id="btn-method-promedio" data-idx="0" class="relative z-10 px-4 py-1.5 rounded-full font-black text-[11px] uppercase transition-all whitespace-nowrap text-white" title="Valuación ponderada autorizada por el Art. 143 C.T.">
+                        Promedio Ponderado
+                    </button>
+                    <button onclick="switchValuationMethod('peps')" id="btn-method-peps" data-idx="1" class="relative z-10 px-4 py-1.5 rounded-full font-black text-[11px] uppercase transition-all whitespace-nowrap text-slate-500 hover:text-slate-800 hover:bg-slate-100/50 dark:hover:bg-slate-800" title="Primeras Entradas, Primeras Salidas (FIFO)">
+                        PEPS (FIFO)
+                    </button>
+                    <button onclick="handleUepsClick()" id="btn-method-ueps" data-idx="2" class="relative z-10 px-3 py-1.5 rounded-full font-black text-[11px] uppercase transition-all whitespace-nowrap text-rose-500 hover:text-rose-700 hover:bg-rose-50/50 dark:hover:bg-rose-950/30" title="Últimas Entradas, Primeras Salidas (Prohibido fiscalmente en El Salvador)">
+                        UEPS (LIFO) <span class="ml-1 text-[8px] bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-black px-1.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-700">NO VÁLIDO SV</span>
+                    </button>
+                </div>
+                <!-- Píldora de Modo Didáctico -->
+                <div class="pointer-events-auto flex items-center bg-white/90 dark:bg-slate-800/90 backdrop-blur border border-slate-200/80 dark:border-slate-700 rounded-full p-0.5 text-[10px] font-black shadow-xs">
+                    <button id="btn-mode-practica" onclick="setKardexMode('practica')" class="px-3.5 py-1 rounded-full transition-all bg-amber-500 text-white shadow-xs flex items-center gap-1.5">
+                        <i class="fas fa-graduation-cap text-xs"></i> MODO TALLER (MANUAL)
+                    </button>
+                    <button id="btn-mode-asistido" onclick="setKardexMode('asistido')" class="px-3.5 py-1 rounded-full transition-all text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5">
+                        <i class="fas fa-wand-magic-sparkles text-sky-500 text-xs"></i> MODO ASISTIDO (AUTO)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lado Derecho: Sincronización y Salida -->
+            <div id="header-right-side" class="flex justify-end items-center transition-all min-w-0" style="gap: 10px;">
+                <div id="main-sync-pill" class="glass-pill flex flex-col items-center justify-center rounded-2xl shrink-0" style="height: 64px; padding: 5px 8px; gap: 4px; border: 1px solid rgba(255,255,255,0.7) !important;">
+                    <div id="save-indicator" class="flex items-center justify-center gap-1.5 w-full text-emerald-600 font-black bg-emerald-50/80 rounded-xl border border-emerald-100" style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-check-circle"></i> <span>LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator" class="flex items-center justify-center gap-1.5 w-full text-slate-400 font-black bg-white rounded-xl border border-slate-100 transition-all duration-300" style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-cloud-upload"></i> <span>PENDIENTE</span>
+                    </div>
+                </div>
+                <button onclick="closeProject()" class="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl flex items-center justify-center shrink-0 group transition-all shadow-[0_8px_20px_-4px_rgba(244,63,94,0.4)]" style="width: 58px; height: 58px;" title="Cerrar Proyecto">
+                    <i class="fas fa-times transition-transform group-hover:rotate-90 text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MÓVIL CABECERA -->
+        <div class="flex lg:hidden items-center justify-between w-full gap-2 pointer-events-auto">
+            <div class="flex-1 min-w-0">
+                <div class="glass-pill rounded-2xl border border-slate-200/50 shadow-sm px-3 py-2 flex items-center gap-2 min-w-0">
+                    <div class="p-1.5 bg-sky-50 dark:bg-sky-900/40 rounded-xl shrink-0">
+                        <i class="fas fa-boxes-stacked text-sky-500 text-[11px]"></i>
+                    </div>
+                    <div class="min-w-0 flex-1 overflow-hidden">
+                        <p class="text-[8px] font-black text-sky-500 uppercase tracking-widest leading-none mb-0.5">Kardex C.T.</p>
+                        <p id="mobile-project-name" class="font-black text-slate-800 dark:text-white text-[13px] leading-none truncate">Cargando...</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeProject()" class="h-[50px] px-3 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-tight hover:bg-rose-700 transition-all shadow-md flex items-center gap-1 shrink-0">
+                <i class="fas fa-times text-[11px]"></i>
+                <span>CERRAR</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ENCABEZADO OFICIAL SOLO PARA IMPRESIÓN FISCAL (EL SALVADOR) -->
+    <div class="print-only hidden p-4 mb-4 border-b-2 border-slate-900">
+        <div class="text-center mb-2">
+            <h1 class="text-base font-black uppercase tracking-wider text-slate-900">TARJETA DE CONTROL DE INVENTARIO (KARDEX)</h1>
+            <p class="text-[10px] font-bold text-slate-700 uppercase">CUMPLIMIENTO FORMAL: ARTÍCULOS 142-A Y 143 DEL CÓDIGO TRIBUTARIO DE EL SALVADOR</p>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-[10px] mt-3 border-t border-slate-300 pt-2 font-medium">
+            <div><strong>Empresa:</strong> <span id="print-company-name">Comercial S.A. de C.V.</span></div>
+            <div><strong>Artículo:</strong> <span id="print-item-name">Artículo</span></div>
+            <div><strong>Código:</strong> <span id="print-item-code">INV-001</span></div>
+            <div><strong>Unidad de Medida:</strong> <span id="print-item-unit">Unidades</span></div>
+            <div><strong>Método de Valuación:</strong> <span id="print-item-method">Promedio Ponderado</span></div>
+            <div><strong>Ubicación en Bodega:</strong> <span id="print-item-loc">Bodega Central</span></div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-[1360px] mx-auto px-4 lg:px-8 pt-[165px] lg:pt-[205px] pb-24">
+        
+        <!-- BANNER DE AVISO MODO TALLER PEDAGÓGICO -->
+        <div id="practice-mode-banner" class="hidden mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/30 text-amber-950 dark:text-amber-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm backdrop-blur-sm no-print">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                    <i class="fas fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-black text-xs uppercase tracking-wider text-amber-900 dark:text-amber-300">Modo Taller Pedagógico Activo ("Aprender Haciendo")</h4>
+                        <span class="text-[9px] bg-amber-200 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-black px-2 py-0.5 rounded-full uppercase">Evaluación MINED</span>
+                    </div>
+                    <p class="text-[11px] opacity-90 text-slate-600 dark:text-amber-200/90 mt-0.5">Calcula de forma manual los valores de <strong>Salidas</strong> y <strong>Saldos</strong>. Haz clic en el icono de auditar en cada fila o valida el registro completo para verificar tu nota técnica.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 w-full md:w-auto">
+                <button onclick="auditAllKardexRows()" class="w-full md:w-auto px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-clipboard-check"></i> Auditar Todo el Kardex
+                </button>
+            </div>
+        </div>
+
+        <!-- TARJETA MAESTRA: FICHA DE CONTROL DE INVENTARIO (ART. 142-A C.T.) -->
+        <div class="bg-white/90 dark:bg-slate-850/90 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm p-5 lg:p-6 mb-6">
+            
+            <!-- Fila 1: Selector de Artículo, Estado de Stock y Herramientas -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-750">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-300 flex items-center justify-center text-sm font-black">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Artículo:</span>
+                    </div>
+
+                    <!-- Selector estilizado -->
+                    <div class="relative min-w-[220px]">
+                        <select id="kardex-sheet-select" onchange="switchKardexSheet(this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-2xl px-4 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all cursor-pointer shadow-xs"></select>
+                    </div>
+
+                    <!-- Botones añadir y eliminar ficha -->
+                    <button onclick="openNewSheetModal()" class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-900/40 hover:bg-sky-100 text-sky-600 dark:text-sky-300 flex items-center justify-center transition-all shadow-xs" title="Crear Nuevo Artículo"><i class="fas fa-plus"></i></button>
+                    <button onclick="confirmDeleteSheet()" class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-600 dark:text-rose-300 flex items-center justify-center transition-all shadow-xs" title="Eliminar este Artículo"><i class="far fa-trash-alt"></i></button>
+
+                    <!-- Semáforo de Existencias / Stock Status -->
+                    <div class="ml-1 pl-3 border-l border-slate-200 dark:border-slate-700 flex items-center gap-2">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest hidden sm:inline">Estado:</span>
+                        <div id="metric-stock-status-pill" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span id="metric-stock-status">STOCK ÓPTIMO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Desplegar / Editar Ficha Técnica -->
+                <div class="flex items-center gap-2 self-end lg:self-center">
+                    <button onclick="toggleArticleSpecs()" id="btn-toggle-specs" class="px-3.5 py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-750 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-black text-[11px] uppercase transition-all flex items-center gap-1.5 border border-slate-200/60 dark:border-slate-650">
+                        <i class="fas fa-sliders text-sky-500"></i>
+                        <span>Ficha Técnica (Art. 142-A)</span>
+                        <i id="specs-chevron" class="fas fa-chevron-down text-[10px] transition-transform duration-300"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fila 2: Resumen rápido de Especificaciones (Visible por defecto) -->
+            <div id="article-specs-summary" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 py-3 text-xs border-b border-slate-100 dark:border-slate-750">
+                <div class="bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                    <span class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">Código</span>
+                    <span id="summary-code" class="font-bold font-mono text-slate-700 dark:text-slate-200 text-xs">—</span>
+                </div>
+                <div class="bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                    <span class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">Unidad</span>
+                    <span id="summary-unit" class="font-bold text-slate-700 dark:text-slate-200 text-xs">Unidades</span>
+                </div>
+                <div class="bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                    <span class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">Bodega</span>
+                    <span id="summary-location" class="font-bold text-slate-700 dark:text-slate-200 text-xs truncate block" title="Ubicación">Bodega Central</span>
+                </div>
+                <div class="bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                    <span class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">Stock Mínimo</span>
+                    <span id="summary-min" class="font-bold font-mono text-slate-700 dark:text-slate-200 text-xs">0</span>
+                </div>
+                <div class="bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                    <span class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">Punto Reorden</span>
+                    <span id="summary-reorder" class="font-bold font-mono text-slate-700 dark:text-slate-200 text-xs">0</span>
+                </div>
+                <div class="bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                    <span class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">Stock Máximo</span>
+                    <span id="summary-max" class="font-mono font-bold text-slate-700 dark:text-slate-200 text-xs">0</span>
+                </div>
+            </div>
+
+            <!-- Fila 3: Panel de Edición de Campos formales Art. 142-A (Colapsable) -->
+            <div id="article-specs-panel" class="hidden pt-4 pb-2 border-b border-slate-100 dark:border-slate-750 transition-all">
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <i class="fas fa-edit text-sky-500"></i> Parámetros de Control de Almacén (Art. 142-A inc. g)
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+                    <div>
+                        <label class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block mb-1">Código del Artículo</label>
+                        <input type="text" id="sheet-item-code" onchange="updateSheetMeta('code', this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-2.5 py-1.5 font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" placeholder="Ej: ART-001">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block mb-1">Unidad de Medida</label>
+                        <select id="sheet-item-unit" onchange="updateSheetMeta('unit', this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-2.5 py-1.5 font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400 cursor-pointer">
+                            <option value="Unidades">Unidades / Pzas</option>
+                            <option value="Docenas">Docenas</option>
+                            <option value="Cajas">Cajas</option>
+                            <option value="Quintales (qq)">Quintales (qq)</option>
+                            <option value="Libras (lb)">Libras (lb)</option>
+                            <option value="Kilogramos (kg)">Kilogramos (kg)</option>
+                            <option value="Galones">Galones</option>
+                            <option value="Litros">Litros</option>
+                            <option value="Metros">Metros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block mb-1">Ubicación Bodega</label>
+                        <input type="text" id="sheet-item-location" onchange="updateSheetMeta('location', this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-2.5 py-1.5 font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" placeholder="Ej: Pasillo 2, Estante B">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block mb-1">Stock Mínimo</label>
+                        <input type="number" id="sheet-item-min" onchange="updateSheetMeta('minStock', this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-2.5 py-1.5 font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" placeholder="10">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block mb-1">Punto de Reorden</label>
+                        <input type="number" id="sheet-item-reorder" onchange="updateSheetMeta('reorderPoint', this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-2.5 py-1.5 font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" placeholder="25">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block mb-1">Stock Máximo</label>
+                        <input type="number" id="sheet-item-max" onchange="updateSheetMeta('maxStock', this.value)" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-2.5 py-1.5 font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" placeholder="100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 4: KPIs Financieros Contables del Kardex -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4">
+                <!-- KPI 1: Existencias -->
+                <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 dark:from-slate-800 dark:to-slate-800/50 rounded-2xl p-3.5 border border-slate-100 dark:border-slate-750 shadow-xs flex items-center gap-3">
+                    <div class="w-10 h-10 bg-sky-50 dark:bg-sky-900/30 rounded-xl flex items-center justify-center text-sky-500 text-base shrink-0">
+                        <i class="fas fa-boxes-stacked"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[8.5px] font-black text-slate-400 uppercase tracking-widest truncate">Existencias Físicas</span>
+                        <div class="flex items-baseline gap-1">
+                            <h3 id="metric-total-qty" class="text-base lg:text-lg font-black font-mono text-slate-800 dark:text-white leading-tight">0</h3>
+                            <span id="metric-unit-badge" class="text-[10px] text-slate-400 font-bold uppercase truncate">uds</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Costo Unitario Vigente -->
+                <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 dark:from-slate-800 dark:to-slate-800/50 rounded-2xl p-3.5 border border-slate-100 dark:border-slate-750 shadow-xs flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-500 text-base shrink-0">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[8.5px] font-black text-slate-400 uppercase tracking-widest truncate">Costo Unitario Vigente</span>
+                        <h3 id="metric-avg-cost" class="text-base lg:text-lg font-black font-mono text-emerald-600 dark:text-emerald-400 leading-tight">$0.0000</h3>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Valor Total Inventario -->
+                <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 dark:from-slate-800 dark:to-slate-800/50 rounded-2xl p-3.5 border border-slate-100 dark:border-slate-750 shadow-xs flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-500 text-base shrink-0">
+                        <i class="fas fa-vault"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[8.5px] font-black text-slate-400 uppercase tracking-widest truncate">Valor Total Inventario</span>
+                        <h3 id="metric-total-value" class="text-base lg:text-lg font-black font-mono text-slate-800 dark:text-white leading-tight">$0.00</h3>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Costo de Ventas Acumulado -->
+                <div class="bg-gradient-to-br from-slate-50 to-slate-100/60 dark:from-slate-800 dark:to-slate-800/50 rounded-2xl p-3.5 border border-slate-100 dark:border-slate-750 shadow-xs flex items-center gap-3">
+                    <div class="w-10 h-10 bg-rose-50 dark:bg-rose-900/30 rounded-xl flex items-center justify-center text-rose-500 text-base shrink-0">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-[8.5px] font-black text-slate-400 uppercase tracking-widest truncate">Costo de Ventas Acumulado</span>
+                        <h3 id="metric-total-cogs" class="text-base lg:text-lg font-black font-mono text-rose-600 dark:text-rose-400 leading-tight">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 5: Barra de Herramientas y Operaciones Especiales -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-5 mt-4 border-t border-slate-100 dark:border-slate-750 no-print">
+                <!-- Acción Primaria: Nuevo Movimiento -->
+                <div class="flex items-center gap-2">
+                    <button onclick="openNewMovementModal()" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-md shadow-sky-500/25">
+                        <i class="fas fa-plus"></i> Registrar Movimiento
+                    </button>
+                    <button onclick="addKardexRow()" class="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-750 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-xs uppercase transition-all flex items-center gap-1.5" title="Insertar fila rápida directamente en la tabla">
+                        <i class="fas fa-table-cells-row-unlock"></i> Fila Rápida
+                    </button>
+                </div>
+
+                <!-- Herramientas Especiales del Kardex -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="openRetaceoModal()" class="px-3.5 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-2xl font-black text-[11px] uppercase transition-all border border-amber-300/40 flex items-center gap-1.5" title="Calcular el costo unitario nacionalizado incluyendo flete, seguro y DAI">
+                        <i class="fas fa-ship text-amber-600"></i> Calc. Retaceo (Importación)
+                    </button>
+                    <button onclick="openPartidaCostoModal()" class="px-3.5 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 rounded-2xl font-black text-[11px] uppercase transition-all border border-indigo-300/40 flex items-center gap-1.5" title="Generar la partida contable de Costo de Ventas para el Libro Diario">
+                        <i class="fas fa-book-bookmark text-indigo-600"></i> Partida Costo de Venta
+                    </button>
+                    <button onclick="exportarProyectoEduConta()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-750 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-black text-[11px] uppercase transition-all flex items-center gap-1.5">
+                        <i class="fas fa-shield-halved text-slate-500"></i> Exportar
+                    </button>
+                    <button onclick="window.print()" class="px-3.5 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase transition-all flex items-center gap-1.5 shadow-sm">
+                        <i class="fas fa-print"></i> Imprimir Ficha
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA PRINCIPAL DE KARDEX (ESTÁNDAR FORMAL EL SALVADOR) -->
+        <div class="bg-white dark:bg-slate-850 rounded-3xl border border-slate-200/90 dark:border-slate-700 shadow-sm overflow-hidden mb-8">
+            
+            <!-- Barra superior de la tabla -->
+            <div class="p-4 lg:p-5 border-b border-slate-100 dark:border-slate-750 bg-slate-50/70 dark:bg-slate-800/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h2 id="kardex-item-title" class="font-black text-slate-800 dark:text-white text-sm lg:text-base uppercase tracking-wider truncate">REGISTRO DE INVENTARIO: ARTÍCULO PRINCIPAL</h2>
+                        <span id="kardex-method-tag" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300">PROMEDIO PONDERADO (ART. 143 C.T.)</span>
+                    </div>
+                    <p id="kardex-mode-desc" class="text-[11px] text-slate-400 font-bold uppercase mt-0.5">SISTEMA VALUADO AUTOMÁTICAMENTE SEGÚN LEGISLACIÓN DE EL SALVADOR</p>
+                </div>
+                
+                <div class="flex items-center gap-2 self-end md:self-center no-print">
+                    <span class="text-[10px] font-bold text-slate-400 font-mono" id="row-count-badge">0 movimientos</span>
+                </div>
+            </div>
+            
+            <!-- Contenedor scrollable con tabla contable -->
+            <div class="table-wrap overflow-x-auto w-full">
+                <table class="kardex-table w-full text-xs min-w-[1240px]">
+                    <thead>
+                        <!-- Fila 1 de encabezados de bloque -->
+                        <tr class="bg-slate-900 text-white border-b border-slate-700 text-[10.5px]">
+                            <!-- 1. Referencia Legal -->
+                            <th class="py-3 px-3 font-black uppercase text-center w-28 bg-slate-950/80" rowspan="2">Fecha</th>
+                            <th class="py-3 px-3 font-black uppercase text-left w-44 bg-slate-950/80" rowspan="2">
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-file-invoice text-sky-400 text-xs"></i> Comprobante Legal
+                                </div>
+                            </th>
+                            <th class="py-3 px-3 font-black uppercase text-left min-w-[200px] bg-slate-950/80" rowspan="2">
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-list-check text-slate-400 text-xs"></i> Detalle / Operación
+                                </div>
+                            </th>
+
+                            <!-- 2. Entradas -->
+                            <th class="py-2 px-3 font-black uppercase text-center border-l border-slate-750 bg-emerald-950/80 text-emerald-300 tracking-wider" colspan="3">
+                                <i class="fas fa-arrow-down-left mr-1 text-emerald-400"></i> Entradas (Compras / Devoluciones s/Venta)
+                            </th>
+
+                            <!-- 3. Salidas -->
+                            <th class="py-2 px-3 font-black uppercase text-center border-l border-slate-750 bg-rose-950/80 text-rose-300 tracking-wider" colspan="3">
+                                <i class="fas fa-arrow-up-right mr-1 text-rose-400"></i> Salidas (Ventas / Consumos / Mermas)
+                            </th>
+
+                            <!-- 4. Saldos -->
+                            <th class="py-2 px-3 font-black uppercase text-center border-l border-slate-750 bg-sky-950/80 text-sky-300 tracking-wider" colspan="3">
+                                <i class="fas fa-warehouse mr-1 text-sky-400"></i> Existencias / Saldos en Bodega
+                            </th>
+
+                            <!-- 5. Acciones -->
+                            <th class="py-3 px-2 font-black uppercase text-center w-24 bg-slate-950/80 no-print" rowspan="2">Acciones</th>
+                        </tr>
+
+                        <!-- Fila 2 de sub-columnas -->
+                        <tr class="bg-slate-850 text-white border-b border-slate-700 text-[10px]">
+                            <!-- Sub-Entradas -->
+                            <th class="py-2 px-2 border-l border-slate-750 text-center font-bold text-slate-300 w-20">Cantidad</th>
+                            <th class="py-2 px-2 text-right font-bold text-slate-300 w-24">Costo U. ($)</th>
+                            <th class="py-2 px-2 text-right font-black text-emerald-400 w-28 pr-3">Total ($)</th>
+
+                            <!-- Sub-Salidas -->
+                            <th class="py-2 px-2 border-l border-slate-750 text-center font-bold text-slate-300 w-20">Cantidad</th>
+                            <th class="py-2 px-2 text-right font-bold text-slate-300 w-24">Costo U. ($)</th>
+                            <th class="py-2 px-2 text-right font-black text-rose-400 w-28 pr-3">Total ($)</th>
+
+                            <!-- Sub-Saldos -->
+                            <th class="py-2 px-2 border-l border-slate-750 text-center font-bold text-slate-300 w-20">Cantidad</th>
+                            <th class="py-2 px-2 text-center font-bold text-slate-300 min-w-[130px]">Costo U. / Lotes PEPS</th>
+                            <th class="py-2 px-2 text-right font-black text-sky-400 w-28 pr-3">Total ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kardex-table-body" class="divide-y divide-slate-150 dark:divide-slate-750 font-medium">
+                        <!-- Filas insertadas dinámicamente -->
+                    </tbody>
+                    <tfoot id="kardex-table-foot" class="border-t-2 border-slate-400 dark:border-slate-600 bg-slate-100/90 dark:bg-slate-800/95 font-black text-slate-900 dark:text-white">
+                        <!-- Fila de totales calculados del período (Cierre contable) -->
+                    </tfoot>
+                </table>
+            </div>
+            
+            <!-- Estado vacío amigable -->
+            <div id="kardex-empty-state" class="hidden py-16 text-center text-slate-400">
+                <div class="w-16 h-16 rounded-3xl bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 flex items-center justify-center mx-auto mb-3 text-3xl">
+                    <i class="fas fa-boxes-packing"></i>
+                </div>
+                <p class="font-bold text-sm text-slate-700 dark:text-slate-300">No hay movimientos registrados en este artículo.</p>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Comienza registrando un inventario inicial o tus primeras compras locales según tus comprobantes legales.</p>
+                <div class="mt-4 flex items-center justify-center gap-2">
+                    <button onclick="openNewMovementModal()" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md">
+                        <i class="fas fa-plus mr-1"></i> Registrar Primer Movimiento
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE FIRMAS PARA REPORTE FISCAL IMPRESO -->
+        <div class="print-only hidden mt-10 pt-6 grid grid-cols-2 gap-12 text-center text-xs">
+            <div class="border-t border-slate-800 pt-2">
+                <p class="font-black uppercase text-slate-900">Responsable de Bodega / Almacén</p>
+                <p class="text-[9.5px] text-slate-600">Firma y Sello</p>
+            </div>
+            <div class="border-t border-slate-800 pt-2">
+                <p class="font-black uppercase text-slate-900">Contador General / Auditor Fiscal</p>
+                <p class="text-[9.5px] text-slate-600">Firma y Número de Registro Profesional</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL NUEVO ARTÍCULO -->
+    <div id="sheet-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-sm w-full relative p-6">
+            <button onclick="closeSheetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-lg"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-900/40 flex items-center justify-center mb-4 mx-auto text-sky-500 text-xl"><i class="fas fa-box"></i></div>
+            <h4 class="text-lg font-black text-slate-800 dark:text-white text-center mb-1">Nuevo Artículo / Insumo</h4>
+            <p class="text-[11px] text-slate-400 text-center mb-4 font-bold uppercase">Crear Ficha Técnica (Art. 142-A C.T.)</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Nombre del Artículo</label>
+                    <input type="text" id="sheet-input-name" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 focus:border-sky-400 outline-none" placeholder="Ej: Camisas Tipo Polo Talla M...">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Código de Referencia</label>
+                    <input type="text" id="sheet-input-code" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 focus:border-sky-400 outline-none" placeholder="Ej: MP-001">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeSheetModal()" class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-750 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
+                <button onclick="saveNewSheet()" class="flex-1 px-4 py-2.5 rounded-2xl bg-sky-500 text-white font-bold text-xs uppercase hover:bg-sky-600 transition-colors shadow-lg">Crear Ficha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO MOVIMIENTO DE INVENTARIO (ASISTENTE GUIADO) -->
+    <div id="new-movement-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-lg w-full relative p-6">
+            <button onclick="closeNewMovementModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-lg"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-900/40 text-sky-500 flex items-center justify-center text-lg font-black">
+                    <i class="fas fa-file-circle-plus"></i>
+                </div>
+                <div>
+                    <h4 class="text-base font-black text-slate-800 dark:text-white">Registrar Movimiento de Inventario</h4>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Entrada o Salida amparada por Comprobante Legal</p>
+                </div>
+            </div>
+
+            <div class="space-y-3.5 text-xs">
+                <!-- Tipo de Operación -->
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Naturaleza y Concepto de la Operación</label>
+                    <select id="new-mov-tipo" onchange="onNewMovementTypeChange()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400">
+                        <optgroup label="Entradas de Stock (Ingresos)">
+                            <option value="compra" selected>Compra Local (Crédito Fiscal s/IVA)</option>
+                            <option value="inicial">Inventario Inicial</option>
+                            <option value="importacion">Importación Definitiva (Declaración DGA)</option>
+                            <option value="dev_venta">Devolución sobre Venta (Cliente - Nota de Crédito)</option>
+                        </optgroup>
+                        <optgroup label="Salidas de Stock (Egresos / Costo de Ventas)">
+                            <option value="venta">Venta de Mercaderías (Factura / CCF)</option>
+                            <option value="consumo">Envío a Producción / Consumo Interno</option>
+                            <option value="dev_compra">Devolución sobre Compra (Proveedor)</option>
+                            <option value="merma">Merma o Desperdicio Justificado</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Fecha y Comprobante Legal -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Fecha</label>
+                        <input type="date" id="new-mov-fecha" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Tipo Documento</label>
+                        <select id="new-mov-doctipo" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400">
+                            <option value="CCF">CCF (Crédito Fiscal)</option>
+                            <option value="FAC">FAC (Factura)</option>
+                            <option value="NC">NC (Nota Crédito)</option>
+                            <option value="ND">ND (Nota Débito)</option>
+                            <option value="DGA">DGA (Póliza Aduana)</option>
+                            <option value="REQ">REQ (Requisición)</option>
+                            <option value="INV-INI">INV-INI (Inv. Inicial)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">N.° Folio / Control</label>
+                        <input type="text" id="new-mov-docnum" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" placeholder="Ej: 00142">
+                    </div>
+                </div>
+
+                <!-- Cantidad y Costo -->
+                <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Cantidad de Unidades</label>
+                        <input type="number" id="new-mov-qty" oninput="updateNewMovementPreview()" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 dark:text-white outline-none focus:border-sky-400" placeholder="0">
+                    </div>
+                    <div id="new-mov-cost-group">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Costo Unitario ($)</label>
+                        <input type="number" step="0.0001" id="new-mov-cost" oninput="updateNewMovementPreview()" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 dark:text-white outline-none focus:border-sky-400" placeholder="$0.00">
+                    </div>
+                </div>
+
+                <!-- Detalle y Observaciones -->
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Descripción / Proveedor / Cliente</label>
+                    <input type="text" id="new-mov-detalle" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400 italic" placeholder="Ej: Compra según Crédito Fiscal a Distribuidora Salvadoreña...">
+                </div>
+
+                <!-- Preview del Total Monetario -->
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-750 font-mono text-xs">
+                    <span class="font-bold text-slate-500 uppercase tracking-wider text-[10px]">Importe Total Estimado:</span>
+                    <span id="new-mov-preview-total" class="font-black text-sm text-sky-600 dark:text-sky-400">$0.00</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2.5 mt-5">
+                <button onclick="closeNewMovementModal()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-750 text-slate-600 dark:text-slate-300 font-bold text-xs uppercase hover:bg-slate-200">Cancelar</button>
+                <button onclick="saveNewMovement()" class="flex-1 px-4 py-2.5 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-black text-xs uppercase shadow-md flex items-center justify-center gap-1.5">
+                    <i class="fas fa-check"></i> Registrar en Kardex
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CALCULADORA DE RETACEO DE IMPORTACIONES (BTVAC 1.5 y 3.4) -->
+    <div id="retaceo-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-lg w-full relative p-6">
+            <button onclick="closeRetaceoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-lg"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center font-black">
+                    <i class="fas fa-ship"></i>
+                </div>
+                <div>
+                    <h4 class="text-base font-black text-slate-800 dark:text-white">Hoja de Retaceo de Importaciones</h4>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Cálculo de Costo Unitario Nacionalizado (Sin IVA)</p>
+                </div>
+            </div>
+            
+            <div class="space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Cantidad Importada</label>
+                        <input type="number" id="ret-qty" oninput="calculateRetaceo()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl p-2 font-mono font-bold" placeholder="Ej: 100">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Precio Unitario FOB ($)</label>
+                        <input type="number" step="0.01" id="ret-fob-unit" oninput="calculateRetaceo()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl p-2 font-mono font-bold" placeholder="$0.00">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Flete Internacional Total ($)</label>
+                        <input type="number" step="0.01" id="ret-flete" oninput="calculateRetaceo()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl p-2 font-mono font-bold" placeholder="$0.00">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Seguro Internacional Total ($)</label>
+                        <input type="number" step="0.01" id="ret-seguro" oninput="calculateRetaceo()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl p-2 font-mono font-bold" placeholder="$0.00">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Tasa DAI Arancelario (%)</label>
+                        <select id="ret-dai-rate" onchange="calculateRetaceo()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl p-2 font-bold cursor-pointer">
+                            <option value="0">0% (Exento / TLC)</option>
+                            <option value="0.05">5% (Materias primas)</option>
+                            <option value="0.10">10% (Bienes intermedios)</option>
+                            <option value="0.15" selected>15% (Bienes finales de consumo)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Otros Gastos Aduana / Almacenaje ($)</label>
+                        <input type="number" step="0.01" id="ret-aduanales" oninput="calculateRetaceo()" class="w-full bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-650 rounded-xl p-2 font-mono font-bold" placeholder="$0.00">
+                    </div>
+                </div>
+
+                <!-- Liquidación de Retaceo -->
+                <div class="p-3.5 bg-slate-100 dark:bg-slate-750 rounded-2xl space-y-1.5 font-mono text-[11px] font-medium">
+                    <div class="flex justify-between"><span>Valor FOB Total:</span><span id="ret-res-fob">$0.00</span></div>
+                    <div class="flex justify-between"><span>Valor CIF (Aduana):</span><span id="ret-res-cif">$0.00</span></div>
+                    <div class="flex justify-between"><span>Arancel DAI:</span><span id="ret-res-dai">$0.00</span></div>
+                    <div class="flex justify-between font-black border-t border-slate-300 dark:border-slate-600 pt-1 text-slate-900 dark:text-white">
+                        <span>Costo Total de Importación:</span><span id="ret-res-total">$0.00</span>
+                    </div>
+                    <div class="flex justify-between font-black text-emerald-600 dark:text-emerald-400 text-xs pt-1">
+                        <span>Costo Unitario de Entrada al Kardex:</span><span id="ret-res-unit">$0.0000</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button onclick="closeRetaceoModal()" class="px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold text-xs uppercase">Cerrar</button>
+                <button onclick="applyRetaceoToKardex()" class="flex-1 px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase shadow-md flex items-center justify-center gap-1">
+                    <i class="fas fa-arrow-down-to-bracket"></i> Trasladar a Entrada
+                </button>
+                <button onclick="addPartidaRetaceoToDiario()" class="flex-1 px-4 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-black text-xs uppercase shadow-md flex items-center justify-center gap-1">
+                    <i class="fas fa-book-open"></i> Partida a Diario
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PARTIDA CONTABLE DE COSTO DE VENTAS -->
+    <div id="partida-costo-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-lg w-full relative p-6">
+            <button onclick="closePartidaCostoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-lg"></i></button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center font-black">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <div>
+                    <h4 class="text-base font-black text-slate-800 dark:text-white">Asiento Contable de Costo de Ventas</h4>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Liquidación contable basada en salidas del Kardex</p>
+                </div>
+            </div>
+
+            <div id="partida-costo-preview" class="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-750 font-mono text-xs space-y-3">
+                <!-- Rellenado dinámicamente con la partida doble formal -->
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button onclick="closePartidaCostoModal()" class="px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold text-xs uppercase">Cerrar</button>
+                <button onclick="copyPartidaCostoToClipboard()" class="px-3.5 py-2.5 rounded-2xl bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs uppercase flex items-center justify-center gap-1">
+                    <i class="fas fa-copy"></i> Copiar
+                </button>
+                <button onclick="addPartidaCostoToDiario()" class="flex-1 px-4 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-black text-xs uppercase shadow-md flex items-center justify-center gap-1.5">
+                    <i class="fas fa-book-open"></i> Añadir a Libro Diario
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ADVERTENCIA LEGAL DE UEPS (ART. 143 CÓDIGO TRIBUTARIO) -->
+    <div id="ueps-legal-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full relative p-6 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-triangle-exclamation text-2xl"></i>
+            </div>
+            <h4 class="text-base font-black text-slate-800 dark:text-white mb-2">Advertencia Legal: Método UEPS (LIFO)</h4>
+            <div class="text-xs text-slate-600 dark:text-slate-300 text-left space-y-2.5 p-3.5 bg-rose-50 dark:bg-rose-950/30 rounded-2xl border border-rose-200 dark:border-rose-900 mb-4">
+                <p><strong>Código Tributario de El Salvador (Art. 143):</strong></p>
+                <p class="italic">"La valuación del inventario deberá realizarse por el método de Costo Promedio Ponderado, o Primeras Entradas, Primeras Salidas (PEPS). No se admite para efectos tributarios el método de Últimas Entradas, Primeras Salidas (UEPS)."</p>
+                <p><strong>NIIF para las PYMES (Sección 13.18):</strong> Prohíbe explícitamente el uso de UEPS a nivel contable internacional.</p>
+                <p class="text-[11px] text-rose-700 dark:text-rose-400 font-bold">EduConta SV te permite activarlo únicamente para experimentación académica comparativa, pero no es legal en la práctica empresarial salvadoreña.</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closeUepsModal()" class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-750 text-slate-700 dark:text-slate-200 font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="confirmUepsActivation()" class="flex-1 px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase shadow-md">Activar para Práctica</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PISTA PEDAGÓGICA (MODO PRÁCTICA) -->
+    <div id="kardex-hint-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full relative p-6">
+            <button onclick="closeKardexHintModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times text-lg"></i></button>
+            <div class="flex items-center gap-3 mb-3">
+                <div id="hint-icon-box" class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center font-black">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div>
+                    <h4 id="hint-modal-title" class="text-sm font-black text-slate-800 dark:text-white uppercase">Pista Didáctica de Valuación</h4>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Retroalimentación de la ley y técnica contable</p>
+                </div>
+            </div>
+            <div id="hint-modal-body" class="text-xs text-slate-600 dark:text-slate-300 p-4 bg-slate-50 dark:bg-slate-750 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                <!-- Contenido dinámico con la explicación de la fórmula errada -->
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeKardexHintModal()" class="px-5 py-2 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs uppercase shadow-sm">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-2xl shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Proyectos respaldados</p>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/bridge-diario.js"></script>
+    <script defer src="js/core/custom-select-date.js"></script>
+    <script defer src="js/pages/editor-kardex.js?v=1.2.1"></script>
+</body>
+
+</html>

@@ -1,292 +1,363 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Análisis de Rentabilidad - EduConta SV</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="css/output.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        /* UNIFICACIÓN VISUAL CORPORATIVA (GLASS L-SHAPE) */
-        .main-header {
-            border-bottom: none !important;
-            box-shadow: none !important;
-            background: rgba(255, 255, 255, 0.45) !important; 
-            backdrop-filter: blur(28px) !important;
-            -webkit-backdrop-filter: blur(28px) !important;
-            height: 85px !important;
-            z-index: 50 !important;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Análisis Financiero - EduConta SV</title>
+<meta name="description" content="Dashboard de indicadores financieros con 6 vistas: general, liquidez, endeudamiento, rentabilidad, eficiencia y diagnóstico.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Tailwind CSS Local -->
+<script src="js/core/tailwind.js"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+            corePlugins: { preflight: false },
+        theme: {
+            extend: {
+                colors: {
+                    slate: {
+                        650: '#3e4b5c',
+                        750: '#293548',
+                        850: '#172033',
+                        950: '#0f172a',
+                    }
+                },
+                fontFamily: {
+                    sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    serif: ['Playfair Display', 'Georgia', 'serif'],
+                    mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                }
+            }
         }
-        .left-sidebar {
-            border: none !important;
-            box-shadow: none !important;
-            background: rgba(255, 255, 255, 0.45) !important;
-            backdrop-filter: blur(28px) !important;
-            -webkit-backdrop-filter: blur(28px) !important;
-            padding-top: 85px !important; /* Mismo que el header */
-            position: relative;
-            z-index: 40;
-        }
-        
-        /* Texto responsivo Ultra-Fit (Cero puntitos) */
-        .fit-text-percentage {
-            font-size: clamp(1.2rem, 3.8vw, 3rem) !important; /* Más pequeño para que quepa */
-            white-space: nowrap;
-            letter-spacing: -0.06em;
-            overflow: visible !important;
-            text-overflow: clip !important;
-        }
+    }
+</script>
+    <link href="css/output.css" rel="stylesheet">
 
-        /* Compensar el área de contenido principal */
-        #main-scroll-area {
-            padding-top: 85px !important;
-        }
-        
-        /* Asegurar que el header del proyecto flote correctamente */
-        #sticky-header {
-            top: 85px !important;
-            border: none !important;
-        }
-    </style>
+
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/modales.css?v=1.3.1">
+<link rel="stylesheet" href="css/dark-mode.css">
+<style>
+/* ── GLASS L-SHAPE ── */
+.main-header{border-bottom:none!important;box-shadow:none!important;background:rgba(255,255,255,.45)!important;backdrop-filter:blur(28px)!important;-webkit-backdrop-filter:blur(28px)!important;height:85px!important;z-index:50!important}
+.left-sidebar{border:none!important;box-shadow:none!important;background:rgba(255,255,255,.45)!important;backdrop-filter:blur(28px)!important;-webkit-backdrop-filter:blur(28px)!important;padding-top:85px!important;position:relative;z-index:40}
+#main-scroll-area{padding-top:85px!important}
+#sticky-header{top:85px!important;border:none!important}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ── SECTION GLASS ── */
+.sec-glass{background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.7);border-radius:28px;box-shadow:0 8px 32px rgba(0,0,0,.06);padding:1.5rem}
+.sec-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.sec-title i{font-size:12px}
+
+/* ── MINI CARDS ── */
+.mini-card{background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.9);border-radius:20px;padding:1.25rem 1.4rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;min-height:140px;display:flex;flex-direction:column;justify-content:space-between}
+.mini-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.1)}
+.mini-glow{position:absolute;top:-30px;right:-30px;width:110px;height:110px;border-radius:50%;opacity:.2;filter:blur(32px);pointer-events:none}
+.mini-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:4px}
+.mini-value{font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:900;letter-spacing:-.05em;line-height:1;transition:color .4s,text-shadow .4s}
+.mini-formula{font-size:9px;color:#94a3b8;margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600}
+.mini-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:8px}
+.mini-hint{font-size:9px;color:#94a3b8;margin-top:6px;font-weight:600}
+
+/* ── BIG CARDS (vistas individuales) ── */
+.big-card{background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);border-radius:32px;padding:2rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;box-shadow:0 8px 32px rgba(0,0,0,.07)}
+.big-card:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.1)}
+.big-glow{position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;opacity:.3;filter:blur(40px);pointer-events:none}
+.big-icon{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:1rem;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.big-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-bottom:8px}
+.big-value{font-size:clamp(2rem,7vw,3.5rem);font-weight:900;letter-spacing:-.06em;line-height:1;margin-bottom:8px;transition:color .4s,text-shadow .4s}
+.big-desc{font-size:11px;color:#64748b;font-weight:600;margin-bottom:1rem}
+.big-footer{display:flex;justify-content:space-between;font-size:10px;font-family:'Plus Jakarta Sans',sans-serif;font-variant-numeric:tabular-nums;font-weight:600;color:#64748b;background:rgba(248,250,252,.7);padding:10px 14px;border-radius:14px;border:1px solid rgba(226,232,240,.8)}
+
+/* ── BLOOM ── */
+.bloom-green {color:#10b981!important;text-shadow:0 0 24px rgba(16,185,129,.5)!important}
+.bloom-amber {color:#f59e0b!important;text-shadow:0 0 24px rgba(245,158,11,.5)!important}
+.bloom-rose  {color:#f43f5e!important;text-shadow:0 0 24px rgba(244,63,94,.5)!important}
+.bloom-indigo{color:#6366f1!important;text-shadow:0 0 24px rgba(99,102,241,.5)!important}
+.bloom-sky   {color:#0ea5e9!important;text-shadow:0 0 24px rgba(14,165,233,.4)!important}
+.bloom-violet{color:#8b5cf6!important;text-shadow:0 0 24px rgba(139,92,246,.5)!important}
+.bloom-teal  {color:#14b8a6!important;text-shadow:0 0 24px rgba(20,184,166,.4)!important}
+
+/* ── CHART TOGGLE ── */
+.chart-toggle{display:flex;gap:6px;margin-bottom:1rem}
+.chart-btn{padding:6px 14px;border-radius:20px;font-size:10px;font-weight:800;border:none;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.6);color:#64748b;border:1px solid rgba(226,232,240,.8)}
+.chart-btn.active{background:#1e293b;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.chart-wrap{background:rgba(255,255,255,.7);border-radius:20px;padding:1.5rem;border:1px solid rgba(255,255,255,.9);display:none}
+.chart-wrap.visible{display:block}
+
+/* ── NOTIF ── */
+.notif-banner{border-radius:14px;padding:.6rem 1rem;font-size:11px;font-weight:700;display:flex;align-items:center;gap:8px;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── DIAG ── */
+.diag-item{display:flex;gap:12px;padding:12px 16px;border-radius:16px;border:1px solid transparent;align-items:flex-start}
+
+/* ── SIDEBAR NAV ACTIVE ── */
+.sidebar-tab-btn.active-tab{background:#f8fafc;color:#1e293b;font-weight:800}
+</style>
+    <script src="js/core/theme.js"></script>
 </head>
 
-<body
-    class="bg-slate-50 min-h-screen text-slate-800 antialiased overflow-x-hidden selection:bg-sky-200 selection:text-sky-900 pb-20 lg:pb-0"
-    style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+<body class="min-h-screen text-slate-800 antialiased overflow-x-hidden pb-20 lg:pb-0">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
 
-    <!-- Background Volumétrico -->
-    <div class="fixed inset-0 z-[-1] pointer-events-none opacity-40">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-sky-200 blur-[100px] animate-blob">
-        </div>
-        <div
-            class="absolute top-[20%] right-[-10%] w-[35%] h-[35%] rounded-full bg-indigo-200 blur-[100px] animate-blob animation-delay-2000">
-        </div>
-        <div
-            class="absolute bottom-[-10%] left-[20%] w-[30%] h-[30%] rounded-full bg-emerald-200 blur-[100px] animate-blob animation-delay-4000">
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
         </div>
     </div>
-
-    <div id="shared-header"></div>
-
+    <script src="js/core/preloader.js"></script>
     <main class="h-screen w-full relative overflow-hidden flex">
 
-        <!-- SIDEBAR -->
-        <div
-            class="hidden lg:flex w-[260px] flex-col border-r border-slate-200/60 bg-white/40 backdrop-blur-xl h-full p-6 shadow-[10px_0_30px_-15px_rgba(0,0,0,0.05)] shrink-0 z-10 transition-all duration-300 left-sidebar">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-6">Navegación de Proyecto
-            </h3>
+  <!-- SIDEBAR -->
+  <div class="hidden lg:flex w-[260px] flex-col border-r border-slate-200/60 h-full p-6 shrink-0 z-10 transition-all duration-300 left-sidebar">
+    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-4">Proyecto</h3>
+    <button onclick="goToEditor()" id="btn-volver"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:text-sky-600 hover:bg-white transition-all font-bold text-sm shadow-sm hover:shadow-md group mb-6">
+      <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-sky-100 group-hover:text-sky-500 transition-colors"><i class="fas fa-edit"></i></div>
+      Volver al Editor
+    </button>
 
-            <nav class="space-y-1">
-                <button onclick="goToEditor()"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:text-sky-600 hover:bg-white transition-all font-bold text-sm shadow-sm hover:shadow-md hover:-translate-y-px group group-active">
-                    <div
-                        class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-sky-100 group-hover:text-sky-500 transition-colors">
-                        <i class="fas fa-edit"></i>
-                    </div>
-                    Volver al Editor
-                </button>
-            </nav>
+    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-3">Vistas</h3>
+    <nav class="space-y-1" id="sidebar-nav">
+      <button class="sidebar-tab-btn w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-indigo-600 font-bold text-xs transition-all" data-tab="general"><i class="fas fa-th-large w-4 text-center"></i>Vista General</button>
+      <button class="sidebar-tab-btn w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-sky-600 font-bold text-xs transition-all" data-tab="liquidez"><i class="fas fa-tint w-4 text-center"></i>Liquidez</button>
+      <button class="sidebar-tab-btn w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-amber-600 font-bold text-xs transition-all" data-tab="deuda"><i class="fas fa-link w-4 text-center"></i>Endeudamiento</button>
+      <button class="sidebar-tab-btn w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-violet-600 font-bold text-xs transition-all" data-tab="rentabil"><i class="fas fa-chart-pie w-4 text-center"></i>Rentabilidad</button>
+      <button class="sidebar-tab-btn w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-emerald-600 font-bold text-xs transition-all" data-tab="efic"><i class="fas fa-sync-alt w-4 text-center"></i>Eficiencia</button>
+      <button class="sidebar-tab-btn w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-rose-600 font-bold text-xs transition-all" data-tab="diagnostico"><i class="fas fa-lightbulb w-4 text-center"></i>Diagnóstico</button>
+    </nav>
 
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mt-8 mb-6">Analítica
-                Financiera</h3>
+    <div class="mt-auto pt-6 border-t border-slate-200/60">
+      <button onclick="printIndices()" id="btn-exportar"
+        class="glow-hover btn-bloom-rose w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[36px] bg-rose-500 text-white hover:bg-rose-600 transition-all font-bold text-xs shadow-md">
+        <i class="fas fa-file-pdf"></i> Exportar Informe
+      </button>
+    </div>
+  </div>
 
-            <nav class="space-y-1">
-                <button
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-indigo-700 bg-white transition-all font-bold text-sm shadow-md group group-active border border-indigo-100 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-50 to-white/0 pointer-events-none"></div>
-                    <div
-                        class="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 transition-colors relative z-10 shadow-inner">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                    <span class="relative z-10">Rentabilidad (ROA/ROE/ROI)</span>
-                </button>
-            </nav>
+  <!-- MAIN -->
+  <div class="flex-1 overflow-y-auto h-full pb-32 scrollbar-hide relative z-[5]" id="main-scroll-area">
 
-            <div class="mt-auto pt-6 border-t border-slate-200/60">
-                <button onclick="printIndices()"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[36px] bg-rose-500 text-white hover:bg-rose-600 transition-all font-bold text-xs shadow-md glow-hover btn-bloom-rose">
-                    <i class="fas fa-file-pdf"></i> Exportar Informe
-                </button>
-            </div>
+    <!-- STICKY HEADER -->
+    <div class="fixed top-[85px] left-0 lg:left-[260px] right-0 z-40 px-4 lg:px-10 py-3 flex flex-col md:flex-row justify-between items-center no-print gap-3 bg-transparent" id="sticky-header">
+      <div class="glass-pill px-6 py-2.5 rounded-[36px] flex items-center gap-3 border border-white/40 w-full md:w-auto justify-center md:justify-start">
+        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        <h1 id="current-project-name" class="text-sm md:text-base font-black text-slate-800" style="text-shadow:1px 1px 0 rgba(255,255,255,1)">Análisis Financiero</h1>
+      </div>
+      <button onclick="goToEditor()" class="glow-hover btn-bloom-slate lg:hidden w-full px-4 py-2 bg-slate-800 text-white rounded-[36px] text-xs font-bold flex justify-center items-center gap-2">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="px-4 lg:px-8 xl:px-12 pt-[130px] fade-in pb-12 space-y-6">
+
+      <!-- ═══ TAB: GENERAL ═══ -->
+      <div class="tab-panel active" id="panel-general">
+        <!-- NOTIF AREA (Insights destacados) -->
+        <div id="notif-area" class="space-y-2 mb-6"></div>
+
+        <div class="mb-5">
+          <h2 class="text-2xl font-black text-slate-800">Dashboard <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-sky-500">Financiero</span></h2>
+          <p class="text-xs text-slate-500 mt-1">Indicadores completos: liquidez, endeudamiento, rentabilidad y eficiencia.</p>
         </div>
 
-        <!-- MAIN WORKSPACE -->
-        <div class="flex-1 overflow-y-auto h-full pb-32 scrollbar-hide relative z-[5]" id="main-scroll-area">
-
-            <!-- HEADER PROYECTO -->
-            <div class="fixed top-[85px] left-0 lg:left-[260px] right-0 z-40 px-4 lg:px-[2.5rem] py-4 flex flex-col md:flex-row justify-between items-center no-print gap-4 bg-transparent"
-                id="sticky-header">
-                <div class="flex items-center gap-4 w-full md:w-auto">
-                    <div
-                        class="glass-pill px-6 py-2.5 rounded-[36px] flex items-center gap-3 w-full md:w-auto justify-center md:justify-start border border-white/40">
-                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <h1 id="current-project-name"
-                            class="text-sm md:text-base font-black text-slate-800"
-                            style="text-shadow: 1px 1px 0px rgba(255,255,255,1);">Análisis de Rentabilidad</h1>
-                    </div>
-                </div>
-                <!-- MOBILE BACK BUTTON -->
-                <button onclick="goToEditor()"
-                    class="lg:hidden w-full px-4 py-2 bg-slate-800 text-white rounded-[36px] text-xs font-bold flex justify-center items-center gap-2 shadow-md">
-                    <i class="fas fa-arrow-left"></i> Volver al Editor
-                </button>
-            </div>
-
-            <div class="px-4 lg:px-[2.5rem] pt-[120px] max-w-5xl mx-auto fade-in">
-
-                <div class="mb-8 text-center md:text-left">
-                    <h2 class="text-2xl lg:text-3xl font-black text-slate-800">Análisis de <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-sky-500">Rentabilidad</span>
-                    </h2>
-                    <p class="text-sm text-slate-500 mt-2">Evaluación del rendimiento financiero del capital y activos
-                        de la entidad.</p>
-                </div>
-
-                <!-- CARDS ROA / ROE / ROI -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-
-                    <!-- ROA CARD -->
-                    <div
-                        class="glass-card bg-white/70 backdrop-blur-xl border border-white p-8 rounded-[36px] shadow-lg relative overflow-hidden group">
-                        <div
-                            class="absolute -right-10 -top-10 w-40 h-40 bg-sky-200/50 rounded-full blur-3xl group-hover:bg-sky-300/50 transition-all duration-500">
-                        </div>
-                        <div class="relative z-10 text-center flex flex-col h-full">
-                            <div
-                                class="w-16 h-16 mx-auto bg-sky-100 text-sky-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm border border-sky-50">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">ROA
-                                (Retorno sobre Activos)</h3>
-                            <div class="font-black text-sky-600 tracking-tighter mb-4 transition-all duration-500 fit-text-percentage"
-                                id="val-roa" style="text-shadow: 0 0 20px rgba(14,165,233,0.3);">
-                                0.00%
-                            </div>
-                            <p class="text-[11px] text-slate-500 font-medium px-2 mb-6" id="roa-desc">Eficiencia en el uso de activos.</p>
-
-                            <div class="mt-auto">
-                                <hr class="my-4 border-slate-200/60 dashed">
-                                <div
-                                    class="flex justify-between text-[10px] sm:text-xs font-mono font-bold text-slate-600 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-left">
-                                    <span>Utilidad: <br><span class="text-sky-600" id="roa-uti">$0.00</span></span>
-                                    <span class="text-right">Activos: <br><span class="text-slate-800"
-                                            id="roa-act">$0.00</span></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ROE CARD -->
-                    <div
-                        class="glass-card bg-white/70 backdrop-blur-xl border border-white p-8 rounded-[36px] shadow-lg relative overflow-hidden group">
-                        <div
-                            class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-200/50 rounded-full blur-3xl group-hover:bg-indigo-300/50 transition-all duration-500">
-                        </div>
-                        <div class="relative z-10 text-center flex flex-col h-full">
-                            <div
-                                class="w-16 h-16 mx-auto bg-indigo-100 text-indigo-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm border border-indigo-50">
-                                <i class="fas fa-coins"></i>
-                            </div>
-                            <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">ROE
-                                (Retorno sobre Patrimonio)</h3>
-                            <div class="font-black text-indigo-600 tracking-tighter mb-4 fit-text-percentage"
-                                id="val-roe" style="text-shadow: 0 0 20px rgba(99,102,241,0.3);">
-                                0.00%
-                            </div>
-                            <p class="text-[11px] text-slate-500 font-medium px-2 mb-6" id="roe-desc">Rendimiento del capital propio.</p>
-
-                            <div class="mt-auto">
-                                <hr class="my-4 border-slate-200/60 dashed">
-                                <div
-                                    class="flex justify-between text-[10px] sm:text-xs font-mono font-bold text-slate-600 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-left">
-                                    <span>Utilidad: <br><span class="text-indigo-600" id="roe-uti">$0.00</span></span>
-                                    <span class="text-right">Patrimonio: <br><span class="text-slate-800"
-                                            id="roe-pat">$0.00</span></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ROI CARD -->
-                    <div
-                        class="glass-card bg-white/70 backdrop-blur-xl border border-white p-8 rounded-[36px] shadow-lg relative overflow-hidden group">
-                        <div
-                            class="absolute -right-10 -top-10 w-40 h-40 bg-fuchsia-200/50 rounded-full blur-3xl group-hover:bg-fuchsia-300/50 transition-all duration-500">
-                        </div>
-                        <div class="relative z-10 text-center flex flex-col h-full">
-                            <div
-                                class="w-16 h-16 mx-auto bg-fuchsia-100 text-fuchsia-500 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-sm border border-fuchsia-50">
-                                <i class="fas fa-rocket"></i>
-                            </div>
-                            <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">ROI
-                                (Retorno de Inversión)</h3>
-                            <div class="font-black text-fuchsia-600 tracking-tighter mb-4 fit-text-percentage"
-                                id="val-roi" style="text-shadow: 0 0 20px rgba(217,70,239,0.3);">
-                                0.00%
-                            </div>
-                            <p class="text-[11px] text-slate-500 font-medium px-2 mb-6" id="roi-desc">Evaluación del
-                                retorno financiero.</p>
-
-                            <div class="mt-auto">
-                                <hr class="my-4 border-slate-200/60 dashed">
-                                <div
-                                    class="flex justify-between text-[10px] sm:text-xs font-mono font-bold text-slate-600 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-left">
-                                    <span>Ingreso: <br><span class="text-fuchsia-600" id="roi-ing">$0.00</span></span>
-                                    <span class="text-right">Inversión: <br><span class="text-slate-800"
-                                            id="roi-inv">$0.00</span></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- DIAGNÓSTICO -->
-                <div
-                    class="bg-white/80 backdrop-blur-xl rounded-[36px] border border-slate-200 shadow-sm overflow-hidden no-print">
-                    <div
-                        class="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-800 to-slate-900 text-white flex gap-4 items-center">
-                        <div class="w-10 h-10 bg-white/10 rounded-full flex justify-center items-center shrink-0">
-                            <i class="fas fa-lightbulb text-yellow-300 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-black uppercase tracking-widest text-sm">Diagnóstico Automático</h3>
-                            <p class="text-[11px] text-slate-300 font-medium">Interpretación de los indicadores
-                                financieros.</p>
-                        </div>
-                    </div>
-                    <div class="p-6 md:p-8 space-y-6" id="diagnostico-container">
-                        <!-- Inyectado por JS -->
-                    </div>
-                </div>
-
-            </div>
+        <!-- Fila 1: Liquidez | Endeudamiento — 2 columnas iguales -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+          <div class="sec-glass">
+            <div class="sec-title"><i class="fas fa-tint text-sky-400"></i>Liquidez</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem" id="gen-liquidez"></div>
+          </div>
+          <div class="sec-glass">
+            <div class="sec-title"><i class="fas fa-link text-amber-400"></i>Endeudamiento</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem" id="gen-deuda"></div>
+          </div>
         </div>
-    </main>
 
-    <!-- Supabase Core First -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/core/supabase.js"></script>
+        <!-- Fila 2: Rentabilidad — ancho completo, 4 columnas internas -->
+        <div class="sec-glass" style="margin-bottom:1.25rem">
+          <div class="sec-title"><i class="fas fa-chart-pie text-violet-400"></i>Rentabilidad <span class="text-violet-400 ml-1">— Sección Principal</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.75rem" id="gen-rent"></div>
+        </div>
 
-    <!-- UI y Utilidades -->
-    <script src="js/core/components.js"></script>
+        <!-- Fila 3: Eficiencia — ancho completo, 2 columnas internas -->
+        <div class="sec-glass">
+          <div class="sec-title"><i class="fas fa-sync-alt text-emerald-400"></i>Eficiencia y Gestión</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem" id="gen-efic"></div>
+        </div>
+      </div>
 
-    <!-- Local State / Auth -->
-    <script src="js/core/auth.js"></script>
+      <!-- ═══ TAB: LIQUIDEZ ═══ -->
+      <div class="tab-panel" id="panel-liquidez">
+        <div class="max-w-4xl mx-auto">
+          <div class="mb-6">
+            <h2 class="text-2xl font-black text-slate-800">Análisis de <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-cyan-400">Liquidez</span></h2>
+            <p class="text-xs text-slate-500 mt-1">Capacidad de pago a corto plazo.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" id="big-liquidez"></div>
+          <div class="sec-glass">
+            <div class="flex items-center justify-between mb-4">
+              <div class="sec-title mb-0"><i class="fas fa-chart-bar text-sky-400"></i>Gráfica</div>
+              <div class="chart-toggle">
+                <button class="chart-btn active" onclick="setChart('liquidez','bar',this)"><i class="fas fa-chart-bar mr-1"></i>Barras</button>
+                <button class="chart-btn" onclick="setChart('liquidez','pie',this)"><i class="fas fa-chart-pie mr-1"></i>Pastel</button>
+              </div>
+            </div>
+            <div style="height:260px;position:relative"><canvas id="chart-liquidez"></canvas></div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Control de la vista Índices -->
-    <script src="js/pages/indices.js"></script>
+      <!-- ═══ TAB: ENDEUDAMIENTO ═══ -->
+      <div class="tab-panel" id="panel-deuda">
+        <div class="max-w-4xl mx-auto">
+          <div class="mb-6">
+            <h2 class="text-2xl font-black text-slate-800">Endeudamiento <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-400">y Solvencia</span></h2>
+            <p class="text-xs text-slate-500 mt-1">Riesgo financiero a largo plazo.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" id="big-deuda"></div>
+          <div class="sec-glass">
+            <div class="flex items-center justify-between mb-4">
+              <div class="sec-title mb-0"><i class="fas fa-chart-bar text-amber-400"></i>Gráfica</div>
+              <div class="chart-toggle">
+                <button class="chart-btn active" onclick="setChart('deuda','bar',this)"><i class="fas fa-chart-bar mr-1"></i>Barras</button>
+                <button class="chart-btn" onclick="setChart('deuda','pie',this)"><i class="fas fa-chart-pie mr-1"></i>Pastel</button>
+              </div>
+            </div>
+            <div style="height:260px;position:relative"><canvas id="chart-deuda"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: RENTABILIDAD ═══ -->
+      <div class="tab-panel" id="panel-rentabil">
+        <div class="max-w-4xl mx-auto">
+          <div class="mb-6">
+            <h2 class="text-2xl font-black text-slate-800">Análisis de <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-indigo-400">Rentabilidad</span></h2>
+            <p class="text-xs text-slate-500 mt-1">Evaluación del rendimiento financiero del capital y activos.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" id="big-rentabil"></div>
+          <div id="big-rentabil2"></div>
+          <div class="sec-glass">
+            <div class="flex items-center justify-between mb-4">
+              <div class="sec-title mb-0"><i class="fas fa-chart-bar text-violet-400"></i>Gráfica Comparativa</div>
+              <div class="chart-toggle">
+                <button class="chart-btn active" onclick="setChart('rentabil','bar',this)"><i class="fas fa-chart-bar mr-1"></i>Barras</button>
+                <button class="chart-btn" onclick="setChart('rentabil','pie',this)"><i class="fas fa-chart-pie mr-1"></i>Pastel</button>
+              </div>
+            </div>
+            <div style="height:260px;position:relative"><canvas id="chart-rentabil"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: EFICIENCIA ═══ -->
+      <div class="tab-panel" id="panel-efic">
+        <div class="max-w-4xl mx-auto">
+          <div class="mb-6">
+            <h2 class="text-2xl font-black text-slate-800">Eficiencia <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">y Gestión</span></h2>
+            <p class="text-xs text-slate-500 mt-1">Rapidez de conversión de activos en ingresos.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" id="big-efic"></div>
+          <div class="sec-glass">
+            <div class="flex items-center justify-between mb-4">
+              <div class="sec-title mb-0"><i class="fas fa-chart-bar text-emerald-400"></i>Gráfica</div>
+              <div class="chart-toggle">
+                <button class="chart-btn active" onclick="setChart('efic','bar',this)"><i class="fas fa-chart-bar mr-1"></i>Barras</button>
+                <button class="chart-btn" onclick="setChart('efic','pie',this)"><i class="fas fa-chart-pie mr-1"></i>Pastel</button>
+              </div>
+            </div>
+            <div style="height:260px;position:relative"><canvas id="chart-efic"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: DIAGNÓSTICO ═══ -->
+      <div class="tab-panel" id="panel-diagnostico">
+        <div class="mb-4">
+          <h2 class="text-2xl font-black text-slate-800">Diagnóstico <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-400">Automático</span></h2>
+          <p class="text-xs text-slate-500 mt-1">Interpretación inteligente de todos los indicadores financieros.</p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-xl rounded-[28px] border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-800 to-slate-900 text-white flex gap-4 items-center">
+            <div class="w-10 h-10 bg-white/10 rounded-full flex justify-center items-center shrink-0"><i class="fas fa-lightbulb text-yellow-300 text-xl"></i></div>
+            <div>
+              <h3 class="font-black uppercase tracking-widest text-sm">Diagnóstico Completo</h3>
+              <p class="text-[11px] text-slate-300 font-medium">Análisis de los 10 indicadores financieros.</p>
+            </div>
+          </div>
+          <div class="p-6 md:p-8 space-y-3" id="diagnostico-container">
+            <div class="text-slate-400 italic text-xs">Cargando...</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/core/security.js"></script>
+<script src="js/core/supabase.js"></script>
+<script src="js/core/components.js"></script>
+<script src="js/core/auth.js"></script>
+<script src="js/pages/indices.js"></script>
 </body>
-
 </html>
+
+

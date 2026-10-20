@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matemática Financiera y Préstamos — BTVAC 3.5 — EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* ===== TEMA ESMERALDA / VERDE FINANCIERO — BTVAC 3.5 ===== */
+        .fin-tool-item {
+            height: 48px !important;
+            min-height: 48px !important;
+            max-height: 48px !important;
+            box-sizing: border-box !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            vertical-align: middle !important;
+        }
+
+        #editor-sticky-controls {
+            top: 74px;
+        }
+        @media (min-width: 1024px) {
+            #editor-sticky-controls {
+                top: 85px;
+            }
+        }
+
+        #sliding-tab-pill,
+        #fin-mode-indicator {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.18), inset 0 0 0 1px rgba(16, 185, 129, 0.18);
+            transform-origin: center center;
+            border-radius: 36px;
+        }
+        [data-theme="dark"] #sliding-tab-pill,
+        .dark #sliding-tab-pill,
+        [data-theme="dark"] #fin-mode-indicator,
+        .dark #fin-mode-indicator {
+            background: #1e293b !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(52, 211, 153, 0.25) !important;
+        }
+
+        .fin-tab-btn {
+            padding: 0 clamp(10px, 1.2vw, 18px);
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            border-radius: 999px;
+            transition: color 0.25s ease;
+            position: relative;
+            z-index: 10;
+            white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+        .fin-tab-btn.active { color: #059669; }
+        .fin-tab-btn:hover:not(.active) { color: #0f172a; }
+        [data-theme="dark"] .fin-tab-btn { color: #94a3b8; }
+        [data-theme="dark"] .fin-tab-btn.active { color: #34d399; }
+        [data-theme="dark"] .fin-tab-btn:hover:not(.active) { color: #f8fafc; }
+
+        .fin-mode-btn {
+            color: #64748b;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+        .fin-mode-btn.active { color: #059669; }
+        .fin-mode-btn:hover:not(.active) { color: #0f172a; }
+        [data-theme="dark"] .fin-mode-btn { color: #94a3b8; }
+        [data-theme="dark"] .fin-mode-btn.active { color: #34d399; }
+        [data-theme="dark"] .fin-mode-btn:hover:not(.active) { color: #f8fafc; }
+
+        .fin-input {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid rgba(15, 23, 42, 0.1);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: right;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .fin-input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            background: #ffffff;
+        }
+        .dark .fin-input {
+            background: rgba(15, 23, 42, 0.75);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f1f5f9;
+        }
+        .dark .fin-input:focus {
+            border-color: #34d399;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .fin-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+        }
+        .dark .fin-card {
+            background: rgba(15, 23, 42, 0.65);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .fin-practice-cell {
+            width: 100%;
+            min-width: 90px;
+            padding: 5px 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-size: 11.5px;
+            text-align: right;
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.95);
+            color: #0f172a;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+        .fin-practice-cell:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+            background: #ffffff;
+        }
+        .dark .fin-practice-cell {
+            background: rgba(15, 23, 42, 0.85);
+            border-color: rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+        }
+        .dark .fin-practice-cell:focus {
+            border-color: #34d399;
+            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25);
+            background: rgba(15, 23, 42, 0.98);
+        }
+        .fin-practice-cell.cell-correct {
+            border-color: #10b981 !important;
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #047857 !important;
+            font-weight: 700 !important;
+        }
+        .dark .fin-practice-cell.cell-correct {
+            border-color: #34d399 !important;
+            background-color: rgba(16, 185, 129, 0.25) !important;
+            color: #6ee7b7 !important;
+        }
+        .fin-practice-cell.cell-wrong {
+            border-color: #f43f5e !important;
+            background-color: rgba(244, 63, 94, 0.15) !important;
+            color: #be123c !important;
+            font-weight: 700 !important;
+        }
+        .dark .fin-practice-cell.cell-wrong {
+            border-color: #fb7185 !important;
+            background-color: rgba(244, 63, 94, 0.25) !important;
+            color: #fda4af !important;
+        }
+
+        .no-scrollbar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        @media print {
+            .no-print, #editor-sticky-controls, #shared-components-root, #global-preloader {
+                display: none !important;
+            }
+            main {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+        }
+    </style>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-emerald" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- CABECERA STICKY UNIFICADA DEL EDITOR FINANCIERO (48px) -->
+    <div id="editor-sticky-controls" class="fixed top-[74px] lg:top-[85px] left-0 right-0 z-[900] pt-1.5 pb-1.5 px-0 pointer-events-none">
+        <!-- Controles Desktop (Todas las herramientas unificadas en una sola línea a 48px estrictos) -->
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto gap-2.5 xl:gap-3.5 w-[95%] max-w-[95%] mx-auto" style="height: 48px;">
+
+            <!-- 1. Identificador de Proyecto Financiero -->
+            <div class="fin-tool-item glass-pill flex items-center gap-3 px-4 rounded-[36px] border border-white/60 dark:border-slate-700 shadow-sm shrink-0">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm shrink-0">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="flex flex-col min-w-0 pr-1 max-w-[150px] xl:max-w-[210px]">
+                    <span class="text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 leading-none truncate">
+                        BTVAC 3.5 · Finanzas
+                    </span>
+                    <span id="current-project-name" class="text-xs font-black truncate text-slate-800 dark:text-white" title="Proyecto Financiero">
+                        Cargando...
+                    </span>
+                </div>
+                <button onclick="closeProject()" class="w-7 h-7 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors ml-1 cursor-pointer" title="Volver a Proyectos">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                </button>
+            </div>
+
+            <!-- 2. Pestañas Superiores Fluidas con Animación de Burbuja Elástica -->
+            <div class="fin-tool-item glass-pill p-1 rounded-[36px] border border-white/60 dark:border-slate-700 shadow-sm flex items-center relative shrink-0">
+                <div id="sliding-tab-pill" class="absolute top-1 bottom-1 left-0 rounded-[36px] pointer-events-none transition-all duration-300 ease-out" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                <button type="button" onclick="switchFinanzasTab('prestamos')" id="tab-prestamos" class="fin-tab-btn active relative z-10 h-full" data-idx="0">
+                    <i class="fas fa-landmark text-sm"></i> <span>Amortización</span>
+                </button>
+                <button type="button" onclick="switchFinanzasTab('interes')" id="tab-interes" class="fin-tab-btn relative z-10 h-full" data-idx="1">
+                    <i class="fas fa-percent text-sm"></i> <span>Interés y Anualidades</span>
+                </button>
+                <button type="button" onclick="switchFinanzasTab('inversion')" id="tab-inversion" class="fin-tab-btn relative z-10 h-full" data-idx="2">
+                    <i class="fas fa-rocket text-sm"></i> <span>Evaluación VAN / TIR</span>
+                </button>
+            </div>
+
+            <!-- 3. Selector Modo Dual con Burbuja Elástica (Cápsula Independiente a 48px) -->
+            <div class="fin-tool-item glass-pill p-1 border border-white/60 dark:border-slate-700 shadow-sm rounded-[36px] flex items-center relative shrink-0">
+                <div id="fin-mode-indicator" class="absolute top-1 bottom-1 left-0 rounded-[36px] pointer-events-none transition-all duration-300 ease-out" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                <button type="button" id="btn-fin-mode-asistido" onclick="setFinanzasMode('asistido')"
+                    class="fin-mode-btn relative z-10 h-full px-4 rounded-[36px] text-xs font-black uppercase flex items-center gap-2" data-idx="0" title="Modo Asistido (Cálculos automáticos en vivo)">
+                    <i class="fas fa-magic text-xs"></i> <span>Asistido</span>
+                </button>
+                <button type="button" id="btn-fin-mode-practica" onclick="setFinanzasMode('practica')"
+                    class="fin-mode-btn active relative z-10 h-full px-4 rounded-[36px] text-xs font-black uppercase flex items-center gap-2" data-idx="1" title="Modo Práctica (Cálculos manuales pedagógicos)">
+                    <i class="fas fa-pencil-alt text-xs"></i> <span>Práctica</span>
+                </button>
+            </div>
+
+            <!-- 4. Acciones Financieras y Pedagógicas (Items independientes a 48px estrictos) -->
+            <div class="flex items-center gap-2 shrink-0 no-print" style="height: 48px; margin: 0;">
+                <!-- Botón Auditar MINED -->
+                <button type="button" onclick="auditFinanzasPractice()"
+                    class="fin-tool-item px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[36px] font-black text-xs uppercase tracking-tight transition-all shadow-sm flex items-center gap-2 whitespace-nowrap cursor-pointer"
+                    title="Auditar competencia curricular MINED BTVAC 3.5">
+                    <i class="fas fa-graduation-cap text-sm"></i> <span>Auditar MINED</span>
+                </button>
+
+                <!-- Botón Exportar Excel -->
+                <button type="button" onclick="exportFinanzasExcel()"
+                    class="fin-tool-item glass-pill px-4 border border-slate-200/60 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-[36px] font-bold text-xs uppercase tracking-tight transition-all flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 shadow-sm cursor-pointer whitespace-nowrap"
+                    title="Exportar cronograma de amortización a CSV / Excel">
+                    <i class="fas fa-file-excel text-emerald-600 text-sm"></i> <span class="hidden xl:inline">Exportar</span> Excel
+                </button>
+
+                <!-- Botón Imprimir -->
+                <button type="button" onclick="window.print()"
+                    class="fin-tool-item glass-pill px-4 border border-slate-200/60 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-[36px] font-bold text-xs uppercase tracking-tight transition-all flex items-center gap-2 hover:bg-white dark:hover:bg-slate-800 shadow-sm cursor-pointer whitespace-nowrap"
+                    title="Imprimir reporte financiero">
+                    <i class="fas fa-print text-sm"></i> <span class="hidden xl:inline">Imprimir</span>
+                </button>
+            </div>
+
+            <!-- 5. Indicador de Guardado / Nube y Botón Salir Oficial de EduConta SV -->
+            <div id="header-right-side" class="flex items-center gap-2 shrink-0" style="height: 48px; margin: 0;">
+                <div id="main-sync-pill" class="fin-tool-item glass-pill flex flex-col items-center justify-center rounded-[36px] shrink-0 px-3 py-1 border border-white/70 dark:border-slate-700 shadow-sm gap-0.5">
+                    <div id="save-indicator" class="flex items-center justify-center gap-1 w-full text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50/80 dark:bg-emerald-950/40 rounded-[36px] px-2 py-0.5 text-[8px] leading-none border border-emerald-100 dark:border-emerald-900/50">
+                        <i class="fas fa-check-circle text-[7px]"></i> <span>LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator" class="flex items-center justify-center gap-1 w-full text-slate-400 font-black bg-white dark:bg-slate-800 rounded-[36px] px-2 py-0.5 text-[8px] leading-none border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-cloud-upload text-[7px]"></i> <span>GUARDADO</span>
+                    </div>
+                </div>
+
+                <button id="close-button" onclick="closeProject()" class="fin-tool-item bg-rose-500 hover:bg-rose-600 text-white rounded-[36px] flex items-center justify-center shrink-0 group transition-all shadow-[0_8px_20px_-4px_rgba(244,63,94,0.4)] cursor-pointer" style="width: 48px !important;" title="Cerrar y Volver a Proyectos">
+                    <i class="fas fa-times transition-transform group-hover:rotate-90 text-sm"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Controles Móvil -->
+        <div class="flex lg:hidden items-center justify-between w-[95%] mx-auto pointer-events-auto gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-2 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-md">
+            <button onclick="closeProject()" class="h-9 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1" title="Volver">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="flex-1 min-w-0 flex items-center justify-between gap-1 px-1">
+                <button onclick="switchFinanzasTab('prestamos')" id="tab-prestamos-mobile" class="flex-1 py-1.5 px-2 text-center font-bold text-xs rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                    Préstamos
+                </button>
+                <button onclick="switchFinanzasTab('interes')" id="tab-interes-mobile" class="flex-1 py-1.5 px-2 text-center font-bold text-xs rounded-lg text-slate-500 dark:text-slate-400">
+                    Interés
+                </button>
+                <button onclick="switchFinanzasTab('inversion')" id="tab-inversion-mobile" class="flex-1 py-1.5 px-2 text-center font-bold text-xs rounded-lg text-slate-500 dark:text-slate-400">
+                    VAN/TIR
+                </button>
+            </div>
+            <button type="button" onclick="auditFinanzasPractice()" class="h-9 px-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold" title="Auditar MINED">
+                <i class="fas fa-graduation-cap"></i>
+            </button>
+            <button type="button" onclick="closeProject()" class="h-9 px-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs uppercase tracking-tight transition-all shadow-sm flex items-center gap-1" title="Cerrar Proyecto">
+                <i class="fas fa-times text-xs"></i> <span>Salir</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL (Ocupa el 95% del espacio en pantalla) -->
+    <main class="w-[95%] max-w-[95%] mx-auto pt-[145px] lg:pt-[155px] pb-24 flex-1">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             PESTAÑA 1: AMORTIZACIÓN DE PRÉSTAMOS BANCARIOS
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="view-prestamos" class="view-panel space-y-6">
+            <div class="fin-card p-6 sm:p-8">
+                
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2.5">
+                            <span class="p-2.5 bg-emerald-500/10 text-emerald-500 rounded-2xl"><i class="fas fa-landmark text-lg"></i></span>
+                            Amortización de Pasivos Financieros · BTVAC 3.5
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Simulación de financiamiento bancario, cálculo de cuotas (Sistemas Francés, Alemán y Americano) y registro en el Libro Diario.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="window.insertPrestamoJournalEntry()"
+                            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-xs uppercase tracking-tight transition-all shadow-md flex items-center gap-2">
+                            <i class="fas fa-book-open"></i> Generar Partidas en Diario
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Parámetros del Préstamo -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Monto del Préstamo ($)</label>
+                        <input type="number" step="100" id="prestamo-monto" oninput="calcPrestamoLive()"
+                            class="fin-input" placeholder="0.00" value="">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tasa Anual (%)</label>
+                        <input type="number" step="0.1" id="prestamo-tasa" oninput="calcPrestamoLive()"
+                            class="fin-input" placeholder="0.0" value="">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Plazo (Meses)</label>
+                        <input type="number" step="1" id="prestamo-plazo" oninput="calcPrestamoLive()"
+                            class="fin-input" placeholder="0" value="">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Sistema de Amortización</label>
+                        <select id="prestamo-sistema" onchange="calcPrestamoLive()"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500">
+                            <option value="frances">Francés (Cuota Nivelada)</option>
+                            <option value="aleman">Alemán (Capital Fijo)</option>
+                            <option value="americano">Americano (Interés Periódico)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Fecha de Concesión</label>
+                        <input type="date" id="prestamo-fecha" onchange="calcPrestamoLive()"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Dashboard de Resumen Préstamo -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                    <div class="p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200 dark:border-indigo-900/50">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Cuota Mensual Estimada</span>
+                        <div id="prestamo-res-cuota" class="text-2xl font-black tabular-nums text-indigo-700 dark:text-indigo-300 mt-1">$ 0.00</div>
+                    </div>
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">Total Intereses a Pagar</span>
+                        <div id="prestamo-res-interes" class="text-2xl font-black tabular-nums text-amber-700 dark:text-amber-300 mt-1">$ 0.00</div>
+                    </div>
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Tasa Mensual Efectiva (i)</span>
+                        <div id="prestamo-res-tasa-mes" class="text-2xl font-black tabular-nums text-emerald-700 dark:text-emerald-300 mt-1">1.00 %</div>
+                    </div>
+                    <div class="p-4 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-md">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-emerald-400">Costo Financiero Total</span>
+                        <div id="prestamo-res-total" class="text-2xl font-black tabular-nums text-emerald-400 mt-1">$ 0.00</div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Amortización -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-500 uppercase font-black text-[11px] tracking-wider border-b border-slate-200 dark:border-slate-700">
+                            <tr>
+                                <th class="py-3.5 px-4 text-center">N°</th>
+                                <th class="py-3.5 px-4">Fecha Vencimiento</th>
+                                <th class="py-3.5 px-4 text-right">Saldo Inicial</th>
+                                <th class="py-3.5 px-4 text-right">Cuota Total</th>
+                                <th class="py-3.5 px-4 text-right">Intereses</th>
+                                <th class="py-3.5 px-4 text-right">Amort. Capital</th>
+                                <th class="py-3.5 px-4 text-right">Saldo Insoluto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prestamo-tabla-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Inyectado dinámicamente por JS -->
+                        </tbody>
+                        <tfoot id="prestamo-tabla-foot" class="bg-slate-100 dark:bg-slate-800 font-bold border-t-2 border-slate-300 dark:border-slate-700">
+                            <!-- Inyectado dinámicamente por JS -->
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             PESTAÑA 2: INTERÉS Y ANUALIDADES
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="view-interes" class="view-panel hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Tarjeta 1: Interés Simple -->
+                <div class="fin-card p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 flex items-center justify-center font-black">I</span>
+                            <div>
+                                <h3 class="font-black text-slate-800 dark:text-slate-100 text-base">Interés Simple</h3>
+                                <p class="text-[10px] text-slate-400 font-semibold tracking-wider">I = C · i · t</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-5">
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Capital Principal ($C)</label>
+                                <input type="number" id="simple-capital" oninput="calcInteresSimpleLive()" class="fin-input" placeholder="0.00" value="">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tasa Anual (% $i$)</label>
+                                <input type="number" step="0.1" id="simple-tasa" oninput="calcInteresSimpleLive()" class="fin-input" placeholder="0.0" value="">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tiempo (Meses $t$)</label>
+                                <input type="number" id="simple-tiempo" oninput="calcInteresSimpleLive()" class="fin-input" placeholder="0" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-sky-50 dark:bg-sky-950/30 rounded-2xl border border-sky-100 dark:border-sky-900/40">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Interés Generado ($I$):</span>
+                            <span id="simple-res-interes" class="tabular-nums font-black text-sky-600 text-base">$ 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-sky-200 dark:border-sky-900/50 pt-1.5">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-100">Monto Final ($M$):</span>
+                            <span id="simple-res-monto" class="tabular-nums font-black text-slate-900 dark:text-white text-lg">$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: Interés Compuesto -->
+                <div class="fin-card p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center font-black">M</span>
+                            <div>
+                                <h3 class="font-black text-slate-800 dark:text-slate-100 text-base">Interés Compuesto</h3>
+                                <p class="text-[10px] text-slate-400 font-semibold tracking-wider">M = C · (1 + i)^n</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-5">
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Capital Inicial ($C)</label>
+                                <input type="number" id="compuesto-capital" oninput="calcInteresCompuestoLive()" class="fin-input" placeholder="0.00" value="">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tasa Nominal Anual (%)</label>
+                                <input type="number" step="0.1" id="compuesto-tasa" oninput="calcInteresCompuestoLive()" class="fin-input" placeholder="0.0" value="">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Capitalización</label>
+                                    <select id="compuesto-frecuencia" onchange="calcInteresCompuestoLive()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none">
+                                        <option value="12">Mensual (12/año)</option>
+                                        <option value="4">Trimestral (4/año)</option>
+                                        <option value="2">Semestral (2/año)</option>
+                                        <option value="1">Anual (1/año)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Plazo (Años)</label>
+                                    <input type="number" step="0.5" id="compuesto-plazo" oninput="calcInteresCompuestoLive()" class="fin-input" placeholder="0" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Intereses Ganados:</span>
+                            <span id="compuesto-res-interes" class="tabular-nums font-black text-emerald-600 text-base">$ 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-emerald-200 dark:border-emerald-900/50 pt-1.5">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-100">Monto Final Acumulado:</span>
+                            <span id="compuesto-res-monto" class="tabular-nums font-black text-slate-900 dark:text-white text-lg">$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: Anualidades y Rentas -->
+                <div class="fin-card p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 flex items-center justify-center font-black">R</span>
+                            <div>
+                                <h3 class="font-black text-slate-800 dark:text-slate-100 text-base">Anualidades Ordinarias</h3>
+                                <p class="text-[10px] text-slate-400 font-semibold tracking-wider">VF = R · [((1+i)^n - 1) / i]</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-5">
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Renta Periódica / Depósito ($R)</label>
+                                <input type="number" id="anualidad-renta" oninput="calcAnualidadesLive()" class="fin-input" placeholder="0.00" value="">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tasa de Interés Periódica (%)</label>
+                                <input type="number" step="0.1" id="anualidad-tasa" oninput="calcAnualidadesLive()" class="fin-input" placeholder="0.0" value="">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Número de Depósitos ($n$ meses)</label>
+                                <input type="number" id="anualidad-periodos" oninput="calcAnualidadesLive()" class="fin-input" placeholder="0" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-2xl border border-purple-100 dark:border-purple-900/40">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Valor Presente ($VP$):</span>
+                            <span id="anualidad-res-vp" class="tabular-nums font-black text-purple-600 text-base">$ 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-purple-200 dark:border-purple-900/50 pt-1.5">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-100">Valor Futuro ($VF$):</span>
+                            <span id="anualidad-res-vf" class="tabular-nums font-black text-slate-900 dark:text-white text-lg">$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             PESTAÑA 3: EVALUACIÓN DE PROYECTOS DE INVERSIÓN (VAN / TIR)
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="view-inversion" class="view-panel hidden space-y-6">
+            <div class="fin-card p-6 sm:p-8">
+                
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2.5">
+                            <span class="p-2.5 bg-emerald-500/10 text-emerald-500 rounded-2xl"><i class="fas fa-rocket text-lg"></i></span>
+                            Evaluación Financiera de Inversiones · VAN & TIR
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Determinación del Valor Actual Neto, Tasa Interna de Retorno, Relación Beneficio/Costo y Período de Recuperación de Inversión (PRI).</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="addFlujoRow()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs uppercase tracking-tight transition-all flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
+                            <i class="fas fa-plus text-emerald-500"></i> Agregar Período
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Parámetros Iniciales del Proyecto -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Inversión Inicial ($I_0$)</label>
+                        <input type="number" id="inversion-inicial" oninput="calcEvaluacionLive()" class="fin-input text-rose-600" placeholder="0.00" value="">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tasa de Descuento / TMAR (%)</label>
+                        <input type="number" step="0.1" id="inversion-tmar" oninput="calcEvaluacionLive()" class="fin-input" placeholder="0.0" value="">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Horizonte de Evaluación</label>
+                        <div id="inversion-horizonte-text" class="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs text-slate-700 dark:text-slate-300">0 Períodos (Años)</div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards de Viabilidad -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-900/50">
+                        <div class="flex justify-between items-center">
+                            <span class="block text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Valor Actual Neto (VAN)</span>
+                            <span id="kpi-van-badge" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-400 dark:bg-slate-600 text-white uppercase">SIN FLUJOS</span>
+                        </div>
+                        <div id="kpi-van-val" class="text-2xl font-black tabular-nums text-slate-800 dark:text-slate-200 mt-1">$ 0.00</div>
+                    </div>
+                    <div class="p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200 dark:border-indigo-900/50">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300">Tasa Interna Retorno (TIR)</span>
+                        <div id="kpi-tir-val" class="text-2xl font-black tabular-nums text-indigo-700 dark:text-indigo-300 mt-1">—</div>
+                    </div>
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">Recuperación (Payback PRI)</span>
+                        <div id="kpi-pri-val" class="text-xl font-black tabular-nums text-amber-700 dark:text-amber-300 mt-1">—</div>
+                    </div>
+                    <div class="p-4 bg-slate-900 text-white rounded-2xl border border-slate-800">
+                        <span class="block text-[11px] font-black uppercase tracking-wider text-emerald-400">Relación Beneficio / Costo</span>
+                        <div id="kpi-bc-val" class="text-2xl font-black tabular-nums text-emerald-400 mt-1">0.00</div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Flujos de Efectivo y Descuento -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-500 uppercase font-black text-[11px] tracking-wider border-b border-slate-200 dark:border-slate-700">
+                            <tr>
+                                <th class="py-3.5 px-4 text-center">Período ($t$)</th>
+                                <th class="py-3.5 px-4 text-right">Flujo Neto Efectivo ($F_t$)</th>
+                                <th class="py-3.5 px-4 text-right">Factor Descuento $(1+k)^{-t}$</th>
+                                <th class="py-3.5 px-4 text-right">Flujo Descontado ($VP$)</th>
+                                <th class="py-3.5 px-4 text-right">Flujo Acumulado Descontado</th>
+                                <th class="py-3.5 px-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flujos-tabla-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Inyectado dinámicamente por JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Cálculos financieros respaldados</p>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/bridge-diario.js"></script>
+    <script defer src="js/pages/editor-finanzas.js?v=2.5"></script>
+</body>
+
+</html>
+
+

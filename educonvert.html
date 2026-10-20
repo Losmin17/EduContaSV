@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduConvert Studio | Gestor & Compilador de Legislación • EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/styles.css?v=1.1.2">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1.0.6">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+    
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/security.js"></script>
+    <script src="js/core/supabase.js"></script>
+    <script src="js/core/theme.js"></script>
+
+    <!-- PDF.js y Mammoth.js para Extracción Local de PDF y Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+    <style>
+        /* TEMA OSCURO ABSOLUTO */
+        html[data-theme="dark"], html { background-color: #000000 !important; }
+        body { background-color: #000000 !important; color: #f8fafc !important; }
+        [data-theme="dark"] body { background-color: #000000 !important; }
+        body::before { display: none !important; content: none !important; }
+
+        /* SCROLLBAR MINIMALISTA */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #1c1c1e; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2c2c2e; }
+
+        /* BARRA SUPERIOR FIJA DEL STUDIO */
+        .studio-fixed-toolbar {
+            position: sticky !important;
+            top: 1rem !important;
+            z-index: 950 !important;
+            background: rgba(6, 6, 7, 0.96) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.95), 0 0 20px rgba(16, 185, 129, 0.05) !important;
+            padding: 0.65rem 1.25rem !important;
+            border-radius: 18px !important;
+        }
+
+        .studio-card {
+            background: rgba(10, 10, 12, 0.88) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .studio-input {
+            background-color: #121214 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+            transition: all 0.2s ease !important;
+        }
+        .studio-input:focus {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+            outline: none !important;
+        }
+
+        .article-card-item {
+            background: rgba(18, 18, 22, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-radius: 1.25rem !important;
+            transition: all 0.25s ease !important;
+        }
+        .article-card-item:hover {
+            border-color: rgba(16, 185, 129, 0.35) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-slate-100 min-h-screen font-sans antialiased flex flex-col selection:bg-emerald-500/30">
+
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-emerald" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 md:px-8 py-6">
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 1: STUDIO COMPILADOR & EDITOR DE LEYES                    -->
+        <!-- ================================================================= -->
+        <section id="studio-compiler-screen" class="space-y-6 fade-in">
+            
+            <!-- PANEL SUPERIOR: METADATOS Y CARGA DE LEYES EXISTENTES -->
+            <div class="studio-card p-6">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5 pb-4 border-b border-white/5">
+                    <div>
+                        <h2 class="text-lg font-black text-white flex items-center gap-2">
+                            <i class="fas fa-file-lines text-emerald-400"></i> Metadatos Oficiales de la Ley
+                        </h2>
+                        <p class="text-slate-400 text-xs mt-0.5">Completa la información oficial del Decreto para catalogarlo correctamente en la base de datos de los alumnos.</p>
+                    </div>
+
+                    <!-- Selector de Ley Existente de Supabase para Edición Rápida -->
+                    <div class="flex items-center gap-2 w-full lg:w-auto">
+                        <select id="studio-existing-laws-select" onchange="window.loadLawFromDatabase(this.value)" class="studio-input text-xs rounded-xl px-4 py-2 text-slate-200 w-full lg:w-80">
+                            <option value="">-- Cargar una ley de Supabase para editarla --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <div class="lg:col-span-2">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Nombre Oficial de la Ley *</label>
+                        <input type="text" id="law-name-input" oninput="window.updateLawMetadataState()" placeholder="Ej: Código Tributario / Ley de Bancos" class="studio-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-white placeholder-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Decreto / Ref. Oficial</label>
+                        <input type="text" id="law-decreto-input" oninput="window.updateLawMetadataState()" placeholder="Ej: D.L. Nº 296" class="studio-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-white placeholder-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Siglas / Abreviatura</label>
+                        <input type="text" id="law-abbrev-input" oninput="window.updateLawMetadataState()" placeholder="Ej: CT / LB / LIR" class="studio-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-white placeholder-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Categoría Sectorial *</label>
+                        <select id="law-cat-input" onchange="window.updateLawMetadataState()" class="studio-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-200">
+                            <option value="Aduanas y Tributos">Aduanas y Tributos</option>
+                            <option value="Sector Financiero">Sector Financiero</option>
+                            <option value="Normas Contables">Normas Contables</option>
+                            <option value="Administración Pública">Administración Pública</option>
+                            <option value="Derecho Mercantil">Derecho Mercantil</option>
+                            <option value="Derecho Laboral">Derecho Laboral</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Fecha Publicación</label>
+                        <input type="date" id="law-date-input" onchange="window.updateLawMetadataState()" class="studio-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-200">
+                    </div>
+                </div>
+            </div>
+
+            <!-- WORKSPACE DIVIDIDO EN 2 COLUMNAS (FUENTE A LA IZQUIERDA, ARTÍCULOS A LA DERECHA) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- COLUMNA IZQUIERDA: INGESTA, DROPZONE & TEXTO FUENTE (5 COLS) -->
+                <div class="lg:col-span-5 flex flex-col gap-6">
+                    
+                    <!-- Tarjeta Dropzone e Ingesta -->
+                    <div class="studio-card p-6">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                            <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                                <i class="fas fa-cloud-arrow-up text-emerald-400"></i> Ingesta de Archivos
+                            </h3>
+                            <div id="studio-status-indicator" class="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold">
+                                <span class="w-2 h-2 rounded-full bg-slate-600"></span> <span>Listo</span>
+                            </div>
+                        </div>
+
+                        <!-- Dropzone Drag & Drop -->
+                        <div id="studio-dropzone" ondragover="window.handleStudioDragOver(event)" ondragleave="window.handleStudioDragLeave(event)" ondrop="window.handleStudioDrop(event)" onclick="document.getElementById('studio-file-input').click()" class="border-2 border-dashed border-slate-700/80 hover:border-emerald-500/70 bg-[#0d0d10]/70 hover:bg-emerald-950/10 rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 group flex flex-col items-center justify-center min-h-[160px]">
+                            <input type="file" id="studio-file-input" accept=".json,.pdf,.docx,.doc,.txt" class="hidden" onchange="window.handleStudioFileSelect(event)">
+                            <div class="w-12 h-12 rounded-xl bg-slate-900 border border-white/5 flex items-center justify-center text-slate-400 group-hover:text-emerald-400 group-hover:scale-110 transition-all text-xl mb-2 shadow-inner">
+                                <i class="fas fa-file-import"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-200 group-hover:text-white">Arrastra aquí tu archivo PDF, Word (.docx) o JSON</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Soporta PDFs del Diario Oficial de El Salvador</p>
+                        </div>
+
+                        <!-- Barra de Herramientas de Limpieza de Texto -->
+                        <div class="mt-5 pt-4 border-t border-white/5 space-y-3">
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block">Herramientas de Limpieza de Formato:</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button onclick="window.cleanPdfLineBreaks()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 flex flex-col items-center justify-center gap-1" title="Une saltos de línea automáticos del PDF">
+                                    <i class="fas fa-align-left text-xs"></i> <span>Quitar Saltos</span>
+                                </button>
+                                <button onclick="window.cleanHyphenatedWords()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 flex flex-col items-center justify-center gap-1" title="Une palabras cortadas con guion">
+                                    <i class="fas fa-link text-xs"></i> <span>Unir Guiones</span>
+                                </button>
+                                <button onclick="window.cleanExtraSpaces()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 flex flex-col items-center justify-center gap-1" title="Elimina espacios dobles y triples">
+                                    <i class="fas fa-compress text-xs"></i> <span>Espacios</span>
+                                </button>
+                                <button onclick="window.clearSourceText()" class="p-2 rounded-xl bg-rose-950/20 hover:bg-rose-950/50 text-rose-400 text-[10px] font-bold transition-all border border-rose-900/20 flex flex-col items-center justify-center gap-1" title="Limpiar todo el contenido">
+                                    <i class="fas fa-trash-can text-xs"></i> <span>Limpiar</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Editor de Texto Bruto -->
+                        <div class="mt-4">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Texto Fuente de la Ley</label>
+                                <span id="source-metrics-badge" class="text-[10px] tabular-nums font-semibold text-slate-500">0 líneas • 0 caracteres</span>
+                            </div>
+                            <textarea id="raw-source-text" oninput="window.handleSourceTextInput()" rows="14" placeholder="Pega aquí el texto completo de la ley (Títulos, Capítulos, Art. 1.-, etc.)..." class="studio-input w-full rounded-2xl p-4 text-xs font-mono leading-relaxed text-slate-200 resize-y placeholder-slate-600 focus:outline-none"></textarea>
+                        </div>
+
+                        <!-- Botón Principal de Segmentación y Compilación -->
+                        <button onclick="window.executeEduconvertEngine()" class="mt-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25">
+                            <i class="fas fa-wand-magic-sparkles text-sm"></i> Segmentar y Compilar Artículos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: EDITOR INTERACTIVO DE ARTÍCULOS ESTRUCTURADOS (7 COLS) -->
+                <div class="lg:col-span-7 flex flex-col gap-6">
+                    <div class="studio-card p-6 min-h-[600px] flex flex-col justify-between">
+                        <div>
+                            <!-- Header del Editor -->
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                                        <i class="fas fa-list-check text-emerald-400"></i> Artículos Estructurados
+                                    </h3>
+                                    <span id="parsed-count-badge" class="px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[10px] font-black border border-emerald-500/20 tabular-nums">
+                                        0 Artículos
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center gap-2 w-full sm:w-auto">
+                                    <div class="relative flex-1 sm:w-48">
+                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                        <input type="text" id="filter-parsed-input" oninput="window.filterParsedArticles()" placeholder="Filtrar artículo..." class="studio-input w-full rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-600">
+                                    </div>
+                                    <button onclick="window.addNewBlankArticle()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold transition-all border border-white/10 shrink-0" title="Añadir artículo nuevo en blanco">
+                                        <i class="fas fa-plus text-emerald-400"></i>
+                                    </button>
+                                    <button onclick="window.autoRenumberArticles()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold transition-all border border-white/10 shrink-0" title="Renumerar artículos correlativamente">
+                                        <i class="fas fa-arrow-down-1-9 text-sky-400"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Alerta de Inconsistencia de Integridad -->
+                            <div id="integrity-alert-box" class="hidden mb-4 p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+                                <i class="fas fa-triangle-exclamation text-amber-400"></i>
+                                <span id="integrity-alert-text" class="text-[11px] font-bold">Inconsistencia detectada en la correlatividad de artículos.</span>
+                            </div>
+
+                            <!-- Contenedor Scrollable de Artículos -->
+                            <div id="parsed-articles-container" class="space-y-3 max-h-[560px] overflow-y-auto pr-1">
+                                <div class="py-24 text-center text-slate-500 flex flex-col items-center justify-center">
+                                    <div class="w-16 h-16 rounded-2xl bg-slate-900/80 border border-white/5 flex items-center justify-center text-slate-600 text-2xl mb-3">
+                                        <i class="fas fa-file-circle-check"></i>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-slate-300">Ningún artículo procesado todavía</h4>
+                                    <p class="text-xs text-slate-500 mt-1 max-w-sm">Pega o sube el texto de la ley en el panel izquierdo y presiona "Segmentar y Compilar Artículos".</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Barra Inferior de Acción y Publicación -->
+                        <div class="mt-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <button onclick="window.openPreviewModal()" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-2 border border-white/10">
+                                <i class="fas fa-eye text-emerald-400"></i> Previsualizar Ley Completa
+                            </button>
+                            <button onclick="window.publishDirectToEduconta()" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25">
+                                <i class="fas fa-cloud-arrow-up"></i> Sincronizar en Supabase
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 2: CATÁLOGO EN NUBE (LEYES EN SUPABASE)                    -->
+        <!-- ================================================================= -->
+        <section id="studio-laws-screen" class="space-y-6 fade-in hidden">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="studio-card p-6 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Leyes en Supabase</span>
+                        <div id="stat-total-laws" class="text-2xl font-black text-white mt-0.5">0</div>
+                    </div>
+                </div>
+                <div class="studio-card p-6 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-paragraph"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Artículos Totales</span>
+                        <div id="stat-total-articles" class="text-2xl font-black text-white mt-0.5">0</div>
+                    </div>
+                </div>
+                <div class="studio-card p-6 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Estado de Sincronización</span>
+                        <div class="text-xs font-bold text-emerald-400 mt-1 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado en Tiempo Real
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Leyes Publicadas -->
+            <div class="studio-card p-6 md:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-white/5">
+                    <div>
+                        <h3 class="text-base font-black text-white flex items-center gap-2">
+                            <i class="fas fa-book-bookmark text-emerald-400"></i> Inventario de Leyes Publicadas en EduConta SV
+                        </h3>
+                        <p class="text-slate-400 text-xs mt-0.5">Leyes disponibles de manera oficial para consulta, búsqueda e indexación en la biblioteca de los alumnos.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="laws-filter-input" oninput="window.renderCloudLawsTable()" placeholder="Buscar por nombre o decreto..." class="studio-input w-full rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-600">
+                        </div>
+                        <select id="laws-cat-filter" onchange="window.renderCloudLawsTable()" class="studio-input rounded-xl px-3 py-2 text-xs text-slate-300">
+                            <option value="all">Todas las Categorías</option>
+                            <option value="Aduanas y Tributos">Aduanas y Tributos</option>
+                            <option value="Sector Financiero">Sector Financiero</option>
+                            <option value="Normas Contables">Normas Contables</option>
+                            <option value="Administración Pública">Administración Pública</option>
+                            <option value="Derecho Mercantil">Derecho Mercantil</option>
+                            <option value="Derecho Laboral">Derecho Laboral</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-slate-400 uppercase font-black border-b border-white/5 text-[10px] tracking-wider">
+                                <th class="pb-3 pl-4">Nombre de la Ley</th>
+                                <th class="pb-3 px-3">Decreto</th>
+                                <th class="pb-3 px-3">Categoría</th>
+                                <th class="pb-3 pr-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studio-laws-table-body" class="divide-y divide-white/5 font-medium text-slate-300">
+                            <tr>
+                                <td colspan="5" class="py-12 text-center text-slate-500 font-bold">Cargando catálogo legal...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PESTAÑA 3: ESQUEMA SQL & CONFIGURACIÓN                            -->
+        <!-- ================================================================= -->
+        <section id="studio-config-screen" class="space-y-6 fade-in hidden max-w-4xl mx-auto">
+            <div class="studio-card p-6 md:p-8">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+                    <div>
+                        <h3 class="text-base font-black text-white flex items-center gap-2">
+                            <i class="fas fa-terminal text-emerald-400"></i> Esquema SQL de la Base de Datos
+                        </h3>
+                        <p class="text-slate-400 text-xs mt-0.5">Estructura requerida en Supabase para el módulo de legislación salvadoreña.</p>
+                    </div>
+                    <button onclick="window.copySQLSchema()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold transition-all border border-emerald-500/30 flex items-center gap-2">
+                        <i class="fas fa-copy"></i> Copiar SQL
+                    </button>
+                </div>
+
+                <pre class="p-6 bg-slate-950 font-mono text-xs text-slate-300 rounded-2xl overflow-x-auto border border-white/5 leading-relaxed" id="sql-schema-code">
+-- ========================================================
+-- EDUCONVERT STUDIO / SUPABASE SCHEMA (EduConta SV)
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS public.leyes (
+    id TEXT PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    abreviatura TEXT,
+    categoria TEXT NOT NULL,
+    decreto_numero TEXT,
+    fecha_publicacion DATE,
+    descripcion TEXT,
+    estado TEXT DEFAULT 'Vigente',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.articulos (
+    id TEXT PRIMARY KEY,
+    ley_id TEXT REFERENCES public.leyes(id) ON DELETE CASCADE,
+    titulo_seccion TEXT,
+    capitulo_seccion TEXT,
+    seccion TEXT,
+    numero TEXT NOT NULL,
+    texto TEXT NOT NULL,
+    parrafos JSONB DEFAULT '[]'::jsonb,
+    orden INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_leyes_categoria ON public.leyes(categoria);
+CREATE INDEX IF NOT EXISTS idx_articulos_ley_id ON public.articulos(ley_id);
+CREATE INDEX IF NOT EXISTS idx_articulos_orden ON public.articulos(orden);
+
+ALTER TABLE public.leyes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.articulos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Permitir lectura publica de leyes" ON public.leyes FOR SELECT USING (true);
+CREATE POLICY "Permitir lectura publica de articulos" ON public.articulos FOR SELECT USING (true);
+CREATE POLICY "Permitir insercion admin de leyes" ON public.leyes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir actualizacion admin de leyes" ON public.leyes FOR UPDATE USING (true);
+CREATE POLICY "Permitir borrado admin de leyes" ON public.leyes FOR DELETE USING (true);
+CREATE POLICY "Permitir insercion admin de articulos" ON public.articulos FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir actualizacion admin de articulos" ON public.articulos FOR UPDATE USING (true);
+CREATE POLICY "Permitir borrado admin de articulos" ON public.articulos FOR DELETE USING (true);</pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE PREVISUALIZACIÓN (SIMULADOR VISOR DE LEY) -->
+    <div id="studio-preview-modal" class="fixed inset-0 z-[1000] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="studio-card max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden border border-emerald-500/20 shadow-2xl">
+            <!-- Header Modal -->
+            <div class="p-6 border-b border-white/5 flex items-center justify-between bg-[#0e0f13]">
+                <div>
+                    <h3 id="modal-preview-title" class="text-base font-black text-white">Previsualización de Ley</h3>
+                    <p id="modal-preview-meta" class="text-[11px] text-emerald-400 font-bold mt-0.5">Decreto Oficial • 0 Artículos</p>
+                </div>
+                <button onclick="window.closePreviewModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div id="modal-preview-body" class="p-6 overflow-y-auto space-y-4 flex-1">
+                <!-- Inyectado dinámicamente -->
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="p-4 border-t border-white/5 bg-[#0e0f13] flex justify-end">
+                <button onclick="window.closePreviewModal()" class="px-6 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors">
+                    Cerrar Previsualización
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DEL CONTROLADOR PRINCIPAL EDUCONVERT STUDIO (MPA) -->
+    <script src="js/pages/educonvert.js"></script>
+</body>
+</html>
+
+

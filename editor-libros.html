@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Libros | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://opteohbpsbrjnblexkqo.supabase.co">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css?v=1.1.5">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1.0.5">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Preloader unificado via styles.css */
+    </style>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="pb-12 lg:pb-12 relative">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <div id="editor-sticky-controls"
+        class="fixed top-[70px] lg:top-[85px] left-0 right-0 z-[900] pt-2 lg:pt-3 pb-2 px-4 lg:px-[2.5rem] pointer-events-none">
+
+        <div id="header-desktop-container"
+            class="hidden lg:flex items-center justify-between w-full pointer-events-auto" style="gap: 5px;">
+
+            <div class="header-side-wrapper flex justify-start items-center transition-all relative min-w-0"
+                style="height: 68px; width: clamp(140px, 15vw, 220px);">
+                <div id="main-project-pill"
+                    class="glass-pill project-card flex flex-col justify-start border border-white/60 cursor-pointer group shadow-xl z-50 w-full max-w-[340px] rounded-[36px]"
+                    onclick="toggleProjectPillExpansion(event)"
+                    style="margin-bottom: 0; min-height: 64px; padding: 16px 24px; margin-right: 5px; justify-content: flex-start;"
+                    title="Haz clic para expandir opciones">
+                    <div class="flex items-center min-w-0 w-full" style="gap: 14px;">
+                        <div class="bg-slate-100/80 rounded-[36px] shrink-0" style="padding: 8px;">
+                            <i class="fas fa-briefcase text-slate-500" style="font-size: 15px;"></i>
+                        </div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden">
+                            <div class="w-full" style="display: grid; grid-template-columns: minmax(0, 1fr);">
+                                <h1 id="current-project-name"
+                                    class="font-black text-slate-800 leading-tight bg-transparent focus:outline-none focus:ring-2 focus:ring-sky-400 rounded transition-all truncate m-0"
+                                    style="font-size: 15px; width: 100%; margin: 0 !important;" contenteditable="false"
+                                    onclick="event.stopPropagation(); this.contentEditable='true'; this.focus();"
+                                    onkeydown="handleTitleKey(event);"
+                                    onblur="updateCurrentProjectName(this); this.contentEditable='false';">
+                                    Cargando...</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pill-options-panel w-full" onclick="event.stopPropagation()">
+                        <div class="pt-3 border-t border-slate-100 mt-2">
+                            <label
+                                class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Sector
+                                Econ&#243;mico</label>
+
+                            <div class="relative w-full" id="pill-sector-dropdown-root">
+                                <button onclick="togglePillSectorDropdown(event)"
+                                    class="w-full flex items-center justify-between px-4 py-3 rounded-2xl outline-none pill-dropdown-trigger group">
+                                    <span id="pill-custom-sector-label"
+                                        class="text-[10px] font-black uppercase tracking-wider">Seleccionar Sector</span>
+                                    <i class="fas fa-chevron-down text-[10px] opacity-75 group-hover:text-sky-400 transition-transform duration-300"
+                                        id="pill-sector-chevron"></i>
+                                </button>
+
+                                <input type="hidden" id="pill-input-sector" value="ALL">
+                                <div class="hidden"><select id="pill-input-catalogo"></select></div>
+
+                                <div id="pill-sector-options-container"
+                                    class="grid grid-rows-[0fr] transition-all duration-300 opacity-0 pointer-events-none mt-1">
+                                    <div class="min-h-0">
+                                        <div
+                                            class="p-2 flex flex-col gap-1.5 rounded-2xl shadow-inner pill-dropdown-menu">
+                                            <div class="pill-sector-option flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all font-black uppercase text-[9px] border border-transparent"
+                                                onclick="selectPillSector('ALL', 'Cat&#225;logo Completo')">
+                                                <div
+                                                    class="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-layer-group text-slate-400"></i>
+                                                </div>
+                                                <span>Cat&#225;logo Completo</span>
+                                            </div>
+                                            <div class="pill-sector-option flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all font-black uppercase text-[9px] border border-transparent"
+                                                onclick="selectPillSector('SSF', 'Banca y Seguros (SSF)')">
+                                                <div
+                                                    class="w-7 h-7 bg-sky-50 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-university text-sky-500"></i>
+                                                </div>
+                                                <span>Banca y Seguros (SSF)</span>
+                                            </div>
+                                            <div class="pill-sector-option flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all font-black uppercase text-[9px] border border-transparent"
+                                                onclick="selectPillSector('NICS', 'Comercio y Agro (NICS)')">
+                                                <div
+                                                    class="w-7 h-7 bg-emerald-50 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-leaf text-emerald-500"></i>
+                                                </div>
+                                                <span>Comercio y Agro (NICS)</span>
+                                            </div>
+                                            <div class="pill-sector-option flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all font-black uppercase text-[9px] border border-transparent"
+                                                onclick="selectPillSector('GUB', 'Gubernamental (SAFI)')">
+                                                <div
+                                                    class="w-7 h-7 bg-rose-50 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-building-columns text-rose-500"></i>
+                                                </div>
+                                                <span>Gubernamental (SAFI)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="center-tabs-container" class="flex justify-center min-w-0" style="padding: 0;">
+                <div class="pointer-events-auto glass-pill border border-slate-200/50 shadow-sm rounded-[36px] flex items-center overflow-x-auto no-scrollbar w-full"
+                    style="height: clamp(50px, 5.5vw, 66px); padding: clamp(4px,0.4vw,6px);">
+                    <div class="relative flex items-center justify-between h-full w-full min-w-0">
+                        <div id="tab-indicator"
+                            class="absolute top-[3px] bottom-[3px] left-0 rounded-[36px] z-0 pointer-events-none transition-all duration-300 ease-out"
+                            style="
+                                width: 0;
+                                opacity: 0;
+                                background: white;
+                                box-shadow:
+                                    0 2px 10px rgba(14,165,233,0.1),
+                                    inset 0 0 0 1px rgba(14,165,233,0.1);
+                                border-radius: 36px;
+                                transform-origin: center;
+                            ">
+                        </div>
+                        <button onclick="switchTab('diario')" id="tab-diario" data-idx="0"
+                            class="tab-btn active relative z-10 px-4 lg:px-6 flex flex-col items-center justify-center font-black uppercase text-sky-600 focus:outline-none focus:ring-0 rounded-[36px] transition-all text-center h-full"
+                            style="font-size: clamp(8px, 0.65vw, 12px);">
+                            <span class="tracking-wide z-10 relative">Libro Diario</span>
+                        </button>
+                        <button onclick="switchTab('mayor')" id="tab-mayor" data-idx="1"
+                            class="tab-btn relative z-10 px-4 lg:px-6 flex flex-col items-center justify-center font-black uppercase text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 rounded-[36px] transition-all text-center h-full"
+                            style="font-size: clamp(8px, 0.65vw, 12px);">
+                            <span class="tracking-wide z-10 relative">Libros Mayores</span>
+                        </button>
+                        <button onclick="switchTab('comprobacion')" id="tab-comprobacion" data-idx="2"
+                            class="tab-btn relative z-10 px-4 lg:px-6 flex flex-col items-center justify-center font-black uppercase text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 rounded-[36px] transition-all text-center h-full"
+                            style="font-size: clamp(8px, 0.65vw, 12px);">
+                            <span class="tracking-wide z-10 relative">Bal. de Comprobaci&#243;n</span>
+                        </button>
+                        <button onclick="switchTab('resultados')" id="tab-resultados" data-idx="3"
+                            class="tab-btn relative z-10 px-4 lg:px-6 flex flex-col items-center justify-center font-black uppercase text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 rounded-[36px] transition-all text-center h-full"
+                            style="font-size: clamp(8px, 0.65vw, 12px);">
+                            <span class="tracking-wide z-10 relative">Estado de Resultados</span>
+                        </button>
+                        <button onclick="switchTab('inicial')" id="tab-inicial" data-idx="4"
+                            class="tab-btn relative z-10 px-4 lg:px-6 flex flex-col items-center justify-center font-black uppercase text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 rounded-[36px] transition-all text-center h-full"
+                            style="font-size: clamp(8px, 0.65vw, 12px);">
+                            <span class="tracking-wide z-10 relative">Balance Inicial</span>
+                        </button>
+                        <button onclick="switchTab('balance')" id="tab-balance" data-idx="5"
+                            class="tab-btn relative z-10 px-4 lg:px-6 flex flex-col items-center justify-center font-black uppercase text-slate-500 hover:text-slate-800 focus:outline-none focus:ring-0 rounded-[36px] transition-all text-center h-full"
+                            style="font-size: clamp(8px, 0.65vw, 12px);">
+                            <span class="tracking-wide z-10 relative">Balance General</span>
+                        </button>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div id="header-right-side" class="flex justify-end items-center transition-all min-w-0"
+                style="gap: clamp(6px, 0.7vw, 12px); min-width: min-content;">
+                <div id="main-sync-pill"
+                    class="glass-pill glowinglass flex flex-col items-center justify-center rounded-[36px] shrink-0"
+                    style="height: clamp(52px, 5.8vw, 64px); padding: 5px 8px; gap: 4px;">
+                    <div id="save-indicator"
+                        class="flex items-center justify-center gap-1.5 w-full text-emerald-600 font-black bg-emerald-50/80 rounded-[36px] border border-emerald-100"
+                        style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-check-circle"></i> <span>LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator"
+                        class="flex items-center justify-center gap-1.5 w-full text-slate-400 font-black bg-white rounded-[36px] border border-slate-100 transition-all duration-300"
+                        style="padding: 4px 10px; font-size: 8.5px; line-height: 1;">
+                        <i class="fas fa-cloud-upload"></i> <span>PENDIENTE</span>
+                    </div>
+                </div>
+                <button id="close-button" onclick="closeProject()"
+                    class="bg-rose-500 hover:bg-rose-600 text-white rounded-[36px] flex items-center justify-center shrink-0 group transition-all shadow-[0_8px_20px_-4px_rgba(244,63,94,0.4)] ambient-glow soft-glow"
+                    style="width: clamp(50px, 5.5vw, 62px); height: clamp(50px, 5.5vw, 62px);" title="Cerrar Proyecto">
+                    <i class="fas fa-times transition-transform group-hover:rotate-90"
+                        style="font-size: clamp(14px, 1.5vw, 18px);"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <div class="flex lg:hidden items-center justify-between w-full gap-2 pointer-events-auto">
+            <div class="flex-1 min-w-0">
+                <div
+                    class="glass-pill rounded-2xl border border-slate-200/50 shadow-sm px-3 py-2 flex items-center gap-2 min-w-0">
+                    <div class="p-1.5 bg-slate-100 rounded-[36px] shrink-0">
+                        <i class="fas fa-briefcase text-slate-500 text-[11px]"></i>
+                    </div>
+                    <div class="min-w-0 flex-1 overflow-hidden">
+                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">
+                            Proyecto Activo</p>
+                        <p id="mobile-project-name" class="font-black text-slate-800 text-[13px] leading-none truncate">
+                            Cargando...</p>
+                    </div>
+                    <div id="save-indicator-mobile"
+                        class="hidden items-center gap-1 text-emerald-600 font-black text-[9px] bg-emerald-50 px-2.5 py-1.5 rounded-[36px] shrink-0 uppercase whitespace-nowrap border border-emerald-100">
+                        <i class="fas fa-check-circle"></i> LOCAL
+                    </div>
+                    <div id="cloud-indicator-mobile"
+                        class="hidden items-center gap-1 text-slate-500 font-black text-[9px] bg-white px-2.5 py-1.5 rounded-[36px] shrink-0 uppercase whitespace-nowrap border border-slate-100">
+                        <i class="fas fa-cloud-upload"></i> PENDIENTE
+                    </div>
+                    <div id="offline-indicator-mobile"
+                        class="hidden items-center gap-1 text-rose-500 font-black text-[9px] bg-rose-50 px-2.5 py-1.5 rounded-[36px] shrink-0 uppercase whitespace-nowrap border border-rose-100">
+                        <i class="fas fa-wifi-slash"></i> OFFLINE
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeProject()"
+                class="h-[50px] px-3 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-tight hover:bg-rose-700 transition-all shadow-md flex items-center gap-1 shrink-0 ambient-glow soft-glow">
+                <i class="fas fa-times text-[11px]"></i>
+                <span class="leading-tight text-left soft-glow-text" data-text="CERRAR PROYECTO">CERRAR<br>PROYECTO</span>
+            </button>
+        </div>
+
+        <div id="mobile-tools-container"
+            class="flex lg:hidden mt-2 pointer-events-auto overflow-x-auto scrollbar-hide gap-2 pb-1">
+            <button onclick="forceSave()"
+                class="shrink-0 h-9 px-3 bg-emerald-500 text-white rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <button onclick="undo()"
+                class="shrink-0 h-9 px-3 bg-white border border-slate-200 text-slate-600 rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button onclick="redo()"
+                class="shrink-0 h-9 px-3 bg-white border border-slate-200 text-slate-600 rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button onclick="toggleGridView()"
+                class="shrink-0 h-9 px-3 bg-slate-800 text-white rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-th-large"></i> Vista
+            </button>
+
+            <button onclick="confirmClearData()"
+                class="shrink-0 h-9 px-3 bg-amber-500 text-white rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-eraser"></i> Limpiar
+            </button>
+            <button onclick="confirmDeleteSheet()"
+                class="shrink-0 h-9 px-3 bg-rose-500 text-white rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-trash-alt"></i> Borrar
+            </button>
+            <button onclick="exportarPDF('Libro_Diario')"
+                class="shrink-0 h-9 px-3 bg-rose-400 text-white rounded-[36px] font-bold text-[10px] flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-file-pdf"></i> PDF
+            </button>
+        </div>
+
+        <div id="dynamic-toolbars-container" class="mt-4 lg:mt-5 pointer-events-auto">
+            <div id="toolbar-diario" class="flex flex-row items-center justify-between w-full gap-3 no-print">
+
+                <div class="flex-1 flex justify-start pointer-events-auto min-w-0">
+
+                    <div
+                        class="glass-pill flex gap-2 p-2 items-center overflow-x-auto scrollbar-hide rounded-[36px] max-w-full">
+                        <button id="btn-force-save" onclick="forceSave()"
+                            class="glow-hover btn-bloom-emerald flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow"
+                            title="Guardar cambios manualmente">
+                            <i class="fas fa-save"></i> <span class="hidden lg:inline soft-glow-text" data-text="Guardar">Guardar</span>
+                        </button>
+                        <button id="btn-grid-view" onclick="toggleGridView()"
+                            class="glow-hover btn-bloom-slate flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow"
+                            title="Ver todas las partidas en cuadrícula">
+                            <i class="fas fa-th-large"></i> <span class="hidden lg:inline soft-glow-text" data-text="Vista General">Vista General</span>
+                        </button>
+                        <button id="btn-export-pdf" onclick="exportarPDF('Libro_Diario')"
+                            class="glow-hover btn-bloom-rose flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow"
+                            title="Exportar a PDF Vectorial">
+                            <i class="fas fa-file-pdf"></i> <span class="hidden lg:inline soft-glow-text" data-text="Exportar PDF">Exportar PDF</span>
+                        </button>
+                        <button id="btn-export-edc" onclick="exportarProyectoEduConta()"
+                            class="glow-hover btn-bloom-sky flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-sky-500 text-white font-bold text-xs hover:bg-sky-600 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow"
+                            title="Exportar Backup .edc (EduConta Secure)">
+                            <i class="fas fa-shield-alt"></i> <span class="hidden lg:inline soft-glow-text" data-text="Exportar">Exportar</span>
+                        </button>
+                        <button id="btn-indices" style="display: none;" onclick="goToIndices()"
+                            class="glow-hover flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-slate-200 text-slate-900 font-bold text-xs hover:bg-slate-300 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow"
+                            title="Ver Índices Financieros">
+                            <i class="fas fa-chart-pie"></i> <span class="hidden lg:inline soft-glow-text" data-text="Índices">Índices</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex pointer-events-auto min-w-0" id="right-tools-container">
+
+                    <div
+                        class="glass-pill flex gap-2 p-2 items-center overflow-x-auto scrollbar-hide rounded-[36px] max-w-full ml-auto">
+                        <button id="btn-undo" onclick="undo()"
+                            class="w-10 h-10 bg-white/90 border border-slate-100 shadow-sm rounded-[36px] flex items-center justify-center text-slate-600 hover:text-sky-600 hover:bg-white transition-all hover:shadow-md hover:-translate-y-px shrink-0 ambient-glow soft-glow"
+                            title="Deshacer (Ctrl+Z)">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button id="btn-redo" onclick="redo()"
+                            class="w-10 h-10 bg-white/90 border border-slate-100 shadow-sm rounded-[36px] flex items-center justify-center text-slate-600 hover:text-sky-600 hover:bg-white transition-all hover:shadow-md hover:-translate-y-px shrink-0 ambient-glow soft-glow"
+                            title="Rehacer (Ctrl+Y)">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <div class="w-px h-6 bg-slate-300/40 mx-1 shrink-0"></div>
+
+                        <button onclick="confirmClearData()"
+                            class="glow-hover btn-bloom-orange flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow">
+                            <i class="fas fa-eraser"></i> <span class="hidden lg:inline soft-glow-text" data-text="Limpiar">Limpiar</span>
+                        </button>
+                        <button onclick="confirmDeleteSheet()"
+                            class="glow-hover btn-bloom-rose flex-1 sm:flex-none shrink-0 justify-center px-4 py-3 rounded-[36px] bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition-all shadow-md flex items-center gap-2 ambient-glow soft-glow">
+                            <i class="fas fa-trash-alt"></i> <span class="hidden lg:inline soft-glow-text" data-text="Borrar">Borrar</span>
+                        </button>
+                        <div class="w-px h-6 bg-slate-300/40 mx-1 shrink-0"></div>
+                        <button onclick="createNewBook()"
+                            class="glow-hover btn-bloom-indigo shrink-0 px-4 py-3 rounded-[36px] bg-indigo-600 text-white font-bold text-[10px] uppercase hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2 whitespace-nowrap ambient-glow soft-glow">
+                            <i class="fas fa-plus-circle"></i> <span class="hidden lg:inline soft-glow-text" data-text="Nueva Hoja">Nueva Hoja</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="editor-content-views" class="px-4 lg:px-[2.5rem] pt-[200px] lg:pt-[260px]">
+
+        <div id="view-diario" class="block fade-in">
+            <div id="books-stack" class="page-container max-w-[1100px] mx-auto"></div>
+
+        </div>
+
+        <div id="view-mayor" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 no-print">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">Libros Mayores <span
+                            class="text-slate-400 text-base font-medium">/ Cuentas T</span></h2>
+                    <p class="text-sm text-slate-500" id="mayor-subtitle">Agrupación de cargos y abonos por cuenta contable.</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center bg-white/90 border border-slate-200 rounded-full p-1 text-[11px] font-black shadow-sm">
+                        <button id="btn-mayor-asistido" onclick="setMayorMode('asistido')" class="px-3.5 py-1.5 rounded-full transition-all text-slate-500 hover:text-slate-800">
+                            <i class="fas fa-wand-magic-sparkles mr-1"></i> Modo Asistido (Auto)
+                        </button>
+                        <button id="btn-mayor-practica" onclick="setMayorMode('practica')" class="px-3.5 py-1.5 rounded-full transition-all bg-sky-500 text-white shadow-xs">
+                            <i class="fas fa-pencil-alt mr-1 text-white"></i> Modo Práctica (Manual)
+                        </button>
+                    </div>
+                    <button id="btn-audit-mayor" onclick="auditMayorPractice()" class="hidden px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-black text-xs uppercase shadow-md flex items-center gap-1.5">
+                        <i class="fas fa-clipboard-check"></i> Auditar Cuentas T
+                    </button>
+                </div>
+            </div>
+            <div id="view-mayor-content" class="pb-4">
+                <div id="mayor-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 pb-12">
+                </div>
+            </div>
+        </div>
+
+        <div id="view-comprobacion" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 no-print max-w-5xl mx-auto">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">Estado de Comprobación</h2>
+                    <p class="text-sm text-slate-500" id="comp-subtitle">Verificación de la partida doble en Movimientos y Saldos (4 columnas).</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center bg-white/90 border border-slate-200 rounded-full p-1 text-[11px] font-black shadow-sm">
+                        <button id="btn-comp-asistido" onclick="setComprobacionMode('asistido')" class="px-3.5 py-1.5 rounded-full transition-all text-slate-500 hover:text-slate-800">
+                            <i class="fas fa-wand-magic-sparkles mr-1"></i> Asistido (Auto)
+                        </button>
+                        <button id="btn-comp-practica" onclick="setComprobacionMode('practica')" class="px-3.5 py-1.5 rounded-full transition-all bg-sky-500 text-white shadow-xs">
+                            <i class="fas fa-pencil-alt mr-1 text-white"></i> Práctica (Manual)
+                        </button>
+                    </div>
+                    <button id="btn-audit-comp" onclick="auditComprobacionPractice()" class="hidden px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-black text-xs uppercase shadow-md flex items-center gap-1.5">
+                        <i class="fas fa-calculator"></i> Verificar Cuadre
+                    </button>
+                </div>
+            </div>
+
+            <div id="view-comprobacion-content" class="pb-4 max-w-5xl mx-auto">
+                <div class="bg-white rounded-[28px] border border-slate-200 shadow-sm mb-12 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50 text-center">
+                        <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm" id="comp-entidad">
+                            ENTIDAD</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-bold uppercase">Balance de Comprobación de
+                            sumas y
+                            saldos</p>
+                    </div>
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-sm min-w-[700px]">
+                            <thead>
+                                <tr
+                                    class="bg-slate-900 text-white text-[10px] uppercase font-black tracking-wider border-b border-slate-700">
+                                    <th class="py-3 px-4 text-left align-middle" rowspan="2">Código</th>
+                                    <th class="py-3 px-4 text-left align-middle" rowspan="2">Cuentas</th>
+                                    <th class="py-2 px-4 text-center border-l border-slate-700" colspan="2">
+                                        Movimientos
+                                    </th>
+                                    <th class="py-2 px-4 text-center border-l border-slate-700" colspan="2">
+                                        Saldos</th>
+                                </tr>
+                                <tr class="bg-slate-800 text-white text-[9px] uppercase font-bold tracking-wider">
+                                    <th class="py-2 px-4 text-right border-l border-slate-700">Debe</th>
+                                    <th class="py-2 px-4 text-right border-l border-slate-700">Haber</th>
+                                    <th class="py-2 px-4 text-right border-l border-slate-700">Deudor (Debe)
+                                    </th>
+                                    <th class="py-2 px-4 text-right border-l border-slate-700">Acreedor (Haber)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="comprobacion-body" class="divide-y divide-slate-100">
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-slate-50 font-black text-slate-800 border-t-2 border-slate-800">
+                                    <td colspan="2" class="py-4 px-4 text-right text-xs uppercase tracking-widest">
+                                        Sumas
+                                        Iguales</td>
+                                    <td id="comp-mov-debe"
+                                        class="py-4 px-4 text-right text-sky-600 border-l border-slate-200">$
+                                        0.00</td>
+                                    <td id="comp-mov-haber"
+                                        class="py-4 px-4 text-right text-sky-600 border-l border-slate-200">$
+                                        0.00</td>
+                                    <td id="comp-sal-debe"
+                                        class="py-4 px-4 text-right text-sky-600 border-l border-slate-200">$
+                                        0.00</td>
+                                    <td id="comp-sal-haber"
+                                        class="py-4 px-4 text-right text-sky-600 border-l border-slate-200">$
+                                        0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-resultados" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">Estado de Resultados</h2>
+                    <p class="text-sm text-slate-500">Clasificación de gastos por función e Ingresos
+                        (Multisectorial).
+                    </p>
+                </div>
+            </div>
+
+            <div id="view-resultados-content" class="pb-8">
+                <div
+                    class="bg-white rounded-[28px] border border-slate-200 shadow-sm max-w-4xl mx-auto mb-12 overflow-hidden">
+                    <div class="p-8 border-b border-slate-200 text-center bg-slate-50/50">
+                        <h3 class="font-black text-slate-800 uppercase text-lg tracking-wider" id="res-entidad">
+                            ENTIDAD
+                        </h3>
+                        <p class="text-sm text-slate-700 mt-1 font-bold">ESTADO DE RESULTADOS.</p>
+                        <p class="text-xs text-slate-500 mt-1">Expresado en Dólares de los Estados Unidos de
+                            América</p>
+                    </div>
+
+                    <div class="overflow-x-auto w-full">
+                        <div class="p-10 lg:px-16 min-w-[500px]" id="res-body-content">
+                        </div>
+
+                        <div
+                            class="mt-8 mb-10 flex justify-between px-10 lg:px-16 text-xs font-bold text-slate-700 text-center gap-8 min-w-[500px]">
+                            <div class="flex-1">
+                                <div class="border-t border-slate-800 pt-2 uppercase">
+                                    F. <br /><span class="text-[10px] text-slate-500">Contador(a)</span>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="border-t border-slate-800 pt-2 uppercase">
+                                    F. <br /><span class="text-[10px] text-slate-500">Representante Legal</span>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="border-t border-slate-800 pt-2 uppercase">
+                                    F. <br /><span class="text-[10px] text-slate-500">Auditor(a)<br />No. de
+                                        registro</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-inicial" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print max-w-5xl mx-auto">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">Balance Inicial <span
+                            class="text-slate-400 text-base font-medium">/ De Apertura</span></h2>
+                    <p class="text-sm text-slate-500">Estado financiero al inicio de las operaciones (Generado
+                        desde la
+                        Partida No. 1).</p>
+                </div>
+            </div>
+
+            <div id="view-inicial-content" class="pb-4 max-w-5xl mx-auto">
+                <div class="bg-white rounded-[28px] border border-slate-200 overflow-hidden shadow-sm mb-12">
+                    <div class="p-6 border-b border-slate-100 bg-sky-900 text-center text-white">
+                        <h3 class="font-black uppercase tracking-widest text-sm" id="ini-entidad">ENTIDAD</h3>
+                        <p class="text-xs text-sky-200 mt-1 font-bold uppercase">Balance Inicial de Apertura</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
+                        <div class="p-8 overflow-x-auto">
+                            <h4
+                                class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-4 border-b pb-2">
+                                Activos (Grupo 1)</h4>
+                            <div id="ini-activos" class="space-y-2 text-sm mb-6 min-h-[150px] min-w-[250px]">
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center pt-4 border-t-2 border-slate-800 min-w-[250px]">
+                                <span class="font-black text-slate-800 uppercase text-xs">Total Activo</span>
+                                <span id="ini-tot-activo" class="font-black text-emerald-600">$ 0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="p-8 overflow-x-auto">
+                            <h4 class="text-xs font-black text-rose-600 uppercase tracking-widest mb-4 border-b pb-2">
+                                Pasivos (Grupo 2 y 4)</h4>
+                            <div id="ini-pasivos" class="space-y-2 text-sm mb-8 min-w-[250px]"></div>
+
+                            <h4 class="text-xs font-black text-indigo-600 uppercase tracking-widest mb-4 border-b pb-2">
+                                Patrimonio (Grupo 3 y 8)</h4>
+                            <div id="ini-patrimonio" class="space-y-2 text-sm mb-6 min-w-[250px]"></div>
+
+                            <div id="ini-resultado-container"
+                                class="hidden justify-between items-center py-2 px-3 bg-indigo-50 rounded-[36px] text-sm font-bold text-indigo-800 mb-6 min-w-[250px]">
+                                <span>Resultado Acumulado</span>
+                                <span id="ini-resultado-ej">$ 0.00</span>
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center pt-4 border-t-2 border-slate-800 min-w-[250px]">
+                                <span class="font-black text-slate-800 uppercase text-xs">Total Pasivo +
+                                    Patrimonio</span>
+                                <span id="ini-tot-pas-pat" class="font-black text-indigo-600">$ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ini-verificacion" class="p-4 text-center font-bold text-xs uppercase tracking-widest">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-balance" class="hidden fade-in"
+            style="content-visibility: auto; contain-intrinsic-size: 1px 1000px;">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4 no-print max-w-[1100px] mx-auto">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">Balance General <span
+                            class="text-slate-400 text-base font-medium">/ Situación Final</span></h2>
+                    <p class="text-sm text-slate-500">Posición financiera estática (Activo = Pasivo +
+                        Patrimonio).</p>
+                </div>
+            </div>
+
+            <div id="view-balance-content" class="pb-4 max-w-[1100px] mx-auto">
+                <div class="bg-white rounded-[28px] border border-slate-200 overflow-hidden shadow-sm mb-12">
+                    <div class="p-6 border-b border-slate-100 bg-slate-900 text-center text-white">
+                        <h3 class="font-black uppercase tracking-widest text-sm" id="bal-entidad">ENTIDAD</h3>
+                        <p class="text-xs text-slate-400 mt-1 font-bold uppercase">Balance General</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
+                        <div class="p-8 overflow-x-auto">
+                            <h4
+                                class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-4 border-b pb-2">
+                                Activos (Grupo 1)</h4>
+                            <div id="bal-activos" class="space-y-2 text-sm mb-6 min-h-[150px] min-w-[250px]">
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center pt-4 border-t-2 border-slate-800 min-w-[250px]">
+                                <span class="font-black text-slate-800 uppercase text-xs">Total Activo</span>
+                                <span id="bal-tot-activo" class="font-black text-emerald-600">$ 0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="p-8 overflow-x-auto">
+                            <h4 class="text-xs font-black text-rose-600 uppercase tracking-widest mb-4 border-b pb-2">
+                                Pasivos (Grupo 2 y 4)</h4>
+                            <div id="bal-pasivos" class="space-y-2 text-sm mb-8 min-w-[250px]"></div>
+
+                            <h4 class="text-xs font-black text-indigo-600 uppercase tracking-widest mb-4 border-b pb-2">
+                                Patrimonio (Grupo 3 y 8)</h4>
+                            <div id="bal-patrimonio" class="space-y-2 text-sm mb-6 min-w-[250px]"></div>
+
+                            <div id="bal-resultado-container"
+                                class="hidden justify-between items-center py-2 px-3 bg-indigo-50 rounded-[36px] text-sm font-bold text-indigo-800 mb-6 min-w-[250px]">
+                                <span>Resultado del Ejercicio</span>
+                                <span id="bal-resultado-ej">$ 0.00</span>
+                            </div>
+
+                            <div
+                                class="flex justify-between items-center pt-4 border-t-2 border-slate-800 min-w-[250px]">
+                                <span class="font-black text-slate-800 uppercase text-xs">Total Pasivo +
+                                    Patrimonio</span>
+                                <span id="bal-tot-pas-pat" class="font-black text-indigo-600">$ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bal-verificacion" class="p-4 text-center font-bold text-xs uppercase tracking-widest">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Barra de Navegación Inferior Móvil Glassmorphic -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 z-50 px-2 py-2 flex justify-around items-center no-print">
+        <button type="button" id="mobile-tab-diario" onclick="window.switchTab('diario')"
+            class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold py-1 px-2 rounded-xl active-mobile-nav">
+            <i class="fas fa-book text-sm"></i>
+            <span>Diario</span>
+        </button>
+        <button type="button" id="mobile-tab-mayor" onclick="window.switchTab('mayor')"
+            class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold py-1 px-2 rounded-xl">
+            <i class="fas fa-columns text-sm"></i>
+            <span>Mayor</span>
+        </button>
+        <button type="button" id="mobile-tab-balances" onclick="window.switchTab('comprobacion')"
+            class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold py-1 px-2 rounded-xl">
+            <i class="fas fa-balance-scale text-sm"></i>
+            <span>Balances</span>
+        </button>
+        
+    </nav>
+
+    <div id="editor-mobile-sync-indicators" class="md:hidden fixed bottom-14 left-4 z-40 flex items-center gap-2">
+        <div id="save-indicator-mobile-bar" class="hidden items-center gap-1 px-2 py-1 bg-amber-500/20 text-amber-600 rounded-lg text-[10px] font-bold">
+            <i class="fas fa-sync fa-spin"></i> Guardando
+        </div>
+        <div id="cloud-indicator-mobile-bar" class="hidden items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-600 rounded-lg text-[10px] font-bold">
+            <i class="fas fa-cloud"></i> Nube OK
+        </div>
+        <div id="offline-indicator-mobile-bar" class="hidden items-center gap-1 px-2 py-1 bg-rose-500/20 text-rose-600 rounded-lg text-[10px] font-bold">
+            <i class="fas fa-plane"></i> Offline
+        </div>
+    </div>
+
+    <style>
+        .mobile-nav-btn {
+            color: #94a3b8;
+        }
+        .mobile-nav-btn.active-mobile-nav {
+            color: #0ea5e9;
+        }
+    </style>
+
+    <script>
+        /* Sincronizar navegacion movil con pestanas de escritorio */
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileButtons = {
+                'diario': 'mobile-tab-diario',
+                'mayor': 'mobile-tab-mayor',
+                'comprobacion': 'mobile-tab-balances',
+                'resultados': 'mobile-tab-balances',
+                'inicial': 'mobile-tab-balances',
+                'balance': 'mobile-tab-balances'
+            };
+            /* Observer: cuando switchTab cambie los tabs de escritorio, sincroniza el movil */
+            const syncMobileNav = (tabId) => {
+                document.querySelectorAll('.mobile-nav-btn').forEach(b => {
+                    b.classList.remove('active-mobile-nav');
+                    b.style.color = '#94a3b8';
+                });
+                const mobileId = mobileButtons[tabId];
+                if (mobileId) {
+                    const btn = document.getElementById(mobileId);
+                    if (btn) { btn.classList.add('active-mobile-nav'); btn.style.color = '#0ea5e9'; }
+                }
+                    const syncIds = ['save-indicator', 'cloud-indicator', 'offline-indicator'];
+                    syncIds.forEach(id => {
+                        const desktop = document.getElementById(id);
+                        [document.getElementById(id + '-mobile'), document.getElementById(id + '-mobile-bar')].forEach(mobile => {
+                            if (desktop && mobile) {
+                                if (desktop.classList.contains('flex') || desktop.style.display === 'flex') {
+                                    mobile.classList.remove('hidden'); mobile.classList.add('flex');
+                                } else {
+                                    mobile.classList.add('hidden'); mobile.classList.remove('flex');
+                                }
+                            }
+                        });
+                    });
+                };
+                /* Sobrescribir switchTab si ya está cargado, o usar MutationObserver */
+                const patchSwitchTab = () => {
+                    if (typeof switchTab === 'function' && switchTab !== window._patchedSwitchTab) {
+                        const original = switchTab;
+                        window._patchedSwitchTab = function (tabId) {
+                            original(tabId);
+                            syncMobileNav(tabId);
+                        };
+                        window.switchTab = window._patchedSwitchTab;
+                    }
+                };
+                setTimeout(patchSwitchTab, 500);
+                /* Sincronizar indicadores de sync en tiempo real */
+                const syncObserver = new MutationObserver(() => {
+                    ['save-indicator', 'cloud-indicator', 'offline-indicator'].forEach(id => {
+                        const d = document.getElementById(id);
+                        [document.getElementById(id + '-mobile'), document.getElementById(id + '-mobile-bar')].forEach(m => {
+                            if (d && m) {
+                                const isVisible = d.classList.contains('flex') || d.style.display === 'flex';
+                                m.classList.toggle('hidden', !isVisible);
+                                m.classList.toggle('flex', isVisible);
+                            }
+                        });
+                    });
+                });
+                const syncPill = document.getElementById('main-sync-pill');
+                if (syncPill) syncObserver.observe(syncPill, { subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+            });
+        </script>
+
+        <div id="sync-toast"
+            class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
+            <i class="fas fa-check-circle text-2xl"></i>
+            <div>
+                <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+                <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Proyectos
+                    respaldados</p>
+            </div>
+        </div>
+
+        <div id="global-suggestions" class="suggestions-panel hidden no-print"></div>
+
+
+
+        <script>
+            // Colisionador de Simetría (Motor de Empuje Físico)
+            function checkHeaderCollision() {
+                const pill = document.getElementById('main-project-pill');
+                const tabsContainer = document.getElementById('center-tabs-container');
+                const rightSide = document.getElementById('header-right-side');
+                const container = document.getElementById('header-desktop-container');
+
+                if (!pill || !tabsContainer || !rightSide || !container) return;
+
+                const pillRect = pill.getBoundingClientRect();
+                const tabsRect = tabsContainer.getBoundingClientRect();
+                const rightRect = rightSide.getBoundingClientRect();
+
+                // Detectamos el estado de "Sándwich" (Margen de 5px a ambos lados)
+                const distLeft = tabsRect.left - pillRect.right;
+                const distRight = rightRect.left - tabsRect.right;
+
+                // Activación "Sándwich": Solo encoge cuando no hay más espacio físico para moverse
+                if (distLeft <= 5 && distRight <= 5) {
+                    container.classList.add('force-compact-header');
+                } else if (distLeft > 20 || distRight > 20) {
+                    // Margen de histéresis para mayor estabilidad visual
+                    container.classList.remove('force-compact-header');
+                }
+            }
+
+            // Ejecutamos al redimensionar y al cargar
+            const headerObserver = new ResizeObserver(() => {
+                checkHeaderCollision();
+                if (typeof window.updateTabIndicator === 'function') {
+                    window.updateTabIndicator(true);
+                }
+            });
+
+            window.addEventListener('load', () => {
+                const container = document.getElementById('header-desktop-container');
+                if (container) headerObserver.observe(container);
+                checkHeaderCollision();
+                if (typeof window.updateTabIndicator === 'function') window.updateTabIndicator(true);
+            });
+        </script>
+
+        <script src="js/core/security.js"></script>
+        <script defer src="js/core/supabase.js"></script>
+        <script defer src="js/core/db.js"></script>
+        <script defer src="js/core/auth.js"></script>
+        <script defer src="js/core/components.js?v=2.4"></script>
+        <script defer src="js/core/bridge-diario.js"></script>
+        <script defer src="js/core/contabilidad.js"></script>
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+        <script defer src="js/core/export.js"></script>
+        <script defer src="js/pages/editor-libros.js?v=1.2.1"></script>
+    </div>
+</body>
+
+</html>
+
+

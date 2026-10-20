@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Caja y Tesorería — EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* ===== TEMA ÁMBAR / DORADO — Módulo Caja y Tesorería ===== */
+        .caja-tab-btn {
+            padding: 0 clamp(10px, 1.2vw, 20px);
+            font-weight: 800;
+            font-size: clamp(9px, 0.65vw, 11px);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            border-radius: 999px;
+            transition: color 0.25s ease;
+            position: relative;
+            z-index: 10;
+            white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .caja-tab-btn.active { color: #d97706; transform: none !important; }
+        .caja-tab-btn.active:hover { transform: none !important; }
+        [data-theme="dark"] .caja-tab-btn.active { color: #fbbf24; }
+
+        .caja-input {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid rgba(15, 23, 42, 0.1);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: right;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .caja-input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+            background: #ffffff;
+        }
+        .dark .caja-input {
+            background: rgba(15, 23, 42, 0.75);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f1f5f9;
+        }
+        .dark .caja-input:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        html, body {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+        }
+
+        .seccion-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 20px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+            padding: 14px 16px;
+        }
+        .dark .seccion-card {
+            background: rgba(15, 23, 42, 0.65);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+        }
+
+        .input-field-card {
+            background: rgba(248, 250, 252, 0.9);
+            border: 1.5px solid rgba(15, 23, 42, 0.08);
+            border-radius: 12px;
+            padding: 5px 9px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .input-field-card:focus-within {
+            border-color: #f59e0b;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        .dark .input-field-card {
+            background: rgba(30, 41, 59, 0.5);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .input-field-card:focus-within {
+            border-color: #fbbf24;
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+        }
+
+        .input-field-label {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .dark .input-field-label { color: #94a3b8; }
+
+        .no-scrollbar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Barra de herramientas fija a 48px */
+        .caja-tool-item {
+            height: 48px !important;
+            min-height: 48px !important;
+            max-height: 48px !important;
+            box-sizing: border-box !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            vertical-align: middle !important;
+        }
+
+        #editor-sticky-controls {
+            top: 74px;
+        }
+        @media (min-width: 1024px) {
+            #editor-sticky-controls {
+                top: 85px;
+            }
+        }
+        #caja-tab-indicator {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.15), inset 0 0 0 1px rgba(245, 158, 11, 0.15);
+        }
+        [data-theme="dark"] #caja-tab-indicator,
+        .dark #caja-tab-indicator {
+            background: #1e293b !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(251, 191, 36, 0.25) !important;
+        }
+
+        @media print {
+            .no-print, #editor-sticky-controls, #shared-components-root, #global-preloader {
+                display: none !important;
+            }
+            body, html {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                color: black !important;
+            }
+            .print-container {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="h-screen max-h-screen overflow-hidden text-slate-800 dark:text-slate-100 antialiased font-sans flex flex-col">
+
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- CABECERA STICKY UNIFICADA DEL EDITOR DE CAJA (48px) -->
+    <div id="editor-sticky-controls" class="fixed top-[74px] lg:top-[85px] left-0 right-0 z-[900] pt-1.5 pb-1.5 px-3 lg:px-6 pointer-events-none">
+        <!-- Controles Desktop -->
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto gap-2 xl:gap-2.5 max-w-[1600px] mx-auto" style="height: 48px;">
+
+            <!-- 1. Identificador de Proyecto Caja -->
+            <div class="caja-tool-item glass-pill flex items-center gap-2.5 px-3.5 rounded-[36px] border border-white/60 dark:border-slate-700 shadow-sm shrink-0">
+                <div class="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xs shrink-0">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <div class="flex flex-col min-w-0 pr-1 max-w-[150px] xl:max-w-[200px]">
+                    <span class="text-[8px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400 leading-none">Caja y Tesorería</span>
+                    <span id="current-project-name" onclick="renameProjectInPlace()" class="text-xs font-black truncate text-slate-800 dark:text-white cursor-pointer hover:underline" title="Clic para renombrar">Cargando...</span>
+                </div>
+                <button onclick="window.location.href='proyectos.html'" class="w-6 h-6 rounded-full hover:bg-slate-200/60 dark:hover:bg-slate-700/60 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors ml-1" title="Volver a Proyectos">
+                    <i class="fas fa-arrow-left text-[10px]"></i>
+                </button>
+            </div>
+
+            <!-- 2. Pestañas Superiores Fluidas -->
+            <div class="caja-tool-item glass-pill p-1 rounded-[36px] border border-white/60 dark:border-slate-700 shadow-sm flex items-center relative shrink-0">
+                <div id="caja-tab-indicator" class="absolute top-1 bottom-1 rounded-[36px] transition-all duration-300 pointer-events-none" style="left: 0; width: 0; opacity: 0; transform-origin: center;"></div>
+                <button id="tab-caja-arqueo" data-idx="0" onclick="switchCajaTab('arqueo')" class="caja-tab-btn active">
+                    <i class="fas fa-coins text-amber-500"></i> Arqueo Caja Chica
+                </button>
+                <button id="tab-caja-corte" data-idx="1" onclick="switchCajaTab('corte')" class="caja-tab-btn">
+                    <i class="fas fa-store text-amber-500"></i> Corte Diario Ventas
+                </button>
+                <button id="tab-caja-acta" data-idx="2" onclick="switchCajaTab('acta')" class="caja-tab-btn">
+                    <i class="fas fa-file-signature text-amber-500"></i> Acta Oficial & PDF
+                </button>
+            </div>
+
+            <!-- 3. Herramientas Pedagógicas y de Integración -->
+            <div class="caja-tool-item glass-pill px-2 rounded-[36px] border border-white/60 dark:border-slate-700 shadow-sm flex items-center gap-1.5 shrink-0">
+                <!-- Modo Dual: Práctica vs Asistido -->
+                <button id="btn-toggle-mode" onclick="toggleModoDual()" class="px-2.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase transition-all flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/40" title="Modo de resolución">
+                    <i class="fas fa-pencil-alt text-xs"></i> <span id="lbl-modo-dual">Práctica</span>
+                </button>
+
+                <!-- Botón Auditoría MINED -->
+                <button onclick="auditarCajaMINED()" class="px-2.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase transition-all flex items-center gap-1.5 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-amber-950/50 dark:hover:text-amber-300" title="Auditar cumplimiento BTVAC 1.5">
+                    <i class="fas fa-clipboard-check text-amber-500"></i> Auditar MINED
+                </button>
+
+                <!-- Botón Enviar a Libro Diario (Puente Universal) -->
+                <button onclick="sendCajaToLibroDiario()" class="px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase transition-all flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm hover:shadow" title="Asentar en Libro Diario mediante Puente">
+                    <i class="fas fa-book-bookmark"></i> Enviar a Diario
+                </button>
+
+                <!-- Guardar -->
+                <button id="btn-force-save" onclick="forceSaveCaja()" class="w-8 h-8 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all shadow-sm" title="Guardar Cambios">
+                    <i class="fas fa-save text-xs"></i>
+                </button>
+
+                <!-- Exportar PDF -->
+                <button onclick="exportarCajaPDF()" class="w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition-all shadow-sm" title="Exportar Acta PDF">
+                    <i class="fas fa-file-pdf text-xs"></i>
+                </button>
+            </div>
+
+            <!-- 4. Indicador de Nube y Cerrar -->
+            <div class="caja-tool-item flex items-center gap-2 shrink-0">
+                <div id="cloud-indicator" class="glass-pill px-2.5 py-1 rounded-full text-[10px] font-bold text-slate-500 flex items-center gap-1.5">
+                    <i class="fas fa-hdd text-slate-400"></i> <span>Local</span>
+                </div>
+                <button onclick="window.location.href='proyectos.html'" class="w-9 h-9 rounded-full bg-slate-200/70 hover:bg-rose-500 hover:text-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-colors shadow-sm" title="Salir">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra Móvil -->
+        <div class="flex lg:hidden items-center justify-between w-full pointer-events-auto gap-2">
+            <button onclick="window.location.href='proyectos.html'" class="px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="flex-1 min-w-0 bg-white/90 dark:bg-slate-800/90 rounded-xl px-3 py-1.5 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                <span id="mobile-project-name" class="text-xs font-black truncate text-slate-800 dark:text-white">Caja</span>
+                <div class="flex gap-1">
+                    <button onclick="switchCajaTab('arqueo')" class="px-2 py-0.5 text-[10px] font-black rounded-lg bg-amber-100 text-amber-700">Arqueo</button>
+                    <button onclick="switchCajaTab('corte')" class="px-2 py-0.5 text-[10px] font-black rounded-lg text-slate-600">Corte</button>
+                    <button onclick="switchCajaTab('acta')" class="px-2 py-0.5 text-[10px] font-black rounded-lg text-slate-600">Acta</button>
+                </div>
+            </div>
+            <button onclick="sendCajaToLibroDiario()" class="px-2.5 py-1.5 rounded-xl bg-emerald-500 text-white text-xs font-bold">
+                <i class="fas fa-book"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ÁREA DE VISTAS DE CONTENIDO -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto px-3 lg:px-6 pt-[135px] lg:pt-[145px] pb-8 overflow-y-auto no-scrollbar">
+
+        <!-- =========================================================
+             VISTA 1: ARQUEO DE CAJA CHICA (FONDO FIJO)
+             ========================================================= -->
+        <section id="view-caja-arqueo" class="space-y-4">
+            <!-- Tarjeta de Parámetros del Fondo Fijo -->
+            <div class="seccion-card">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                    <div class="input-field-card">
+                        <label class="input-field-label">Entidad / Razón Social</label>
+                        <input type="text" id="arq-empresa" value="Comercial Cuscatlán S.A. de C.V." class="w-full bg-transparent font-bold text-xs outline-none text-slate-800 dark:text-white" oninput="saveCurrentCajaData()">
+                    </div>
+                    <div class="input-field-card">
+                        <label class="input-field-label">Custodio / Cajero</label>
+                        <input type="text" id="arq-custodio" value="Auxiliar Contable / Cajero" class="w-full bg-transparent font-bold text-xs outline-none text-slate-800 dark:text-white" oninput="saveCurrentCajaData()">
+                    </div>
+                    <div class="input-field-card">
+                        <label class="input-field-label">Fondo Fijo Asignado ($)</label>
+                        <input type="number" step="0.01" id="arq-fondo-fijo" value="200.00" class="caja-input text-xs py-1" oninput="recalcArqueoCompleto()">
+                    </div>
+                    <div class="input-field-card">
+                        <label class="input-field-label">Fecha de Arqueo</label>
+                        <input type="date" id="arq-fecha" class="w-full bg-transparent font-bold text-xs outline-none text-slate-800 dark:text-white" oninput="saveCurrentCajaData()">
+                    </div>
+                    <div class="input-field-card">
+                        <label class="input-field-label">Hora / Tipo de Arqueo</label>
+                        <div class="flex gap-1.5">
+                            <input type="time" id="arq-hora" value="16:30" class="w-1/2 bg-transparent font-bold text-xs outline-none text-slate-800 dark:text-white">
+                            <select id="arq-tipo" class="w-1/2 bg-transparent font-bold text-[10px] outline-none text-slate-800 dark:text-white" onchange="saveCurrentCajaData()">
+                                <option value="ordinario">Ordinario</option>
+                                <option value="sorpresivo">Sorpresivo</option>
+                                <option value="cierre">Cierre</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dos Columnas Principales: Conteo Físico USD vs Comprobantes -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                
+                <!-- Columna Izquierda (5 cols): Desglose Físico Billetes y Monedas El Salvador -->
+                <div class="lg:col-span-5 seccion-card flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-200/70 dark:border-slate-700">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                                <i class="fas fa-money-bill-wave text-emerald-500"></i> Conteo Físico de Moneda (USD)
+                            </h3>
+                            <button onclick="limpiarConteoEfectivo()" class="text-[9px] font-bold text-slate-400 hover:text-rose-500 uppercase transition-colors">
+                                <i class="fas fa-rotate-left"></i> Limpiar
+                            </button>
+                        </div>
+
+                        <!-- Billetes -->
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Billetes en Circulación</p>
+                        <div class="space-y-1 text-xs">
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-16">$100.00</span>
+                                <input type="number" min="0" data-den="100" class="arq-cash-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-16">$50.00</span>
+                                <input type="number" min="0" data-den="50" class="arq-cash-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-16">$20.00</span>
+                                <input type="number" min="0" data-den="20" class="arq-cash-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-16">$10.00</span>
+                                <input type="number" min="0" data-den="10" class="arq-cash-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-16">$5.00</span>
+                                <input type="number" min="0" data-den="5" class="arq-cash-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-16">$1.00</span>
+                                <input type="number" min="0" data-den="1" class="arq-cash-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Monedas Fraccionarias -->
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-3 mb-1.5 pt-2 border-t border-slate-200/70 dark:border-slate-700">Monedas Fraccionarias (SV)</p>
+                        <div class="space-y-1 text-xs">
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-24">$1.00 (Moneda)</span>
+                                <input type="number" min="0" data-den="1" class="arq-coin-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-24">$0.25 (Cora)</span>
+                                <input type="number" min="0" data-den="0.25" class="arq-coin-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-24">$0.10</span>
+                                <input type="number" min="0" data-den="0.10" class="arq-coin-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-24">$0.05</span>
+                                <input type="number" min="0" data-den="0.05" class="arq-coin-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                <span class="tabular-nums font-bold text-slate-700 dark:text-slate-300 w-24">$0.01</span>
+                                <input type="number" min="0" data-den="0.01" class="arq-coin-inp caja-input py-1 text-xs w-20" placeholder="0" oninput="recalcArqueoCompleto()">
+                                <span class="arq-subtot tabular-nums font-bold text-slate-500 text-xs w-20 text-right">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Efectivo Físico -->
+                    <div class="flex items-center justify-between pt-3 mt-3 border-t-2 border-slate-200 dark:border-slate-700 font-black text-xs">
+                        <span class="text-slate-700 dark:text-slate-200 uppercase tracking-wider">Total Efectivo Físico:</span>
+                        <span id="arq-tot-efectivo" class="tabular-nums text-base text-emerald-600 dark:text-emerald-400 font-black">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha (7 cols): Comprobantes de Gastos y Diagnóstico -->
+                <div class="lg:col-span-7 space-y-4">
+                    <!-- Comprobantes y Vales de Caja Chica -->
+                    <div class="seccion-card">
+                        <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-200/70 dark:border-slate-700">
+                            <div>
+                                <h3 class="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                                    <i class="fas fa-receipt text-indigo-500"></i> Comprobantes de Gastos y Vales de Descargo
+                                </h3>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase">Facturas, CCF, Recibos y Vales provisionales respaldados</p>
+                            </div>
+                            <button onclick="addArqueoDocRow()" class="px-2.5 py-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-[10px] font-extrabold uppercase transition-all flex items-center gap-1 shadow-xs">
+                                <i class="fas fa-plus"></i> Agregar Doc
+                            </button>
+                        </div>
+
+                        <!-- Lista de Comprobantes -->
+                        <div id="arq-docs-list" class="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+
+                        <!-- Total Comprobantes -->
+                        <div class="flex items-center justify-between pt-3 mt-3 border-t-2 border-slate-200 dark:border-slate-700 font-black text-xs">
+                            <span class="text-slate-700 dark:text-slate-200 uppercase tracking-wider">Total Comprobantes y Vales:</span>
+                            <span id="arq-tot-docs" class="tabular-nums font-black text-base text-indigo-600 dark:text-indigo-400">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Cuadro de Liquidación y Diferencia -->
+                    <div class="seccion-card bg-slate-900 text-white border-slate-800">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                            <div class="p-2 rounded-xl bg-slate-800/80">
+                                <span class="block text-[8px] font-black uppercase tracking-widest text-slate-400">Fondo Asignado</span>
+                                <span id="res-fondo-fijo" class="tabular-nums font-black text-sm text-white">$200.00</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-800/80">
+                                <span class="block text-[8px] font-black uppercase tracking-widest text-slate-400">Efectivo Físico</span>
+                                <span id="res-efectivo-fisico" class="tabular-nums font-black text-sm text-emerald-400">$0.00</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-800/80">
+                                <span class="block text-[8px] font-black uppercase tracking-widest text-slate-400">Comprobantes</span>
+                                <span id="res-total-comprobantes" class="tabular-nums font-black text-sm text-indigo-400">$0.00</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-slate-800/80">
+                                <span class="block text-[8px] font-black uppercase tracking-widest text-slate-400">Total Arqueado</span>
+                                <span id="res-total-arqueado" class="tabular-nums font-black text-sm text-amber-400">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Diagnóstico de Diferencias -->
+                        <div class="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Diagnóstico Legal:</span>
+                                <span id="res-diagnostico-badge" class="px-3 py-1 rounded-full font-black text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                                    <i class="fas fa-check-circle mr-1"></i> CUADRADO ($0.00)
+                                </span>
+                            </div>
+                            <p id="res-diagnostico-desc" class="text-[10px] text-slate-400 italic">Los valores físicos y comprobantes igualan exactamente el fondo fijado.</p>
+                        </div>
+                    </div>
+
+                    <!-- Asiento Contable de Reposición Sugerido -->
+                    <div class="seccion-card bg-amber-50/50 dark:bg-amber-950/20 border-amber-200/80 dark:border-amber-900/40">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                                <i class="fas fa-scale-balanced text-amber-500"></i> Partida de Reposición Sugerida
+                            </span>
+                            <button onclick="sendCajaToLibroDiario()" class="px-3 py-1.5 rounded-full bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-extrabold uppercase transition-all flex items-center gap-1.5 shadow-xs">
+                                <i class="fas fa-arrow-turn-down"></i> Insertar en Libro Diario
+                            </button>
+                        </div>
+                        <div id="caja-partida-preview" class="text-xs">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VISTA 2: CORTE DIARIO DE CAJA GENERAL (VENTAS DEL DÍA)
+             ========================================================= -->
+        <section id="view-caja-corte" class="hidden space-y-4">
+            <div class="seccion-card">
+                <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-200/70 dark:border-slate-700">
+                    <div>
+                        <h3 class="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                            <i class="fas fa-store text-amber-500"></i> Cuadre Diario de Caja Registradora / Ventas (BTVAC 1.1 y 1.5)
+                        </h3>
+                        <p class="text-xs text-slate-500">Control de ingresos en efectivo del día y cálculo de la remesa bancaria para el día siguiente.</p>
+                    </div>
+                    <button onclick="generarCorteVentasSimulado()" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-800 dark:bg-slate-800 dark:text-slate-300 text-xs font-bold transition-colors">
+                        <i class="fas fa-wand-magic-sparkles mr-1"></i> Cargar Simulación
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Tarjeta 1: Parámetros del Turno -->
+                    <div class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">1. Parámetros del Turno</h4>
+                        <div class="input-field-card">
+                            <label class="input-field-label">Caja N° / Terminal</label>
+                            <input type="text" id="corte-caja-num" value="Caja 01 - Principal" class="w-full bg-transparent font-bold text-xs outline-none text-slate-800 dark:text-white">
+                        </div>
+                        <div class="input-field-card">
+                            <label class="input-field-label">Cajero Turno</label>
+                            <input type="text" id="corte-cajero-nombre" value="Cajero del Turno Matutino" class="w-full bg-transparent font-bold text-xs outline-none text-slate-800 dark:text-white">
+                        </div>
+                        <div class="input-field-card">
+                            <label class="input-field-label">Fondo de Apertura (Sencillo / Cambio $)</label>
+                            <input type="number" step="0.01" id="corte-fondo-apertura" value="50.00" class="caja-input text-xs py-1" oninput="recalcCorteDiario()">
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 2: Resumen de Ventas según Sistema/Tiras Z -->
+                    <div class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">2. Ingresos según Sistema (Tira Z)</h4>
+                        <div class="input-field-card">
+                            <label class="input-field-label">Ventas Gravadas en Efectivo ($)</label>
+                            <input type="number" step="0.01" id="corte-ventas-gravadas" value="450.00" class="caja-input text-xs py-1" oninput="recalcCorteDiario()">
+                        </div>
+                        <div class="input-field-card">
+                            <label class="input-field-label">IVA Débito Fiscal 13% ($)</label>
+                            <input type="number" step="0.01" id="corte-iva-debito" value="58.50" class="caja-input text-xs py-1" oninput="recalcCorteDiario()">
+                        </div>
+                        <div class="input-field-card">
+                            <label class="input-field-label">Salidas / Retiros autorizados ($)</label>
+                            <input type="number" step="0.01" id="corte-salidas" value="0.00" class="caja-input text-xs py-1" oninput="recalcCorteDiario()">
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 3: Conteo Real y Resultado -->
+                    <div class="space-y-3 p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 mb-2">3. Cuadre del Turno</h4>
+                            <div class="space-y-1.5 tabular-nums text-xs">
+                                <div class="flex justify-between"><span>Efectivo Esperado en Caja:</span><span id="corte-res-esperado" class="font-bold text-white">$558.50</span></div>
+                                <div class="flex justify-between items-center">
+                                    <span>Efectivo Real Contado:</span>
+                                    <input type="number" step="0.01" id="corte-real-contado" value="558.50" class="w-24 bg-slate-800 border border-slate-700 rounded-lg p-1 text-right font-bold text-emerald-400 outline-none" oninput="recalcCorteDiario()">
+                                </div>
+                                <div class="flex justify-between pt-2 border-t border-slate-800 font-bold">
+                                    <span>Diferencia de Cuadre:</span>
+                                    <span id="corte-res-diff" class="text-emerald-400">CUADRADO ($0.00)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remesa Bancaria Sugerida -->
+                        <div class="pt-3 border-t border-slate-800">
+                            <div class="flex justify-between items-center text-xs font-black text-amber-300">
+                                <span>Remesa / Depósito Bancario:</span>
+                                <span id="corte-res-remesa" class="tabular-nums text-base font-black">$508.50</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 mt-0.5">Se aparta el fondo de apertura ($50.00) y se remesan las ventas del día al banco.</p>
+                            <button onclick="sendCorteToLibroDiario()" class="mt-3 w-full py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black uppercase transition-all shadow-md flex items-center justify-center gap-1.5">
+                                <i class="fas fa-building-columns"></i> Generar Asiento de Depósito en Diario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VISTA 3: ACTA FORMAL DE ARQUEO (IMPRESIÓN & FIRMAS)
+             ========================================================= -->
+        <section id="view-caja-acta" class="hidden space-y-4">
+            <div class="flex justify-between items-center seccion-card">
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white">Acta Oficial de Arqueo de Caja Chica</h3>
+                    <p class="text-xs text-slate-500">Documento de evidencia con valor legal y pedagógico conforme al Módulo BTVAC 1.5 del MINED.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase flex items-center gap-2 shadow-sm">
+                        <i class="fas fa-print"></i> Imprimir Acta
+                    </button>
+                    <button onclick="exportarCajaPDF()" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs uppercase flex items-center gap-2 shadow-sm">
+                        <i class="fas fa-file-pdf"></i> Descargar PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor del Acta Formal Imprimible -->
+            <div id="acta-formal-imprimible" class="print-container bg-white text-slate-900 rounded-2xl p-8 border border-slate-200 shadow-md font-serif max-w-[900px] mx-auto space-y-6">
+                <!-- Membrete -->
+                <div class="text-center border-b-2 border-slate-900 pb-4">
+                    <h2 id="acta-print-empresa" class="text-xl font-bold uppercase tracking-wider">COMERCIAL CUSCATLÁN S.A. DE C.V.</h2>
+                    <h3 class="text-base font-bold uppercase text-slate-700">ACTA FORMAL DE ARQUEO DE FONDO FIJO DE CAJA CHICA</h3>
+                    <p class="text-xs text-slate-600 italic">Control Interno de Efectivo • Módulo BTVAC 1.5 (MINED El Salvador)</p>
+                </div>
+
+                <!-- Encabezado de Datos -->
+                <div class="grid grid-cols-2 gap-4 text-xs font-sans">
+                    <div>
+                        <p><strong>Fecha:</strong> <span id="acta-print-fecha">16 de Septiembre de 2026</span></p>
+                        <p><strong>Hora de inicio:</strong> <span id="acta-print-hora">16:30 hrs</span></p>
+                        <p><strong>Carácter de la diligencia:</strong> <span id="acta-print-caracter" class="uppercase">Arqueo Ordinario de Control</span></p>
+                    </div>
+                    <div>
+                        <p><strong>Custodio Responsable:</strong> <span id="acta-print-custodio">Auxiliar Contable</span></p>
+                        <p><strong>Auditor / Evaluador:</strong> <span>Docente / Auditor Interno</span></p>
+                        <p><strong>Fondo Fijo Asignado:</strong> <span id="acta-print-fondo" class="tabular-nums font-bold">$200.00</span></p>
+                    </div>
+                </div>
+
+                <!-- Cuerpo del Acta -->
+                <div class="text-xs font-sans space-y-4">
+                    <p class="text-justify leading-relaxed">
+                        En las instalaciones de la entidad, a la fecha y hora indicadas, se procedió a practicar la verificación y recuento físico del efectivo, monedas fraccionarias y comprobantes de descargo que integran el Fondo Fijo de Caja Chica, obteniendo los siguientes resultados:
+                    </p>
+
+                    <!-- Tabla Resumen Conteo -->
+                    <table class="w-full text-xs border border-slate-300">
+                        <thead class="bg-slate-100 font-bold">
+                            <tr>
+                                <th class="p-2 border border-slate-300 text-left">Concepto del Valor Arqueado</th>
+                                <th class="p-2 border border-slate-300 text-right w-32">Monto Total ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border border-slate-300">1. Efectivo Físico (Billetes y Monedas en Circulación)</td>
+                                <td id="acta-print-tot-efectivo" class="p-2 border border-slate-300 text-right tabular-nums font-bold">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">2. Comprobantes de Gastos Menores y Vales Provisionales</td>
+                                <td id="acta-print-tot-docs" class="p-2 border border-slate-300 text-right tabular-nums font-bold">$0.00</td>
+                            </tr>
+                            <tr class="bg-slate-50 font-bold">
+                                <td class="p-2 border border-slate-300">TOTAL VALORES ARQUEADOS (1 + 2)</td>
+                                <td id="acta-print-tot-arqueado" class="p-2 border border-slate-300 text-right tabular-nums font-bold text-sm">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-slate-300">Menos: Monto del Fondo Fijo Autorizado</td>
+                                <td id="acta-print-tot-fondo" class="p-2 border border-slate-300 text-right tabular-nums font-bold">$200.00</td>
+                            </tr>
+                            <tr class="bg-slate-100 font-black">
+                                <td class="p-2 border border-slate-300">DIFERENCIA DETERMINADA</td>
+                                <td id="acta-print-diff" class="p-2 border border-slate-300 text-right tabular-nums font-black text-sm">$0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Declaración de Responsabilidad -->
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] leading-relaxed">
+                        <p><strong>DECLARACIÓN DEL CUSTODIO:</strong> Hago constar que la cantidad de dinero en efectivo y comprobantes detallados en la presente acta corresponden a la totalidad de los valores que estaban bajo mi custodia, los cuales fueron contados y verificados en mi presencia y devueltos íntegramente a mi entera satisfacción, no existiendo ningún otro valor perteneciente a este fondo.</p>
+                    </div>
+
+                    <!-- Bloque de Firmas Formales -->
+                    <div class="grid grid-cols-2 gap-12 pt-16 text-center text-xs">
+                        <div class="border-t border-slate-900 pt-2">
+                            <p id="acta-sign-custodio" class="font-bold uppercase">Cajero / Custodio Responsable</p>
+                            <p class="text-[10px] text-slate-500">Custodio del Fondo Fijo</p>
+                            <p class="text-[10px] text-slate-400 mt-1">DUI: ____________________</p>
+                        </div>
+                        <div class="border-t border-slate-900 pt-2">
+                            <p class="font-bold uppercase">Auditor Interno / Docente</p>
+                            <p class="text-[10px] text-slate-500">Evaluador MINED / BTVAC 1.5</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Sello / Firma de Conformidad</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Sincronización Exitosa</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Caja guardada en EduConta</p>
+        </div>
+    </div>
+
+    <!-- Scripts Core -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/bridge-diario.js"></script>
+    <script defer src="js/pages/editor-caja.js"></script>
+</body>
+
+</html>
+
+

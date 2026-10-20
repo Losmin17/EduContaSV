@@ -2,24 +2,53 @@
 // EDITOR.JS - MANEJO DEL DOM Y RENDERIZADO
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.injectSharedUI('shared-components-root');
+window.initializePage = function () {
+    try {
+        if (typeof window.injectSharedUI === 'function') {
+            window.injectSharedUI('shared-components-root');
+        }
+    } catch (e) {
+        console.error("Error al inyectar la UI compartida:", e);
+    }
+    if (typeof window.initBookDatePickers === 'function') window.initBookDatePickers();
 
-    // 1) Safety Guard Clause
-    window.projects = JSON.parse(localStorage.getItem('educonta_projects_v38')) || [];
+    // 1) Safety Guard Clause & Multi-Vault Loading
     const lastId = localStorage.getItem('educonta_last_project_id');
+    const activeTabPref = localStorage.getItem('educonta_proyectos_active_tab') || 'libros';
+    const vaultKey = (typeof window.getProjectsStorageKey === 'function')
+        ? window.getProjectsStorageKey(activeTabPref)
+        : (activeTabPref === 'tributario' ? 'educonta_projects_tributario' : activeTabPref === 'costos' ? 'educonta_projects_costos' : 'educonta_projects_libros');
 
-    // El proyecto_actual es globalmente expuesto!
-    window.proyecto_actual = window.projects.find(p => p.id === lastId);
+    let allVaults = JSON.parse(localStorage.getItem(vaultKey)) || [];
+    let found = allVaults.find(p => String(p.id) === String(lastId));
 
-    if (!lastId || !window.proyecto_actual) {
-        // Redirigir porque no hay proyecto vlido
+    if (!found) {
+        const vaults = ['educonta_projects_libros', 'educonta_projects_tributario', 'educonta_projects_costos', 'educonta_projects_kardex', 'educonta_projects_planillas'];
+        for (const vk of vaults) {
+            const list = JSON.parse(localStorage.getItem(vk)) || [];
+            found = list.find(p => String(p.id) === String(lastId));
+            if (found) {
+                allVaults = list;
+                break;
+            }
+        }
+    }
+
+    // Modo Auditoría Fallback: Si estamos auditando o si hay proyectos en la bóveda, tomar el primero si no coincidió el ID
+    if (!found && allVaults.length > 0) {
+        found = allVaults[0];
+    }
+
+    window.projects = allVaults;
+    window.proyecto_actual = found;
+
+    if (!window.proyecto_actual) {
         window.location.href = 'proyectos.html';
         return;
     }
 
-    // 2) Inicializar Componentes de DOM si todo es válido
-    window.currentProjectId = lastId;
+    // 2) Inicializar Componentes de DOM si todo es valido
+    window.currentProjectId = found.id;
 
     if (window.loadCatalogoMaestro) {
         window.loadCatalogoMaestro(); // Se ejecuta en paralelo
@@ -30,6 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const titleEl = document.getElementById('current-project-name');
         if (titleEl) titleEl.innerText = window.proyecto_actual.name || 'Proyecto';
+
+        if (typeof window.setupTitlePillAnimation === 'function') {
+            window.setupTitlePillAnimation();
+        }
 
         const sectorTag = document.getElementById('pill-sector-tag');
         if (sectorTag) sectorTag.innerText = window.proyecto_actual.sector || 'ALL';
@@ -74,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Inicializar estado de sincronización según conexión
+    // Inicializar estado de sincronización según conexión y sincronizar de inmediato
     setTimeout(() => {
         if (typeof window.updateSyncUI === 'function') {
             const syncedIds = new Set(JSON.parse(localStorage.getItem('educonta_synced_ids')) || []);
@@ -82,13 +115,31 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!navigator.onLine) {
                 window.updateSyncUI('offline');
-            } else if (isSynced) {
-                window.updateSyncUI('online');
             } else {
-                window.updateSyncUI('idle');
+                if (isSynced) {
+                    window.updateSyncUI('online');
+                } else {
+                    window.updateSyncUI('idle');
+                }
+                
+                // Sincronizar en segundo plano al cargar si estamos online
+                if (typeof window.forceSave === 'function') {
+                    window.forceSave(true);
+                }
             }
         }
     }, 500);
+
+    // Escuchar cambios de autenticación para sincronizar automáticamente al iniciar sesión
+    if (typeof supabaseClient !== 'undefined') {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+                setTimeout(() => { if (typeof window.forceSave === 'function') window.forceSave(true); }, 500);
+            } else if (event === 'SIGNED_OUT') {
+                window.updateSyncUI('idle');
+            }
+        });
+    }
 
     // Registrar UI events
     const appEl = document.getElementById('app-screen');
@@ -96,7 +147,25 @@ document.addEventListener('DOMContentLoaded', () => {
         appEl.classList.remove('hidden');
         appEl.classList.add('fade-in');
     }
-});
+
+    // 4) Detección de pestaña inicial (por URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetTab = urlParams.get('tab');
+    if (targetTab && ['inicial', 'diario', 'mayor', 'comprobacion', 'resultados', 'balance'].includes(targetTab) && typeof window.switchTab === 'function') {
+        setTimeout(() => {
+            window.switchTab(targetTab);
+        }, 120);
+    }
+
+    // Inicializar modos pedagógicos
+    if (typeof window.setMayorMode === 'function') window.setMayorMode(window.mayorMode);
+    if (typeof window.setComprobacionMode === 'function') window.setComprobacionMode(window.comprobacionMode);
+
+    // Desvanecer preloader suavemente una vez que los libros, partidas y balances estén renderizados
+    if (typeof window.dismissGlobalPreloader === 'function') {
+        window.dismissGlobalPreloader();
+    }
+};
 
 // Helper globals
 window.historyStack = []; // 'history' is reserved in Window, calling it historyStack
@@ -111,6 +180,13 @@ window.highlightedIdx = -1;
 window._syncPill = null;
 window._syncDebounce = null; // Debounce timer for real-time sync
 
+const escLibros = (v) => (window.EduSec && typeof window.EduSec.escapeHtml === 'function')
+    ? window.EduSec.escapeHtml(v)
+    : String(v ?? '').replace(/[&<>"'`]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[ch]));
+const jsArgLibros = (v) => (window.EduSec && typeof window.EduSec.jsArg === 'function')
+    ? window.EduSec.jsArg(v)
+    : `'${escLibros(String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"))}'`;
+
 // === FUNCIONES DE SALIDA Y NAVEGACIÓN ===
 window.closeProject = function () {
     // Redirección inmediata (la sincronización ocurre en tiempo real)
@@ -121,22 +197,22 @@ window.closeProject = function () {
 window.toggleProjectPillExpansion = function (e) {
     if (e) e.stopPropagation();
     const pill = document.getElementById('main-project-pill');
-    if (pill) {
-        const isExpanded = pill.classList.contains('project-pill-expanded');
+    if (!pill) return;
 
-        // Si se va a cerrar, también cerramos el dropdown de sectores interno
-        if (isExpanded) {
-            const sectorOpts = document.getElementById('pill-sector-options-container');
-            if (sectorOpts) {
-                sectorOpts.classList.add('opacity-0', 'pointer-events-none', 'grid-rows-[0fr]');
-                sectorOpts.classList.remove('opacity-100', 'pointer-events-auto', 'grid-rows-[1fr]');
-            }
-            const chevron = document.getElementById('pill-sector-chevron');
-            if (chevron) chevron.style.transform = 'rotate(0deg)';
+    const isExpanded = pill.classList.contains('project-pill-expanded');
+
+    // Si se va a cerrar, también cerramos el dropdown de sectores interno
+    if (isExpanded) {
+        const sectorOpts = document.getElementById('pill-sector-options-container');
+        if (sectorOpts) {
+            sectorOpts.classList.add('opacity-0', 'pointer-events-none', 'grid-rows-[0fr]');
+            sectorOpts.classList.remove('opacity-100', 'pointer-events-auto', 'grid-rows-[1fr]');
         }
-
-        pill.classList.toggle('project-pill-expanded');
+        const chevron = document.getElementById('pill-sector-chevron');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
     }
+
+    pill.classList.toggle('project-pill-expanded');
 };
 
 window.togglePillSectorDropdown = function (e) {
@@ -189,7 +265,7 @@ document.addEventListener('click', (e) => {
 });
 
 window.updateProjectSectorFromPill = function (sector) {
-    const p = projects.find(proj => proj.id === currentProjectId);
+    const p = projects.find(proj => String(proj.id) === String(currentProjectId));
     if (!p) return;
     p.sector = sector;
     p.updatedAt = new Date().toISOString();
@@ -199,11 +275,13 @@ window.updateProjectSectorFromPill = function (sector) {
     p.catalogo = autoCat;
 
     saveProjectsToLocal();
-    renderProjectGrid();
+    if (typeof renderProjectGrid === 'function') renderProjectGrid();
 
     // Actualizar tags visuales
-    document.getElementById('pill-sector-tag').innerText = sector;
-    document.getElementById('pill-catalog-tag').classList.add('hidden');
+    const sectorTagEl = document.getElementById('pill-sector-tag');
+    if (sectorTagEl) sectorTagEl.innerText = sector;
+    const catTagEl = document.getElementById('pill-catalog-tag');
+    if (catTagEl) catTagEl.classList.add('hidden');
 
     // Refrescar pestaña activa
     const activeTab = document.querySelector('.tab-btn.active');
@@ -211,15 +289,16 @@ window.updateProjectSectorFromPill = function (sector) {
 }
 
 window.updateProjectCatalogFromPill = function (catalogo) {
-    const p = projects.find(proj => proj.id === currentProjectId);
+    const p = projects.find(proj => String(proj.id) === String(currentProjectId));
     if (!p) return;
     p.catalogo = catalogo;
     p.updatedAt = new Date().toISOString();
 
     saveProjectsToLocal();
-    renderProjectGrid();
+    if (typeof renderProjectGrid === 'function') renderProjectGrid();
 
-    document.getElementById('pill-catalog-tag').innerText = catalogo;
+    const catTagEl = document.getElementById('pill-catalog-tag');
+    if (catTagEl) catTagEl.innerText = catalogo;
 
     const activeTab = document.querySelector('.tab-btn.active');
     if (activeTab) switchTab(activeTab.id.replace('tab-', ''));
@@ -230,18 +309,69 @@ window.updatePillCatalogOptions = function () {
 }
 
 window.updateCurrentProjectName = function (el) {
-    const p = projects.find(proj => proj.id === currentProjectId);
-    if (p) { p.name = el.innerText; p.updatedAt = new Date().toISOString(); saveProjectsToLocal(); renderProjectGrid(); }
+    const p = projects.find(proj => String(proj.id) === String(currentProjectId));
+    if (p) { p.name = el.innerText; p.updatedAt = new Date().toISOString(); saveProjectsToLocal(); if (typeof renderProjectGrid === 'function') renderProjectGrid(); }
 }
 
-window.updateTabIndicator = function () {
-    const activeBtn = document.querySelector('.tab-btn.active');
-    const indicator = document.getElementById('tab-indicator');
-    if (activeBtn && indicator) {
-        indicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
-        indicator.style.width = `${activeBtn.offsetWidth}px`;
+let currentIndex = 0;
+let tabSnapTimeout = null;
+const LIBROS_VIEW_TABS = ['diario', 'mayor', 'comprobacion', 'resultados', 'inicial', 'balance'];
+
+function moveToTab(btn, newIndex, animate = true) {
+    const pill = document.getElementById('tab-indicator');
+    if (!pill || !btn) return;
+
+    if (tabSnapTimeout) {
+        clearTimeout(tabSnapTimeout);
+        tabSnapTimeout = null;
     }
+
+    if (btn.offsetWidth === 0) {
+        requestAnimationFrame(() => {
+            if (btn.offsetWidth > 0) moveToTab(btn, newIndex, animate);
+        });
+        return;
+    }
+
+    const distance = Math.abs(newIndex - currentIndex);
+    const stretch = (animate && distance > 0) ? (1 + Math.min(distance * 0.15, 0.35)) : 1;
+
+    if (!animate) {
+        pill.style.transition = 'none';
+    }
+
+    pill.style.width = `${btn.offsetWidth}px`;
+    pill.style.opacity = '1';
+
+    if (animate && distance > 0) {
+        pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(${stretch}) scaleY(0.9)`;
+
+        tabSnapTimeout = setTimeout(() => {
+            pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(1) scaleY(1)`;
+        }, 180);
+    } else {
+        pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(1) scaleY(1)`;
+    }
+
+    if (!animate) {
+        void pill.offsetWidth;
+        requestAnimationFrame(() => {
+            pill.style.transition = '';
+        });
+    }
+
+    currentIndex = newIndex;
 }
+window.moveToTab = moveToTab;
+
+window.updateTabIndicator = function (instant = false) {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (!activeBtn) return;
+    const newIdx = activeBtn.dataset.idx !== undefined
+        ? parseInt(activeBtn.dataset.idx, 10)
+        : LIBROS_VIEW_TABS.indexOf(activeBtn.id.replace('tab-', ''));
+    moveToTab(activeBtn, newIdx >= 0 ? newIdx : 0, !instant);
+};
 
 window.switchTab = function (tabId) {
     const scrollX = window.scrollX || window.pageXOffset;
@@ -256,7 +386,10 @@ window.switchTab = function (tabId) {
     if (btn) {
         btn.classList.add('active', 'text-sky-600');
         btn.classList.remove('text-slate-500');
-        updateTabIndicator();
+        const newIdx = btn.dataset.idx !== undefined
+            ? parseInt(btn.dataset.idx, 10)
+            : LIBROS_VIEW_TABS.indexOf(tabId);
+        moveToTab(btn, newIdx >= 0 ? newIdx : 0, true);
     }
 
     // Actualizar vistas
@@ -321,6 +454,57 @@ window.switchTab = function (tabId) {
     window.scrollTo(scrollX, scrollY);
 }
 
+// === MODOS DUALES EN LIBROS: MAYOR Y COMPROBACIÓN (BTVAC) ===
+window.mayorMode = localStorage.getItem('educonta_mayor_modo') || 'practica';
+window.setMayorMode = function (mode) {
+    window.mayorMode = mode;
+    try { localStorage.setItem('educonta_mayor_modo', mode); } catch (e) {}
+    const btnAsistido = document.getElementById('btn-mayor-asistido');
+    const btnPractica = document.getElementById('btn-mayor-practica');
+    const btnAudit = document.getElementById('btn-audit-mayor');
+
+    if (btnAsistido && btnPractica) {
+        if (mode === 'practica') {
+            btnPractica.className = "px-3.5 py-1.5 rounded-full transition-all bg-sky-500 text-white shadow-xs";
+            btnAsistido.className = "px-3.5 py-1.5 rounded-full transition-all text-slate-500 hover:text-slate-800";
+            if (btnAudit) btnAudit.classList.remove('hidden');
+        } else {
+            btnAsistido.className = "px-3.5 py-1.5 rounded-full transition-all bg-sky-500 text-white shadow-xs";
+            btnPractica.className = "px-3.5 py-1.5 rounded-full transition-all text-slate-500 hover:text-slate-800";
+            if (btnAudit) btnAudit.classList.add('hidden');
+        }
+    }
+};
+
+window.comprobacionMode = localStorage.getItem('educonta_comprobacion_modo') || 'practica';
+window.setComprobacionMode = function (mode) {
+    window.comprobacionMode = mode;
+    try { localStorage.setItem('educonta_comprobacion_modo', mode); } catch (e) {}
+    const btnAsistido = document.getElementById('btn-comp-asistido');
+    const btnPractica = document.getElementById('btn-comp-practica');
+    const btnAudit = document.getElementById('btn-audit-comp');
+
+    if (btnAsistido && btnPractica) {
+        if (mode === 'practica') {
+            btnPractica.className = "px-3.5 py-1.5 rounded-full transition-all bg-sky-500 text-white shadow-xs";
+            btnAsistido.className = "px-3.5 py-1.5 rounded-full transition-all text-slate-500 hover:text-slate-800";
+            if (btnAudit) btnAudit.classList.remove('hidden');
+        } else {
+            btnAsistido.className = "px-3.5 py-1.5 rounded-full transition-all bg-sky-500 text-white shadow-xs";
+            btnPractica.className = "px-3.5 py-1.5 rounded-full transition-all text-slate-500 hover:text-slate-800";
+            if (btnAudit) btnAudit.classList.add('hidden');
+        }
+    }
+};
+
+window.auditMayorPractice = function () {
+    alert("Modo Práctica: Cuentas T manuales habilitadas para verificación pedagógica.");
+};
+
+window.auditComprobacionPractice = function () {
+    alert("Modo Práctica: Balance de Comprobación manual habilitado para verificación pedagógica.");
+};
+
 window.setupTitlePillAnimation = function () {
     const titleEl = document.getElementById('current-project-name');
     if (!titleEl) return;
@@ -379,8 +563,26 @@ window.updateSyncUI = function(state) {
         inds.forEach(el => {
             if (!el) return;
             el.classList.add('error');
-            const span = el.querySelector('span'); if (span) span.innerText = 'OFFLINE';
-            const icon = el.querySelector('i'); if (icon) icon.className = 'fas fa-wifi-slash';
+            const span = el.querySelector('span'); 
+            if (span) {
+                if (state === 'error' && window.lastSyncError) {
+                    // Truncate to avoid visual overflow if it's too long
+                    const displayMsg = window.lastSyncError.length > 25 ? window.lastSyncError.substring(0, 22) + '...' : window.lastSyncError;
+                    span.innerText = displayMsg.toUpperCase();
+                } else {
+                    span.innerText = 'OFFLINE';
+                }
+            }
+            const icon = el.querySelector('i');
+            if (icon) {
+                icon.className = (state === 'error') ? 'fas fa-exclamation-triangle' : 'fas fa-wifi-slash';
+            }
+        });
+    } else if (state === 'local') {
+        inds.forEach(el => {
+            if (!el) return;
+            const span = el.querySelector('span'); if (span) span.innerText = 'SOLO LOCAL';
+            const icon = el.querySelector('i'); if (icon) icon.className = 'fas fa-hdd';
         });
     } else {
         inds.forEach(el => {
@@ -394,10 +596,22 @@ window.updateSyncUI = function(state) {
 // Listeners de conectividad global
 window.addEventListener('online', () => {
     updateSyncUI('online');
+    if (typeof window.showSyncToast === 'function') window.showSyncToast('online');
     // Al recuperar conexión, intentar sincronizar inmediatamente si hay proyecto
     setTimeout(() => { if (typeof forceSave === 'function') forceSave(true); }, 1000);
 });
-window.addEventListener('offline', () => updateSyncUI('offline'));
+window.addEventListener('offline', () => {
+    updateSyncUI('offline');
+    if (typeof window.showSyncToast === 'function') window.showSyncToast('offline');
+});
+
+// Atajo de teclado para Guardar Manual (Ctrl+S / Cmd+S)
+window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (typeof window.forceSave === 'function') window.forceSave(false);
+    }
+});
 
 window.saveHistory = function () {
     if (isAuditMode) return;
@@ -419,7 +633,7 @@ window.saveHistory = function () {
         };
     });
     const snapshotStr = JSON.stringify({ state, selectedSheetId, bookCounter });
-    const p = typeof projects !== 'undefined' ? projects.find(proj => proj.id === currentProjectId) : null;
+    const p = typeof projects !== 'undefined' ? projects.find(proj => String(proj.id) === String(currentProjectId)) : null;
     
     // SHIELD: Si el estado actual está vacío pero antes teníamos datos, NO sobreescribir (evitar borrado por error de carga)
     if (p && state.length === 0 && p.sheets && p.sheets.length > 0) {
@@ -459,19 +673,45 @@ window.applyHistoryState = function (data) {
 
 window.reconstructSheet = function (s) {
     const booksStack = document.getElementById('books-stack');
+    const safeId = escLibros(s.id);
+    const safeTitle = escLibros(s.title);
+    const safeDesc = escLibros(s.desc || 'Libro Diario General');
+    const safeDate = escLibros(s.date);
+    const safeGlosa = escLibros(s.glosa);
+    const jsId = jsArgLibros(s.id);
 
     // CORRECCIÓN PRINCIPAL: Forzar data-frozen="false" al crear el HTML
     // para que addRow() pueda rellenar las filas correctamente.
     const html = `
-                <div id="${s.id}" class="glass-card p-4 sm:p-10 min-h-[400px] flex flex-col" data-frozen="false" onclick="selectSheet('${s.id}')">
+                <div id="${safeId}" class="glass-card p-4 sm:p-10 min-h-[400px] flex flex-col" data-frozen="false" onclick="selectSheet(${jsId})">
                     <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div class="w-full sm:w-auto">
-                            <h3 class="sheet-title font-extrabold text-xl sm:text-2xl text-slate-800 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${s.title}</h3>
-                            <p class="sheet-desc text-[10px] text-slate-400 font-bold uppercase mt-1 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${s.desc || 'Libro Diario General'}</p>
+                            <h3 class="sheet-title font-extrabold text-xl sm:text-2xl text-slate-800 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${safeTitle}</h3>
+                            <p class="sheet-desc text-[10px] text-slate-400 font-bold uppercase mt-1 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">${safeDesc}</p>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-[36px] w-full sm:w-auto">
-                            <i class="far fa-calendar text-slate-400 text-xs"></i>
-                            <input type="date" class="doc-date text-xs font-bold text-slate-600 bg-transparent outline-none w-full" value="${s.date}" onchange="saveHistory()">
+                        <div class="custom-book-date-picker w-full sm:w-auto relative z-[20]" data-book-id="${safeId}">
+                            <button type="button" class="custom-book-date-btn">
+                                <i class="far fa-calendar text-slate-400 text-xs"></i>
+                                <span class="custom-book-date-display">--/--/----</span>
+                            </button>
+                            <div class="custom-book-calendar-popup absolute right-0 top-full mt-2 w-64 bg-white/95 dark:bg-slate-800/95 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-4 backdrop-blur-md dark:text-slate-200">
+                                <div class="cal-header flex justify-between items-center mb-3">
+                                    <button type="button" class="cal-prev-btn w-6 h-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 border-none bg-transparent cursor-pointer">
+                                        <i class="fas fa-chevron-left text-[10px]"></i>
+                                    </button>
+                                    <span class="cal-month-year text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Junio 2026</span>
+                                    <button type="button" class="cal-next-btn w-6 h-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 border-none bg-transparent cursor-pointer">
+                                        <i class="fas fa-chevron-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                                <div class="cal-weekdays">
+                                    <span>Do</span><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span>
+                                </div>
+                                <div class="cal-days cal-days-grid">
+                                    <!-- Inyectado dinámicamente -->
+                                </div>
+                            </div>
+                            <input type="date" class="doc-date hidden" value="${safeDate}" onchange="saveHistory()">
                         </div>
                     </div>
                     <div class="overflow-x-auto w-full pb-4">
@@ -488,7 +728,7 @@ window.reconstructSheet = function (s) {
                             <tbody class="entries-container"></tbody>
                             <tfoot>
                                 <tr class="border-t-2 border-slate-900 font-bold bg-slate-50/30">
-                                    <td colspan="2" class="py-4 px-2"><input class="glosa-input input-minimal text-xs italic" value="${s.glosa}" placeholder="Descripción (Glosa)..." onblur="saveHistory()"></td>
+                                    <td colspan="2" class="py-4 px-2"><input class="glosa-input input-minimal text-xs italic" value="${safeGlosa}" placeholder="Descripción (Glosa)..." onblur="saveHistory()"></td>
                                     <td class="py-4 px-2 text-right text-sm font-black total-debe">$ 0.00</td>
                                     <td class="py-4 px-2 text-right text-sm font-black total-haber">$ 0.00</td>
                                     <td class="no-print"></td>
@@ -498,10 +738,10 @@ window.reconstructSheet = function (s) {
                     </div>
                     <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 no-print">
                         <div class="flex items-center justify-between w-full sm:w-auto gap-3">
-                            <button onclick="addRow('${s.id}', true)" class="btn-add text-[11px] font-black uppercase text-sky-600"><i class="fas fa-plus-circle mr-1"></i> Añadir Línea</button>
+                            <button onclick="addRow(${jsId}, true)" class="btn-add text-[11px] font-black uppercase text-sky-600"><i class="fas fa-plus-circle mr-1"></i> Añadir Línea</button>
                             <span class="balance-status px-3 py-1 rounded-[36px] text-[9px] font-black uppercase unbalanced">Descuadrado</span>
                         </div>
-                        <button onclick="toggleFreeze('${s.id}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-[36px] bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md"><i class="fas fa-check-double mr-2"></i> Finalizar Partida</button>
+                        <button onclick="toggleFreeze(${jsId})" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-[36px] bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md ambient-glow soft-glow"><i class="fas fa-check-double mr-2"></i> <span class="soft-glow-text" data-text="Finalizar Partida">Finalizar Partida</span></button>
                     </div>
                 </div>
             `;
@@ -518,11 +758,16 @@ window.reconstructSheet = function (s) {
         }
     });
 
-    // CORRECCIÓN PRINCIPAL: Bloquear la hoja DESPUÉS de haber agregado todas las filas.
+    const picker = document.getElementById(s.id)?.querySelector('.custom-book-date-picker');
+    if (picker) {
+        window.syncBookDateDisplay(picker, s.date);
+    }
+    if (typeof calc === 'function') calc(s.id);
+
+    // CORRECCIÓN PRINCIPAL: Bloquear la hoja DESPUÉS de haber agregado todas las filas y calculado totales.
     if (s.frozen === 'true' || s.frozen === true) {
         toggleFreeze(s.id, false);
     }
-    if (typeof calc === 'function') calc(s.id);
 }
 
 window.createNewBook = function () {
@@ -535,9 +780,29 @@ window.createNewBook = function () {
                             <h3 class="sheet-title font-extrabold text-xl sm:text-2xl text-slate-800 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">Registro No. ${bookCounter}</h3>
                             <p class="sheet-desc text-[10px] text-slate-400 font-bold uppercase mt-1 focus:text-sky-600 outline-none w-full" contenteditable="true" onkeydown="handleTitleKey(event)" onblur="saveHistory()">Libro Diario General</p>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-[36px] w-full sm:w-auto">
-                            <i class="far fa-calendar text-slate-400 text-xs"></i>
-                            <input type="date" class="doc-date text-xs font-bold text-slate-600 bg-transparent outline-none w-full" value="${new Date().toISOString().split('T')[0]}" onchange="saveHistory()">
+                        <div class="custom-book-date-picker w-full sm:w-auto relative z-[20]" data-book-id="${bookId}">
+                            <button type="button" class="custom-book-date-btn">
+                                <i class="far fa-calendar text-slate-400 text-xs"></i>
+                                <span class="custom-book-date-display">--/--/----</span>
+                            </button>
+                            <div class="custom-book-calendar-popup absolute right-0 top-full mt-2 w-64 bg-white/95 dark:bg-slate-800/95 border border-slate-200/85 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-4 backdrop-blur-md dark:text-slate-200">
+                                <div class="cal-header flex justify-between items-center mb-3">
+                                    <button type="button" class="cal-prev-btn w-6 h-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 border-none bg-transparent cursor-pointer">
+                                        <i class="fas fa-chevron-left text-[10px]"></i>
+                                    </button>
+                                    <span class="cal-month-year text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Junio 2026</span>
+                                    <button type="button" class="cal-next-btn w-6 h-6 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 border-none bg-transparent cursor-pointer">
+                                        <i class="fas fa-chevron-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                                <div class="cal-weekdays">
+                                    <span>Do</span><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span>
+                                </div>
+                                <div class="cal-days cal-days-grid">
+                                    <!-- Inyectado dinámicamente -->
+                                </div>
+                            </div>
+                            <input type="date" class="doc-date hidden" value="${new Date().toISOString().split('T')[0]}" onchange="saveHistory()">
                         </div>
                     </div>
                     <div class="overflow-x-auto w-full pb-4">
@@ -567,11 +832,15 @@ window.createNewBook = function () {
                             <button onclick="addRow('${bookId}', true)" class="btn-add text-[11px] font-black uppercase text-sky-600"><i class="fas fa-plus-circle mr-1"></i> Añadir Línea</button>
                             <span class="balance-status px-3 py-1 rounded-[36px] text-[9px] font-black uppercase unbalanced">Descuadrado</span>
                         </div>
-                        <button onclick="toggleFreeze('${bookId}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-[36px] bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md"><i class="fas fa-check-double mr-2"></i> Finalizar Partida</button>
+                        <button onclick="toggleFreeze('${bookId}')" class="btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-[36px] bg-slate-800 text-white font-bold text-[10px] uppercase shadow-md ambient-glow soft-glow"><i class="fas fa-check-double mr-2"></i> <span class="soft-glow-text" data-text="Finalizar Partida">Finalizar Partida</span></button>
                     </div>
                 </div>
             `;
     document.getElementById('books-stack').insertAdjacentHTML('beforeend', html);
+    const picker = document.getElementById(bookId).querySelector('.custom-book-date-picker');
+    if (picker) {
+        window.syncBookDateDisplay(picker, new Date().toISOString().split('T')[0]);
+    }
 
     if (typeof isGridView !== 'undefined' && !isGridView) {
         setTimeout(() => {
@@ -599,7 +868,7 @@ window.addRow = function (bookId, shouldSave = true, forcedId = null) {
     const tr = document.createElement('tr'); tr.id = rid;
     tr.className = "border-b border-slate-100 group hover:bg-slate-50 transition-colors";
     tr.innerHTML = `
-                <td class="py-2 px-2"><input type="text" class="input-minimal font-mono text-xs col-0" placeholder="Código" oninput="search(this, '${bookId}')" onfocus="activeRowId='${rid}'; selectSheet('${bookId}')" onkeydown="handleKey(event, 0)"></td>
+                <td class="py-2 px-2"><input type="text" class="input-minimal tabular-nums font-semibold text-xs col-0" placeholder="Código" oninput="search(this, '${bookId}')" onfocus="activeRowId='${rid}'; selectSheet('${bookId}')" onkeydown="handleKey(event, 0)"></td>
                 <td class="py-2 px-2"><input type="text" class="input-minimal text-sm col-1" placeholder="Cuenta" oninput="search(this, '${bookId}')" onfocus="activeRowId='${rid}'; selectSheet('${bookId}')" onkeydown="handleKey(event, 1)"></td>
                 <td class="py-2 px-2"><input type="text" class="val-debe input-minimal text-right text-sm font-bold col-2" oninput="formatOnType(this); if(typeof calc === 'function') calc('${bookId}')" onblur="formatNumber(this); saveHistory()" onfocus="activeRowId='${rid}'; selectSheet('${bookId}')" onkeydown="handleKey(event, 2)"></td>
                 <td class="py-2 px-2"><input type="text" class="val-haber input-minimal text-right text-sm font-bold col-3" oninput="formatOnType(this); if(typeof calc === 'function') calc('${bookId}')" onblur="formatNumber(this); saveHistory()" onfocus="activeRowId='${rid}'; selectSheet('${bookId}')" onkeydown="handleKey(event, 3)"></td>
@@ -706,7 +975,7 @@ window.search = function (input, bookId) {
 
     // Incrementamos la cantidad de matches mostrados por ser un catálogo más grande
     // Filtrado Estricto por Sector del Proyecto Activo
-    const project = typeof projects !== 'undefined' ? projects.find(p => p.id === currentProjectId) : null;
+    const project = typeof projects !== 'undefined' ? projects.find(p => String(p.id) === String(currentProjectId)) : null;
     const activeSector = (project?.sector || 'ALL').toUpperCase();
 
     const matches = CATALOGO_MAESTRO.filter(c => {
@@ -729,12 +998,15 @@ window.search = function (input, bookId) {
         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-        suggestionsPanel.innerHTML = matches.map(m => `
-                    <div class="suggestion-item" onclick="pick('${m.id}', '${m.name}')">
-                        <span class="cat-tag tag-${(m.cat || '').toLowerCase()}">${m.cat || ''}</span>
-                        <div class="flex justify-between items-center w-full"><span class="text-[11px] font-black font-mono text-sky-600">${m.id}</span><span class="text-[10px] font-bold text-slate-500 ml-4 truncate">${m.name}</span></div>
+        suggestionsPanel.innerHTML = matches.map(m => {
+            const safeCatClass = String(m.cat || '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+            return `
+                    <div class="suggestion-item" onclick="pick(${jsArgLibros(m.id)}, ${jsArgLibros(m.name)})">
+                        <span class="cat-tag tag-${safeCatClass}">${escLibros(m.cat || '')}</span>
+                        <div class="flex justify-between items-center w-full"><span class="text-[11px] font-black tabular-nums text-sky-600">${escLibros(m.id)}</span><span class="text-[10px] font-bold text-slate-500 ml-4 truncate">${escLibros(m.name)}</span></div>
                     </div>
-                `).join('');
+                `;
+        }).join('');
 
         // Cálculo exacto del bounding box tomando en cuenta el scroll y evitando offset parents relativos problemáticos
         suggestionsPanel.style.left = `${rect.left + scrollLeft}px`;
@@ -758,15 +1030,36 @@ window.pick = function (id, name) {
 
 window.toggleFreeze = function (id, shouldSave = true) {
     const b = document.getElementById(id); if (!b) return;
-    const willBeFrozen = b.dataset.frozen !== 'true'; b.dataset.frozen = willBeFrozen;
+    const willBeFrozen = b.dataset.frozen !== 'true';
+    if (willBeFrozen && shouldSave) {
+        let d = 0, h = 0;
+        const parseFn = typeof parseLocalFloat === 'function' ? parseLocalFloat : (v => parseFloat(String(v).replace(/,/g, '')) || 0);
+        b.querySelectorAll('.val-debe').forEach(i => d += parseFn(i.value));
+        b.querySelectorAll('.val-haber').forEach(i => h += parseFn(i.value));
+        const dCents = Math.round((d + Number.EPSILON) * 100);
+        const hCents = Math.round((h + Number.EPSILON) * 100);
+        if (dCents === 0 || dCents !== hCents) {
+            if (typeof window.showSyncToast === 'function') {
+                window.showSyncToast('error', 'No se puede finalizar una partida descuadrada o en cero (Principio de Partida Doble).');
+            } else if (typeof window.showAlert === 'function') {
+                window.showAlert('Partida Descuadrada', 'El total del Debe y del Haber deben ser iguales y mayores a $0.00 antes de finalizar la partida.');
+            } else {
+                alert('No se puede finalizar una partida descuadrada o en cero.');
+            }
+            return;
+        }
+    }
+    b.dataset.frozen = willBeFrozen;
     const btn = b.querySelector('.btn-freeze-toggle');
     if (btn) {
-        btn.innerHTML = willBeFrozen ? '<i class="fas fa-edit mr-2"></i> Editar Partida' : '<i class="fas fa-check-double mr-2"></i> Finalizar Partida';
-        btn.className = `btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-[36px] text-white font-bold text-[10px] uppercase shadow-md ${willBeFrozen ? 'bg-amber-500' : 'bg-slate-800'}`;
+        btn.innerHTML = willBeFrozen 
+            ? '<i class="fas fa-edit mr-2"></i> <span class="soft-glow-text" data-text="Editar Partida">Editar Partida</span>' 
+            : '<i class="fas fa-check-double mr-2"></i> <span class="soft-glow-text" data-text="Finalizar Partida">Finalizar Partida</span>';
+        btn.className = `btn-freeze-toggle w-full sm:w-auto px-6 py-3 sm:py-2 rounded-[36px] text-white font-bold text-[10px] uppercase shadow-md ambient-glow soft-glow ${willBeFrozen ? 'bg-amber-500' : 'bg-slate-800'}`;
     }
     if (willBeFrozen) { if (!b.querySelector('.frozen-badge')) { const badge = document.createElement('div'); badge.className = 'frozen-badge'; badge.innerHTML = '<i class="fas fa-lock mr-2"></i> Cerrada'; b.appendChild(badge); } }
     else b.querySelector('.frozen-badge')?.remove();
-    b.querySelectorAll('input, button.btn-remove-row').forEach(el => el.disabled = willBeFrozen);
+    b.querySelectorAll('input, button.btn-remove-row, button.custom-book-date-btn').forEach(el => el.disabled = willBeFrozen);
     b.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', !willBeFrozen));
     if (shouldSave) saveHistory();
 }
@@ -853,14 +1146,20 @@ window.confirmDeleteSheet = function () {
 window.saveProjectsToLocal = function () {
     if (typeof isAuditMode !== 'undefined' && isAuditMode) return;
     if (window.proyecto_actual) {
-        let allProjects = JSON.parse(localStorage.getItem('educonta_projects_v38')) || [];
-        const index = allProjects.findIndex(p => p.id === window.proyecto_actual.id);
+        const pType = window.proyecto_actual.type || 'libros';
+        const vaultKey = (typeof window.getProjectsStorageKey === 'function')
+            ? window.getProjectsStorageKey(pType)
+            : (pType === 'tributario' ? 'educonta_projects_tributario' : pType === 'costos' ? 'educonta_projects_costos' : 'educonta_projects_libros');
+
+        let allProjects = JSON.parse(localStorage.getItem(vaultKey)) || [];
+        const index = allProjects.findIndex(p => String(p.id) === String(window.proyecto_actual.id));
         if (index > -1) {
             allProjects[index] = window.proyecto_actual;
         } else {
             allProjects.push(window.proyecto_actual);
         }
-        localStorage.setItem('educonta_projects_v38', JSON.stringify(allProjects));
+        localStorage.setItem(vaultKey, JSON.stringify(allProjects));
+        window.projects = allProjects;
     }
 }
 
@@ -888,6 +1187,9 @@ window.forceSave = async function (quiet = false) {
     if (typeof supabaseClient !== 'undefined' && window.proyecto_actual) {
         if (!navigator.onLine) {
             updateSyncUI('offline');
+            if (!quiet && typeof window.showSyncToast === 'function') {
+                window.showSyncToast('offline');
+            }
             return;
         }
 
@@ -897,42 +1199,35 @@ window.forceSave = async function (quiet = false) {
                 updateSyncUI('syncing');
                 if (typeof setSyncAnimating === 'function') setSyncAnimating(true);
 
-                const { data, error: selectError } = await supabaseClient
-                    .from('proyectos_contables')
-                    .select('id')
-                    .eq('user_id', session.user.id)
-                    .eq('data->>id', window.proyecto_actual.id)
-                    .limit(1);
-
-                let saved = false;
-                if (data && data.length > 0) {
-                    const { error: updateError } = await supabaseClient
-                        .from('proyectos_contables')
-                        .update({ data: window.proyecto_actual, updated_at: new Date() })
-                        .eq('id', data[0].id);
-                    if (!updateError) saved = true;
-                } else {
-                    const { error: insertError } = await supabaseClient
-                        .from('proyectos_contables')
-                        .insert([{ user_id: session.user.id, data: window.proyecto_actual, estado: 'activo' }]);
-                    if (!insertError) saved = true;
+                if (typeof syncCurrentProjectWithSupabase === 'function') {
+                    await syncCurrentProjectWithSupabase(window.proyecto_actual, session.user.id, true);
                 }
 
-                if (saved) {
-                    const syncedIds = new Set(JSON.parse(localStorage.getItem('educonta_synced_ids')) || []);
-                    syncedIds.add(window.proyecto_actual.id);
-                    localStorage.setItem('educonta_synced_ids', JSON.stringify(Array.from(syncedIds)));
-                    updateSyncUI('success');
-                } else {
-                    updateSyncUI('error');
+                const syncedIds = new Set(JSON.parse(localStorage.getItem('educonta_synced_ids')) || []);
+                syncedIds.add(window.proyecto_actual.id);
+                localStorage.setItem('educonta_synced_ids', JSON.stringify(Array.from(syncedIds)));
+                updateSyncUI('success');
+                if (!quiet && typeof window.showSyncToast === 'function') {
+                    window.showSyncToast('success', 'Proyecto respaldado con éxito');
                 }
             } else {
-                // Sin sesión, volver a estado base
-                updateSyncUI('idle');
+                // Sin sesión activa en Supabase, confirmar guardado local
+                updateSyncUI('local');
+                if (!quiet && typeof window.showSyncToast === 'function') {
+                    window.showSyncToast('local', 'Guardado en este equipo');
+                }
             }
         } catch (err) {
             console.error('Error al sincronizar desde editor:', err);
+            window.lastSyncError = err.message || JSON.stringify(err);
             updateSyncUI('error');
+            if (!quiet && typeof window.showSyncToast === 'function') {
+                window.showSyncToast('error', window.lastSyncError);
+            }
+        }
+    } else {
+        if (!quiet && typeof window.showSyncToast === 'function') {
+            window.showSyncToast('local', 'Guardado en este equipo');
         }
     }
 
@@ -1033,44 +1328,86 @@ window.goToIndices = function() {
     const accounts = procesarDiario(false);
     const utilidad = calcularUtilidad(accounts);
     
-    let tActivo = 0, tPatrimonio = 0, tPasivo = 0, tIngreso = 0;
-    
+    let tActivo = 0, tActivoCorriente = 0, tPatrimonio = 0, tPasivo = 0, tPasivoCorriente = 0;
+    let tIngreso = 0, tCostoVentas = 0, tInventarios = 0, tCxCobrar = 0;
+
     accounts.forEach(a => {
         const info = clasificarCuenta(a);
         const code = a.id ? String(a.id) : String(a.codigo || '');
-        
+
         if (info.tipo === 'Activo') {
-            if (a.saldoDeudor >= a.saldoAcreedor) {
-                tActivo += (a.saldoDeudor - a.saldoAcreedor);
+            const saldo = a.saldoDeudor >= a.saldoAcreedor
+                ? (a.saldoDeudor - a.saldoAcreedor)
+                : -(a.saldoAcreedor - a.saldoDeudor);
+
+            if (saldo > 0) {
+                tActivo += saldo;
+                // Corriente: códigos 11xx
+                if (code.startsWith('11')) {
+                    tActivoCorriente += saldo;
+                    // Inventarios: 1103 o nombre que contenga inventario
+                    if (code.startsWith('1103') || a.nombre.toLowerCase().includes('inventario')) {
+                        tInventarios += saldo;
+                    }
+                    // Cuentas por Cobrar: 1102 o nombre que contenga cobrar/cliente
+                    if (code.startsWith('1102') || a.nombre.toLowerCase().includes('cobrar') || a.nombre.toLowerCase().includes('cliente')) {
+                        tCxCobrar += saldo;
+                    }
+                }
             } else {
-                tPasivo += (a.saldoAcreedor - a.saldoDeudor);
+                // Saldo acreedor en cuenta de activo => reclasificar como pasivo corriente
+                tPasivo += Math.abs(saldo);
+                tPasivoCorriente += Math.abs(saldo);
             }
         } else if (info.tipo === 'Pasivo') {
-            if (a.saldoAcreedor >= a.saldoDeudor) {
-                tPasivo += (a.saldoAcreedor - a.saldoDeudor);
-            } else {
-                tActivo += (a.saldoDeudor - a.saldoAcreedor);
+            const saldo = a.saldoAcreedor >= a.saldoDeudor
+                ? (a.saldoAcreedor - a.saldoDeudor)
+                : 0;
+            if (saldo > 0) {
+                tPasivo += saldo;
+                // Corriente: códigos 21xx
+                if (code.startsWith('21')) tPasivoCorriente += saldo;
+            } else if (a.saldoDeudor > a.saldoAcreedor) {
+                // Saldo deudor en cuenta de pasivo => reclasificar como activo corriente
+                const r = a.saldoDeudor - a.saldoAcreedor;
+                tActivo += r;
+                tActivoCorriente += r;
             }
         } else if (info.tipo === 'Patrimonio') {
             tPatrimonio += (a.saldoAcreedor - a.saldoDeudor);
         } else if (info.tipo === 'Resultado') {
-            // Ingresos suelen ser 4xxx (o saldo acreedor predominante)
-            if (code.startsWith('4') || (a.saldoAcreedor > a.saldoDeudor)) {
+            if (code.startsWith('4') || a.saldoAcreedor > a.saldoDeudor) {
+                // Ingresos
                 tIngreso += (a.saldoAcreedor - a.saldoDeudor);
+            } else if (code.startsWith('5') || (a.nombre.toLowerCase().includes('costo') && a.saldoDeudor > a.saldoAcreedor)) {
+                // Costo de ventas
+                tCostoVentas += (a.saldoDeudor - a.saldoAcreedor);
             }
-        } else if (info.tipo === 'Ingreso' || info.tipo === 'Venta') {
-            tIngreso += (a.saldoAcreedor - a.saldoDeudor);
         }
     });
 
-    // IMPORTANTE: El patrimonio contable para el ROE debe incluir la utilidad retenida/del ejercicio
-    tPatrimonio += utilidad; 
+    // IMPORTANTE: El patrimonio contable incluye la utilidad del ejercicio
+    tPatrimonio += utilidad;
 
-    // Solo exportar montos mayores de 0, para no tirar div entre 0 a menos que sea 0.
     const pid = window.proyecto_actual?.id || '';
     const pname = encodeURIComponent(window.proyecto_actual?.name || window.proyecto_actual?.nombre || '');
-    const url = 'indices.html?pid=' + pid + '&pname=' + pname + '&act=' + tActivo.toFixed(2) + '&pat=' + tPatrimonio.toFixed(2) + '&uti=' + utilidad.toFixed(2) + '&pas=' + tPasivo.toFixed(2) + '&ing=' + tIngreso.toFixed(2);
-    window.location.href = url;
+
+    const params = new URLSearchParams({
+        pid,
+        pname,
+        act:  tActivo.toFixed(2),
+        pat:  tPatrimonio.toFixed(2),
+        uti:  utilidad.toFixed(2),
+        pas:  tPasivo.toFixed(2),
+        ing:  tIngreso.toFixed(2),
+        acor: tActivoCorriente.toFixed(2),
+        pcor: tPasivoCorriente.toFixed(2),
+        inv:  tInventarios.toFixed(2),
+        cxc:  tCxCobrar.toFixed(2),
+        cvta: tCostoVentas.toFixed(2)
+    });
+
+    window.location.href = 'indices.html?' + params.toString();
 };
 
 // ==========================================
@@ -1138,7 +1475,7 @@ window.exportarProyectoEduConta = function() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${nombreProyecto.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.edc`;
+    a.download = `${nombreProyecto.replace(/\s+/g, '_')}_Libros_${new Date().toISOString().split('T')[0]}.edc`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1163,3 +1500,306 @@ window.exportarProyectoEduConta = function() {
         }, 3000);
     }
 };
+
+// ─── Calendario e Interacción Personalizada de Fecha para Libros ───────
+let bookCalYear = {};
+let bookCalMonth = {};
+
+const MONTH_NAMES_ES = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
+
+function formatDisplayDate(dateStr) {
+    if (!dateStr) return '--/--/----';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+}
+
+window.syncBookDateDisplay = function(pickerEl, dateVal) {
+    const displayEl = pickerEl.querySelector('.custom-book-date-display');
+    if (displayEl) displayEl.textContent = formatDisplayDate(dateVal);
+};
+
+window.renderBookCalendar = function(pickerEl) {
+    const bookId = pickerEl.dataset.bookId;
+    if (!bookId) return;
+
+    const input = pickerEl.querySelector('.doc-date');
+    if (!input) return;
+
+    if (bookCalYear[bookId] === undefined || bookCalMonth[bookId] === undefined) {
+        const parts = input.value.split('-');
+        if (parts.length === 3) {
+            bookCalYear[bookId] = parseInt(parts[0]);
+            bookCalMonth[bookId] = parseInt(parts[1]) - 1;
+        } else {
+            bookCalYear[bookId] = new Date().getFullYear();
+            bookCalMonth[bookId] = new Date().getMonth();
+        }
+    }
+
+    const monthYearSpan = pickerEl.querySelector('.cal-month-year');
+    const daysGrid = pickerEl.querySelector('.cal-days-grid');
+    if (!monthYearSpan || !daysGrid) return;
+
+    const year = bookCalYear[bookId];
+    const month = bookCalMonth[bookId];
+
+    monthYearSpan.textContent = `${MONTH_NAMES_ES[month]} ${year}`;
+    daysGrid.innerHTML = '';
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const prevTotalDays = new Date(year, month, 0).getDate();
+
+    for (let i = firstDayIndex; i > 0; i--) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell empty';
+        cell.textContent = prevTotalDays - i + 1;
+        daysGrid.appendChild(cell);
+    }
+
+    const currentDateVal = input.value;
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    for (let day = 1; day <= totalDays; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell';
+        cell.textContent = day;
+
+        const padMonth = String(month + 1).padStart(2, '0');
+        const padDay = String(day).padStart(2, '0');
+        const dateVal = `${year}-${padMonth}-${padDay}`;
+
+        if (dateVal === currentDateVal) {
+            cell.classList.add('selected');
+        }
+        if (dateVal === todayStr) {
+            cell.classList.add('today');
+        }
+
+        cell.onclick = (e) => {
+            e.stopPropagation();
+            input.value = dateVal;
+            const event = new Event('change', { bubbles: true });
+            input.dispatchEvent(event);
+
+            syncBookDateDisplay(pickerEl, dateVal);
+
+            const popup = pickerEl.querySelector('.custom-book-calendar-popup');
+            if (popup) popup.classList.remove('show');
+        };
+
+        daysGrid.appendChild(cell);
+    }
+};
+
+let bookDatePickersInitialized = false;
+window.initBookDatePickers = function() {
+    if (bookDatePickersInitialized) return;
+    bookDatePickersInitialized = true;
+
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.custom-book-date-btn');
+        if (btn) {
+            if (btn.disabled) return;
+            e.stopPropagation();
+            const picker = btn.closest('.custom-book-date-picker');
+            if (!picker) return;
+
+            document.querySelectorAll('.custom-book-calendar-popup').forEach(p => {
+                if (p !== picker.querySelector('.custom-book-calendar-popup')) {
+                    p.classList.remove('show');
+                }
+            });
+
+            const popup = picker.querySelector('.custom-book-calendar-popup');
+            if (popup) {
+                const willShow = !popup.classList.contains('show');
+                if (willShow) {
+                    popup.classList.add('show');
+                    window.renderBookCalendar(picker);
+                } else {
+                    popup.classList.remove('show');
+                }
+            }
+            return;
+        }
+
+        const prevBtn = e.target.closest('.cal-prev-btn');
+        if (prevBtn) {
+            const picker = prevBtn.closest('.custom-book-date-picker');
+            if (picker) {
+                e.stopPropagation();
+                const bookId = picker.dataset.bookId;
+                
+                // Inicializar de forma segura si no está definido
+                if (bookCalMonth[bookId] === undefined || bookCalYear[bookId] === undefined) {
+                    const input = picker.querySelector('.doc-date');
+                    const parts = input?.value ? input.value.split('-') : [];
+                    if (parts.length === 3) {
+                        bookCalYear[bookId] = parseInt(parts[0]);
+                        bookCalMonth[bookId] = parseInt(parts[1]) - 1;
+                    } else {
+                        bookCalYear[bookId] = new Date().getFullYear();
+                        bookCalMonth[bookId] = new Date().getMonth();
+                    }
+                }
+
+                bookCalMonth[bookId]--;
+                if (bookCalMonth[bookId] < 0) {
+                    bookCalMonth[bookId] = 11;
+                    bookCalYear[bookId]--;
+                }
+                window.renderBookCalendar(picker);
+            }
+            return;
+        }
+
+        const nextBtn = e.target.closest('.cal-next-btn');
+        if (nextBtn) {
+            const picker = nextBtn.closest('.custom-book-date-picker');
+            if (picker) {
+                e.stopPropagation();
+                const bookId = picker.dataset.bookId;
+
+                // Inicializar de forma segura si no está definido
+                if (bookCalMonth[bookId] === undefined || bookCalYear[bookId] === undefined) {
+                    const input = picker.querySelector('.doc-date');
+                    const parts = input?.value ? input.value.split('-') : [];
+                    if (parts.length === 3) {
+                        bookCalYear[bookId] = parseInt(parts[0]);
+                        bookCalMonth[bookId] = parseInt(parts[1]) - 1;
+                    } else {
+                        bookCalYear[bookId] = new Date().getFullYear();
+                        bookCalMonth[bookId] = new Date().getMonth();
+                    }
+                }
+
+                bookCalMonth[bookId]++;
+                if (bookCalMonth[bookId] > 11) {
+                    bookCalMonth[bookId] = 0;
+                    bookCalYear[bookId]++;
+                }
+                window.renderBookCalendar(picker);
+            }
+            return;
+        }
+
+        document.querySelectorAll('.custom-book-calendar-popup').forEach(p => {
+            if (!p.contains(e.target)) {
+                p.classList.remove('show');
+            }
+        });
+    });
+};
+
+
+
+window.checkPendingExternalEntries = function() {
+    // 1. Verificar si hay partidas de préstamo pendientes
+    const prestamoStr = localStorage.getItem('pending_entry_prestamo');
+    if (prestamoStr) {
+        try {
+            const entries = JSON.parse(prestamoStr);
+            if (Array.isArray(entries)) {
+                entries.forEach(ent => {
+                    window.createNewBook();
+                    const bookId = selectedSheetId;
+                    const sheetEl = document.getElementById(bookId);
+                    if (!sheetEl) return;
+                    if (ent.titulo) sheetEl.querySelector('.sheet-title').innerText = ent.titulo;
+                    if (ent.glosa) sheetEl.querySelector('.glosa-input').value = ent.glosa;
+                    if (ent.fecha && sheetEl.querySelector('.doc-date')) {
+                        sheetEl.querySelector('.doc-date').value = ent.fecha;
+                    }
+                    const c = sheetEl.querySelector('.entries-container');
+                    if (c) c.innerHTML = '';
+                    ent.rows.forEach(r => {
+                        const row = window.addRow(bookId, false);
+                        if (row) {
+                            const inps = row.querySelectorAll('input');
+                            inps[0].value = r.cod;
+                            inps[1].value = r.nom;
+                            inps[2].value = r.debe || '';
+                            inps[3].value = r.haber || '';
+                        }
+                    });
+                    if (typeof calc === 'function') calc(bookId);
+                });
+                localStorage.removeItem('pending_entry_prestamo');
+                if (typeof saveHistory === 'function') saveHistory();
+                const toast = document.getElementById('sync-toast');
+                if (toast) {
+                    toast.querySelector('h4').innerText = "Partidas de Préstamo Importadas";
+                    toast.querySelector('p').innerText = "Desembolso y Cuota N° 1 registradas";
+                    toast.classList.remove('translate-y-32', 'opacity-0');
+                    setTimeout(() => toast.classList.add('translate-y-32', 'opacity-0'), 4000);
+                }
+            }
+        } catch(err) {
+            console.error("Error importando partida de préstamo:", err);
+        }
+    }
+
+    // 2. Verificar si hay partida de nómina pendiente
+    Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('pending_entry_') && k !== 'pending_entry_prestamo') {
+            try {
+                const ent = JSON.parse(localStorage.getItem(k));
+                if (ent && ent.rows) {
+                    window.createNewBook();
+                    const bookId = selectedSheetId;
+                    const sheetEl = document.getElementById(bookId);
+                    if (!sheetEl) return;
+                    if (ent.titulo) sheetEl.querySelector('.sheet-title').innerText = ent.titulo;
+                    if (ent.glosa) sheetEl.querySelector('.glosa-input').value = ent.glosa;
+                    if (ent.fecha && sheetEl.querySelector('.doc-date')) {
+                        sheetEl.querySelector('.doc-date').value = ent.fecha;
+                    }
+                    const c = sheetEl.querySelector('.entries-container');
+                    if (c) c.innerHTML = '';
+                    ent.rows.forEach(r => {
+                        const row = window.addRow(bookId, false);
+                        if (row) {
+                            const inps = row.querySelectorAll('input');
+                            inps[0].value = r.cod;
+                            inps[1].value = r.nom;
+                            inps[2].value = r.debe || '';
+                            inps[3].value = r.haber || '';
+                        }
+                    });
+                    if (typeof calc === 'function') calc(bookId);
+                    localStorage.removeItem(k);
+                    if (typeof saveHistory === 'function') saveHistory();
+                    const toast = document.getElementById('sync-toast');
+                    if (toast) {
+                        toast.querySelector('h4').innerText = "Partida de Nómina Importada";
+                        toast.querySelector('p').innerText = "Sueldos y deducciones registradas en el Diario";
+                        toast.classList.remove('translate-y-32', 'opacity-0');
+                        setTimeout(() => toast.classList.add('translate-y-32', 'opacity-0'), 4000);
+                    }
+                }
+            } catch(e) {
+                console.error("Error importando partida de nómina:", e);
+            }
+        }
+    });
+};
+
+// Carga segura e inmediata de la página según el estado de carga del documento
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.initializePage();
+        setTimeout(window.checkPendingExternalEntries, 600);
+    });
+} else {
+    window.initializePage();
+    setTimeout(window.checkPendingExternalEntries, 600);
+}
+

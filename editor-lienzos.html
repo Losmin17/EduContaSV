@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lienzo Libre & Diseño Profesional | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        },
+                        amber: {
+                            450: '#f59e0b',
+                            550: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* =========================================================
+           RESET Y MINIMALISMO PURO (SIN BORDES TOSCOS / LIMPIO)
+           ========================================================= */
+        *, *::before, *::after {
+            box-sizing: border-box !important;
+        }
+
+        html, body {
+            height: 100vh !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            overflow: hidden !important;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        button, input, select {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* Ocultar barra superior global redundante en este editor inmersivo de pantalla completa */
+        .main-header-wrapper {
+            display: none !important;
+        }
+
+        /* TEMPERED GLASS Y CAPSULAS SIGNATURE LIMPIAS */
+        .tempered-glass {
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(25px) saturate(190%) !important;
+            -webkit-backdrop-filter: blur(25px) saturate(190%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        [data-theme="dark"] .tempered-glass {
+            background: rgba(26, 26, 28, 0.92) !important;
+            border: 1px solid rgba(65, 65, 70, 0.45) !important;
+            box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(245, 158, 11, 0.12) !important;
+        }
+
+        .glass-pill, .glass-dock, .glass-card {
+            border: none !important;
+        }
+
+        /* Pestañas de Lienzos */
+        .sheet-tab {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 36px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            border: none !important;
+            box-sizing: border-box;
+        }
+
+        .sheet-tab.active {
+            background: #f59e0b !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+        }
+
+        [data-theme="dark"] .sheet-tab.active {
+            background: #f59e0b !important;
+            color: #0f172a !important;
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.45) !important;
+        }
+
+        .sheet-tab:not(.active) {
+            background: rgba(241, 245, 249, 0.85) !important;
+            color: #64748b !important;
+        }
+
+        [data-theme="dark"] .sheet-tab:not(.active) {
+            background: rgba(30, 41, 59, 0.65) !important;
+            color: #94a3b8 !important;
+        }
+
+        .sheet-tab:not(.active):hover {
+            background: rgba(245, 158, 11, 0.15) !important;
+            color: #d97706 !important;
+        }
+
+        /* Botón de Plantillas y Acciones Ámbar Limpio */
+        .btn-clean-amber {
+            height: 34px;
+            padding: 0 14px;
+            background: #f59e0b !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 36px !important;
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            letter-spacing: 0.5px !important;
+            text-transform: uppercase !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+
+        .btn-clean-amber:hover {
+            background: #d97706 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45) !important;
+        }
+
+        /* Botón circular suave */
+        .btn-circle-soft {
+            width: 34px !important;
+            height: 34px !important;
+            min-width: 34px !important;
+            min-height: 34px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #64748b !important;
+            background: rgba(241, 245, 249, 0.85) !important;
+            transition: all 0.25s ease !important;
+            cursor: pointer !important;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        [data-theme="dark"] .btn-circle-soft {
+            background: rgba(30, 41, 59, 0.65) !important;
+            color: #94a3b8 !important;
+        }
+
+        .btn-circle-soft:hover {
+            color: #d97706 !important;
+            background: rgba(245, 158, 11, 0.18) !important;
+            transform: scale(1.08) !important;
+        }
+
+        /* Preloader unificado via styles.css */
+
+        /* =========================================================
+           VIEWPORT Y PATRONES DE CUADRÍCULA DEL CANVAS
+           ========================================================= */
+        #canvas-viewport {
+            position: fixed;
+            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #e5e5e5;
+            background-repeat: repeat;
+            touch-action: none;
+            z-index: 0;
+        }
+
+        [data-theme="dark"] #canvas-viewport {
+            background-color: #1e1e1e;
+        }
+
+        /* Patrón de puntos matemáticos de alta resolución (Neutro) */
+        .grid-dots {
+            background-image: radial-gradient(circle, #a3a3a3 1.4px, transparent 1.4px);
+            background-size: 28px 28px;
+        }
+        [data-theme="dark"] .grid-dots {
+            background-image: radial-gradient(circle, #383838 1.4px, transparent 1.4px);
+        }
+
+        /* Patrón de cuadrícula / cuadrática (Neutro como en editores visuales Figma / Miro) */
+        .grid-lines {
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+        [data-theme="dark"] .grid-lines {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+        }
+
+        .grid-blank {
+            background-image: none !important;
+        }
+
+        /* Capa contenedora virtual del canvas - GPU Accelerated */
+        #canvas-world {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+            will-change: transform;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            contain: layout style;
+            pointer-events: none;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        /* Elementos del lienzo */
+        .canvas-element {
+            position: absolute;
+            box-sizing: border-box;
+            pointer-events: auto;
+            touch-action: none;
+            user-select: none;
+            will-change: transform, left, top;
+            transform: translateZ(0);
+            transition: outline-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .canvas-element.selected {
+            outline: 2.5px solid #f59e0b !important;
+            outline-offset: 3px;
+        }
+
+        .canvas-element.multi-selected {
+            outline: 2px dashed #f59e0b !important;
+            outline-offset: 3px;
+        }
+
+        /* =========================================================
+           TIRADORES DE TRANSFORMACIÓN (RESIZE HANDLES)
+           ========================================================= */
+        .transform-box {
+            position: absolute;
+            pointer-events: none;
+            z-index: 9999;
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 11px;
+            height: 11px;
+            background: #ffffff;
+            border: 2.5px solid #f59e0b;
+            border-radius: 3px;
+            pointer-events: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+            transition: transform 0.1s ease;
+        }
+
+        .resize-handle:hover {
+            transform: scale(1.35);
+            background: #f59e0b;
+        }
+
+        .handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+        .handle-n  { top: -6px; left: calc(50% - 5.5px); cursor: ns-resize; }
+        .handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+        .handle-e  { top: calc(50% - 5.5px); right: -6px; cursor: ew-resize; }
+        .handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+        .handle-s  { bottom: -6px; left: calc(50% - 5.5px); cursor: ns-resize; }
+        .handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+        .handle-w  { top: calc(50% - 5.5px); left: -6px; cursor: ew-resize; }
+
+        .rotate-handle {
+            position: absolute;
+            top: -26px;
+            left: calc(50% - 6px);
+            width: 12px;
+            height: 12px;
+            background: #f59e0b;
+            border: 2.5px solid #ffffff;
+            border-radius: 50%;
+            pointer-events: auto;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .rotate-line {
+            position: absolute;
+            top: -18px;
+            left: calc(50% - 1px);
+            width: 2px;
+            height: 14px;
+            background: #f59e0b;
+        }
+
+        /* Rectángulo de selección múltiple (Rubberband) */
+        #selection-marquee {
+            position: absolute;
+            border: 2px dashed #f59e0b;
+            background-color: rgba(245, 158, 11, 0.15);
+            pointer-events: none;
+            z-index: 10000;
+            display: none;
+            border-radius: 6px;
+        }
+
+        /* =========================================================
+           REGLAS GRADUADAS Y MARCADORES DE MEDIDA (PX, CM, MM) - 100% EN ORILLAS
+           ========================================================= */
+        .ruler-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 850;
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ruler-container.hidden {
+            display: none !important;
+        }
+
+        .ruler-corner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 28px;
+            height: 24px;
+            background: rgba(240, 240, 240, 0.96);
+            backdrop-filter: blur(14px);
+            border-right: 1px solid rgba(210, 210, 210, 0.85);
+            border-bottom: 1px solid rgba(210, 210, 210, 0.85);
+            color: #d97706;
+            font-size: 9px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            z-index: 860;
+            pointer-events: auto;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-transform: uppercase;
+        }
+        [data-theme="dark"] .ruler-corner {
+            background: rgba(28, 28, 28, 0.96);
+            border-color: rgba(55, 55, 55, 0.85);
+            color: #fbbf24;
+        }
+        .ruler-corner:hover {
+            background: #f59e0b;
+            color: #ffffff;
+        }
+
+        .ruler-canvas-top {
+            position: fixed;
+            top: 0;
+            left: 28px;
+            right: 0;
+            height: 24px;
+            width: calc(100% - 28px);
+            z-index: 850;
+            pointer-events: none;
+            background: rgba(240, 240, 240, 0.94);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(210, 210, 210, 0.85);
+            contain: strict;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        [data-theme="dark"] .ruler-canvas-top {
+            background: rgba(28, 28, 28, 0.95);
+            border-color: rgba(55, 55, 55, 0.85);
+        }
+
+        .ruler-canvas-left {
+            position: fixed;
+            top: 24px;
+            left: 0;
+            bottom: 0;
+            width: 28px;
+            height: calc(100vh - 24px);
+            z-index: 850;
+            pointer-events: none;
+            background: rgba(240, 240, 240, 0.94);
+            backdrop-filter: blur(14px);
+            border-right: 1px solid rgba(210, 210, 210, 0.85);
+            contain: strict;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        [data-theme="dark"] .ruler-canvas-left {
+            background: rgba(28, 28, 28, 0.95);
+            border-color: rgba(55, 55, 55, 0.85);
+        }
+
+        /* =========================================================
+           HOJAS FÍSICAS TRADICIONALES (ARTBOARDS)
+           ========================================================= */
+        .physical-sheet-card {
+            background-color: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0 0 18px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(203, 213, 225, 0.8);
+            position: absolute !important;
+            overflow: visible;
+            box-sizing: border-box;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            contain: layout style;
+        }
+        [data-theme="dark"] .physical-sheet-card {
+            background-color: #0d1424;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(51, 65, 85, 0.6);
+        }
+
+        .sheet-header-badge {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            max-width: calc(100% - 10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid rgba(245, 158, 11, 0.5);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #b45309;
+            letter-spacing: 0.01em;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            z-index: 25;
+            pointer-events: auto;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        [data-theme="dark"] .sheet-header-badge {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: rgba(245, 158, 11, 0.6);
+            color: #fbbf24;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        .sheet-header-badge:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.25);
+        }
+
+        .sheet-title-text {
+            display: inline-block;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .sheet-dim-tag {
+            font-size: 8px;
+            opacity: 0.75;
+            white-space: nowrap;
+        }
+
+        .sheet-badge-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-left: 2px;
+            padding-left: 5px;
+            border-left: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .sheet-badge-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            background: rgba(241, 245, 249, 0.9);
+            color: #475569;
+            font-size: 8.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .sheet-badge-btn {
+            background: rgba(30, 41, 59, 0.9);
+            color: #94a3b8;
+        }
+        .sheet-badge-btn:hover {
+            background: #f59e0b;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+        .sheet-badge-btn.danger:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .sheet-margin-guide {
+            position: absolute;
+            inset: 28px;
+            border: 1px dashed rgba(148, 163, 184, 0.45);
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        [data-theme="dark"] .sheet-margin-guide {
+            border-color: rgba(71, 85, 105, 0.55);
+        }
+
+        /* =========================================================
+           CUENTAS T CONTABLES Y BLOQUES DE AUDITORÍA
+           ========================================================= */
+        .t-account-card {
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            border-radius: 14px;
+            box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.09);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        [data-theme="dark"] .t-account-card {
+            background: #0f172a;
+            border-color: #f59e0b;
+        }
+        .t-account-header {
+            background: #f8fafc;
+            border-bottom: 2px solid #0f172a;
+            padding: 6px 12px;
+            font-size: 11.5px;
+            font-weight: 900;
+            text-align: center;
+            color: #0f172a;
+        }
+        [data-theme="dark"] .t-account-header {
+            background: #1e293b;
+            border-bottom-color: #f59e0b;
+            color: #f8fafc;
+        }
+        .t-account-body {
+            display: flex;
+            flex: 1;
+            min-height: 80px;
+        }
+        .t-account-debe {
+            flex: 1;
+            border-right: 2px solid #0f172a;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        [data-theme="dark"] .t-account-debe {
+            border-right-color: #f59e0b;
+        }
+        .t-account-haber {
+            flex: 1;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .t-account-col-title {
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        [data-theme="dark"] .t-account-col-title {
+            color: #94a3b8;
+        }
+        .t-account-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-variant-numeric: tabular-nums;
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: #1e293b;
+        }
+        [data-theme="dark"] .t-account-entry {
+            color: #f1f5f9;
+        }
+        .t-account-footer {
+            border-top: 2px solid #0f172a;
+            background: #f8fafc;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+        [data-theme="dark"] .t-account-footer {
+            border-top-color: #f59e0b;
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        /* Indicador de edición de texto en vivo */
+        .text-editable-active {
+            outline: 2px solid #f59e0b !important;
+            outline-offset: 2px;
+            background: rgba(245, 158, 11, 0.08) !important;
+            border-radius: 4px;
+            cursor: text !important;
+            user-select: text !important;
+        }
+
+        /* =========================================================
+           NOTAS ADHESIVAS (POST-IT)
+           ========================================================= */
+        .sticky-note-card {
+            box-shadow: 0 12px 28px -6px rgba(0,0,0,0.12), 0 8px 10px -6px rgba(0,0,0,0.06);
+            border-radius: 16px;
+            position: relative;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .sticky-note-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 20px 20px;
+            border-color: transparent transparent rgba(0, 0, 0, 0.14) transparent;
+            pointer-events: none;
+        }
+
+        .sticky-note-pin {
+            position: absolute;
+            top: 7px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #f87171, #dc2626);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+        }
+
+        /* =========================================================
+           BARRA LATERAL IZQUIERDA (DOCK FLOTANTE)
+           ========================================================= */
+        .glass-dock {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border: none !important;
+            box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+            border-radius: 26px;
+        }
+
+        [data-theme="dark"] .glass-dock {
+            background: rgba(26, 26, 28, 0.92);
+            border: 1px solid rgba(65, 65, 70, 0.45) !important;
+            box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(245, 158, 11, 0.12);
+        }
+
+        .dock-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            color: #64748b;
+            font-size: 15px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            background: transparent;
+            border: none !important;
+            cursor: pointer;
+        }
+
+        .dock-btn:hover {
+            color: #d97706;
+            background-color: rgba(245, 158, 11, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .dock-btn.active {
+            color: #ffffff;
+            background-color: #f59e0b;
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
+
+        [data-theme="dark"] .dock-btn {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .dock-btn:hover {
+            color: #fbbf24;
+            background-color: rgba(245, 158, 11, 0.2);
+        }
+
+        [data-theme="dark"] .dock-btn.active {
+            color: #0f172a;
+            background-color: #fbbf24;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.55);
+        }
+
+        /* Tooltips */
+        .dock-tooltip {
+            position: absolute;
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%) translateX(-6px);
+            opacity: 0;
+            pointer-events: none;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+            transition: all 0.15s ease;
+            z-index: 10000;
+        }
+
+        [data-theme="dark"] .dock-tooltip {
+            background: #1e293b;
+            color: #fde68a;
+            border: none !important;
+        }
+
+        .dock-btn:hover .dock-tooltip {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        /* Popovers flotantes de sub-herramientas */
+        .subtool-popover {
+            position: absolute;
+            left: calc(100% + 14px);
+            top: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            box-shadow: 0 20px 45px -8px rgba(0, 0, 0, 0.15);
+            border-radius: 22px;
+            padding: 14px;
+            display: none;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 210px;
+        }
+
+        .subtool-popover button {
+            background: rgba(241, 245, 249, 0.85);
+            color: #1e293b;
+            border: none;
+            border-radius: 12px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .subtool-popover button:hover {
+            background: #f59e0b !important;
+            color: #ffffff !important;
+        }
+
+        .subtool-popover button:hover i {
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .subtool-popover {
+            background: rgba(15, 23, 42, 0.96) !important;
+            border: 1px solid rgba(51, 65, 85, 0.75) !important;
+            box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.7), 0 0 22px -2px rgba(245, 158, 11, 0.18) !important;
+        }
+
+        [data-theme="dark"] .subtool-popover button {
+            background: rgba(30, 41, 59, 0.75) !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-theme="dark"] .subtool-popover button:hover {
+            background: #f59e0b !important;
+            color: #0f172a !important;
+        }
+
+        [data-theme="dark"] .subtool-popover button:hover i {
+            color: #0f172a !important;
+        }
+
+        [data-theme="dark"] .subtool-popover span {
+            color: #94a3b8 !important;
+        }
+
+        /* Minimapa */
+        #minimap-card {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 190px;
+            height: 125px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.15);
+            z-index: 900;
+            border: none !important;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+        }
+
+        [data-theme="dark"] #minimap-card {
+            background: rgba(13, 20, 36, 0.92);
+            border: none !important;
+        }
+
+        #minimap-viewport-indicator {
+            position: absolute;
+            border: 2px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.18);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        /* Inspector Lateral Retráctil */
+        #properties-inspector {
+            position: fixed;
+            top: 88px;
+            right: 18px;
+            width: 295px;
+            max-height: calc(100vh - 120px);
+            border-radius: 28px;
+            z-index: 950;
+            overflow-y: auto;
+            scrollbar-width: none;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        #properties-inspector::-webkit-scrollbar {
+            display: none;
+        }
+
+        #properties-inspector.collapsed {
+            transform: translateX(340px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           PANEL CONTROLADOR DE CAPAS (LAYERS CONTROLLER)
+           ========================================================= */
+        #layers-panel {
+            position: fixed;
+            top: 88px;
+            left: 100px;
+            width: 280px;
+            max-height: calc(100vh - 120px);
+            border-radius: 28px;
+            z-index: 950;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        #layers-panel.collapsed {
+            transform: translateX(-340px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 14px;
+            background: rgba(241, 245, 249, 0.6);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] .layer-item {
+            background: rgba(30, 41, 59, 0.5);
+            border-color: rgba(51, 65, 85, 0.5);
+            color: #f1f5f9;
+        }
+
+        .layer-item:hover {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .layer-item.active {
+            background: rgba(245, 158, 11, 0.2) !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.25);
+        }
+
+        .layer-item.locked {
+            opacity: 0.7;
+        }
+
+        .layer-item.hidden-layer {
+            opacity: 0.45;
+            background: rgba(148, 163, 184, 0.15) !important;
+        }
+
+        /* =========================================================
+           MODO ZEN / INMERSIVO Y BOTÓN MAGNÉTICO INTERACTIVO
+           ========================================================= */
+        body.zen-mode-active .main-header-wrapper,
+        body.zen-mode-active #editor-sticky-controls,
+        body.zen-mode-active .ruler-container,
+        body.zen-mode-active aside,
+        body.zen-mode-active footer,
+        body.zen-mode-active #minimap-card,
+        body.zen-mode-active #layers-panel {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: translateY(-20px) scale(0.96) !important;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        body.zen-mode-active footer {
+            transform: translate(-50%, 35px) scale(0.96) !important;
+        }
+
+        .magnetic-restorer-pill {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.2), 0 0 25px rgba(245, 158, 11, 0.35);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: auto;
+            transition: box-shadow 0.25s ease, background 0.25s ease;
+            will-change: transform;
+        }
+
+        [data-theme="dark"] .magnetic-restorer-pill {
+            background: rgba(15, 23, 42, 0.88);
+            border-color: rgba(51, 65, 85, 0.7);
+            color: #f8fafc;
+            box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.6), 0 0 30px rgba(245, 158, 11, 0.4);
+        }
+
+        .magnetic-restorer-pill:hover {
+            box-shadow: 0 20px 48px -4px rgba(245, 158, 11, 0.5), 0 0 35px rgba(245, 158, 11, 0.6);
+        }
+
+        .magnetic-restorer-pill.hidden {
+            display: none !important;
+        }
+
+        /* =========================================================
+           TIPOS DE VISTA: SELECTOR, HOJA PAGINADA, SLIDES Y TABLERO
+           ========================================================= */
+        .view-mode-pill {
+            background: rgba(241, 245, 249, 0.85);
+            border-radius: 36px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        [data-theme="dark"] .view-mode-pill {
+            background: rgba(30, 41, 59, 0.65);
+        }
+
+        .view-mode-btn {
+            height: 34px;
+            padding: 0 13px;
+            border-radius: 36px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #64748b;
+            user-select: none;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .view-mode-btn {
+            color: #94a3b8;
+        }
+
+        .view-mode-btn:hover {
+            color: #d97706;
+            background: rgba(245, 158, 11, 0.12);
+        }
+
+        .view-mode-btn.active {
+            background: #f59e0b !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+        }
+        [data-theme="dark"] .view-mode-btn.active {
+            background: #f59e0b !important;
+            color: #0f172a !important;
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.45) !important;
+        }
+
+        /* ── MODO HOJA (Páginas Paginadas Físicas) ── */
+        .page-sheet-item {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 6px;
+            box-shadow: 0 0 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            pointer-events: none;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            contain: layout style;
+        }
+        [data-theme="dark"] .page-sheet-item {
+            background: #0f172a;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .page-sheet-item.active-page {
+            box-shadow: 0 0 22px rgba(245, 158, 11, 0.18), 0 0 0 2px #f59e0b !important;
+        }
+
+        .page-margin-guide {
+            position: absolute;
+            border: 1px dashed rgba(245, 158, 11, 0.35);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .page-sheet-header, .page-sheet-footer {
+            position: absolute;
+            left: 30px;
+            right: 30px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+        .page-sheet-header { top: 18px; border-bottom: 1px solid rgba(226, 232, 240, 0.6); padding-bottom: 6px; }
+        .page-sheet-footer { bottom: 18px; border-top: 1px solid rgba(226, 232, 240, 0.6); padding-top: 6px; }
+        [data-theme="dark"] .page-sheet-header, [data-theme="dark"] .page-sheet-footer {
+            border-color: rgba(51, 65, 85, 0.6);
+            color: #64748b;
+        }
+
+        /* ── MODO PRESENTACIÓN (Slides 16:9) ── */
+        .slide-frame-item {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 1.5px rgba(245, 158, 11, 0.3);
+            pointer-events: none;
+            overflow: hidden;
+        }
+        [data-theme="dark"] .slide-frame-item {
+            background: #090e1a;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.8), 0 0 30px -5px rgba(245, 158, 11, 0.2), 0 0 0 1.5px rgba(245, 158, 11, 0.4);
+        }
+
+        .slide-frame-item.current-slide {
+            box-shadow: 0 30px 80px -10px rgba(245, 158, 11, 0.35), 0 0 0 3px #f59e0b !important;
+        }
+
+        /* ── MODO TABLERO (Marcos Seccionales) ── */
+        .board-frame-item {
+            position: absolute;
+            border: 2px dashed rgba(245, 158, 11, 0.4);
+            border-radius: 20px;
+            background: rgba(245, 158, 11, 0.02);
+            pointer-events: none;
+        }
+        .board-frame-badge {
+            position: absolute;
+            top: -14px;
+            left: 20px;
+            background: #f59e0b;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+
+        /* ── BARRA FLOTANTE DEL MODO PRESENTADOR ── */
+        #slide-presenter-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 950;
+            display: none;
+        }
+
+        /* =========================================================
+           COLABORACIÓN EN TIEMPO REAL: CURSORES & PRESENCIA
+           ========================================================= */
+        #collab-presence-container {
+            display: flex;
+            align-items: center;
+            gap: -6px;
+        }
+
+        .collab-avatar-bubble {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: #ffffff;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin-left: -8px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        .collab-avatar-bubble:first-child { margin-left: 0; }
+        .collab-avatar-bubble:hover {
+            transform: translateY(-4px) scale(1.12);
+            z-index: 20;
+        }
+
+        [data-theme="dark"] .collab-avatar-bubble {
+            border-color: #0f172a;
+        }
+
+        .collab-live-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+            animation: pulseLive 1.8s infinite;
+        }
+
+        @keyframes pulseLive {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Cursores Remotos */
+        .collab-cursor {
+            position: absolute;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.07s linear;
+            will-change: transform;
+        }
+
+        .collab-cursor-badge {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+            letter-spacing: 0.3px;
+        }
+
+        .collab-selection-outline {
+            position: absolute;
+            pointer-events: none;
+            border: 2px dashed;
+            border-radius: 10px;
+            z-index: 90;
+            transition: all 0.15s ease;
+        }
+
+        .collab-selection-tag {
+            position: absolute;
+            top: -22px;
+            left: 0;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Impresión limpia */
+        @media print {
+            .no-print { display: none !important; }
+            body, html { overflow: visible !important; height: auto !important; }
+            #canvas-viewport { position: static !important; width: 100% !important; height: 100% !important; background: white !important; top: 0 !important; }
+            #canvas-world { transform: none !important; position: static !important; }
+            .page-sheet-item { box-shadow: none !important; border: none !important; page-break-after: always; position: static !important; width: 100% !important; height: 100% !important; }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="h-screen w-screen text-slate-800 dark:text-slate-100 bg-[#e5e5e5] dark:bg-[#1e1e1e] antialiased font-sans overflow-hidden">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-amber" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- 2. CABECERA MAESTRA FLOTANTE REORGANIZADA (SIN COLISIÓN CON REGLAS NI ENTRE BOTONES) -->
+    <header id="editor-sticky-controls" class="fixed top-[32px] left-[38px] right-[14px] z-[900] pointer-events-none no-print">
+        <div class="flex items-center justify-between w-full pointer-events-auto gap-2.5">
+            
+            <!-- CLUSTER IZQUIERDO: Salir + Info del Documento + Guardado -->
+            <div class="glass-pill project-card tempered-glass flex items-center rounded-[36px] transition-all px-2.5 shrink-0 shadow-lg gap-2" style="height: 44px;">
+                <!-- Botón Salir / Volver a Documentos -->
+                <button onclick="closeProject()" class="btn-circle-soft !w-7 !h-7 text-slate-500 hover:!text-amber-500 hover:!bg-amber-500/15" title="Volver a Documentos">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                </button>
+
+                <!-- Icono de Lienzo -->
+                <div class="w-7 h-7 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <i class="fas fa-pencil-ruler text-xs"></i>
+                </div>
+
+                <!-- Título Editable del Documento -->
+                <div class="min-w-0 flex flex-col justify-center overflow-hidden max-w-[120px] sm:max-w-[160px] md:max-w-[190px]">
+                    <span class="text-[8px] font-black text-amber-500 uppercase tracking-widest leading-none mb-0.5">Lienzo Libre</span>
+                    <input type="text" id="doc-title-input" onchange="renameProjectName(this.value)" value="Mi Lienzo Libre" class="font-black text-slate-800 dark:text-white leading-tight truncate bg-transparent outline-none hover:text-amber-500 focus:text-amber-500 transition-colors p-0 m-0 w-full" style="font-size: 12px;">
+                </div>
+
+                <!-- Separador -->
+                <div class="h-4 w-px bg-slate-200/60 dark:bg-slate-700/60 shrink-0"></div>
+
+                <!-- Indicadores Compactos de Sincronización -->
+                <div id="main-sync-pill" class="flex items-center gap-1 shrink-0">
+                    <div id="save-indicator" class="flex items-center justify-center gap-1 text-emerald-600 dark:text-emerald-400 font-black bg-emerald-500/10 px-2 py-1 rounded-full text-[8px] leading-none shrink-0" title="Guardado localmente">
+                        <i class="fas fa-check-circle text-[8.5px]"></i> <span id="save-indicator-text">LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator" class="hidden xl:flex items-center justify-center gap-1 text-slate-400 dark:text-slate-400 font-black bg-slate-100/80 dark:bg-slate-800/80 px-2 py-1 rounded-full text-[8px] leading-none transition-all shrink-0" title="Sincronización en la nube">
+                        <i class="fas fa-cloud text-[8.5px]"></i> <span id="cloud-indicator-text">EN VIVO</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER CENTRAL: Tipos de Vista + Hojas/Artboards + Deshacer/Rehacer + Plantillas -->
+            <div class="glass-pill tempered-glass flex items-center gap-1 rounded-[36px] px-2 shrink-0 shadow-lg" style="height: 44px;">
+                <!-- Selector Segmentado de Modos de Vista -->
+                <div class="view-mode-pill !p-0.5">
+                    <button onclick="setViewMode('lienzo')" id="viewmode-btn-lienzo" class="view-mode-btn active !h-[30px] !px-2.5 !text-[11px]" title="Lienzo Infinito Libre (Pizarra)">
+                        <i class="fas fa-infinity text-xs"></i>
+                        <span class="hidden lg:inline">Lienzo</span>
+                    </button>
+                    <button onclick="setViewMode('hoja')" id="viewmode-btn-hoja" class="view-mode-btn !h-[30px] !px-2.5 !text-[11px]" title="Hoja Paginada (Carta / A4 / Oficio)">
+                        <i class="fas fa-file-lines text-xs"></i>
+                        <span class="hidden lg:inline">Hoja</span>
+                    </button>
+                    <button onclick="setViewMode('presentacion')" id="viewmode-btn-presentacion" class="view-mode-btn !h-[30px] !px-2.5 !text-[11px]" title="Diapositivas de Presentación (16:9)">
+                        <i class="fas fa-display text-xs"></i>
+                        <span class="hidden lg:inline">Presentación</span>
+                    </button>
+                    <button onclick="setViewMode('tablero')" id="viewmode-btn-tablero" class="view-mode-btn !h-[30px] !px-2.5 !text-[11px]" title="Tablero / Marcos Seccionales">
+                        <i class="fas fa-table-cells-large text-xs"></i>
+                        <span class="hidden lg:inline">Tablero</span>
+                    </button>
+                </div>
+
+                <!-- Configuración rápida de Vista (Formato de Hoja, Orientación) -->
+                <div class="relative">
+                    <button onclick="toggleViewSettingsPopover()" id="btn-view-config" class="btn-circle-soft !w-7 !h-7" title="Configurar Formato de Vista">
+                        <i class="fas fa-gear text-xs"></i>
+                    </button>
+                    
+                    <!-- Popover de Configuración de Vista -->
+                    <div id="view-config-popover" class="subtool-popover absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 glass-card tempered-glass p-4 rounded-2xl shadow-2xl z-[1050] hidden">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800/60 mb-3">
+                            <span class="text-[9px] font-black text-amber-500 uppercase tracking-widest">Ajustes de Vista</span>
+                            <button onclick="toggleViewSettingsPopover()" class="text-slate-400 hover:text-slate-600 text-xs"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 block mb-1">Tamaño de Hoja</label>
+                                <div class="grid grid-cols-3 gap-1">
+                                    <button onclick="setPageSize('letter')" id="btn-pagesize-letter" class="py-1.5 px-2 bg-amber-500 text-white rounded-xl text-[10px] font-bold text-center">Carta</button>
+                                    <button onclick="setPageSize('a4')" id="btn-pagesize-a4" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-bold text-center">A4</button>
+                                    <button onclick="setPageSize('legal')" id="btn-pagesize-legal" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-bold text-center">Oficio</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 block mb-1">Orientación</label>
+                                <div class="grid grid-cols-2 gap-1">
+                                    <button onclick="setPageOrientation('portrait')" id="btn-pageorient-portrait" class="py-1.5 px-2 bg-amber-500 text-white rounded-xl text-[10px] font-bold text-center flex items-center justify-center gap-1"><i class="fas fa-file"></i> Vertical</button>
+                                    <button onclick="setPageOrientation('landscape')" id="btn-pageorient-landscape" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-bold text-center flex items-center justify-center gap-1"><i class="fas fa-file -rotate-90"></i> Horizontal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Separador -->
+                <div class="h-4 w-px bg-slate-200/60 dark:bg-slate-700/60 mx-0.5"></div>
+
+                <!-- Botón Gestor / Insertar Hojas Físicas -->
+                <button onclick="toggleSubtool('sheets-popover')" id="topbar-btn-sheets" class="btn-clean-amber !h-[30px] !py-0 !px-2.5 flex items-center gap-1.5 shrink-0 text-xs rounded-full shadow-sm" title="Gestor de Hojas y Artboards">
+                    <i class="fas fa-file-invoice text-xs"></i>
+                    <span id="sheet-count-badge" class="font-black text-[11px]">Hojas (0)</span>
+                    <i class="fas fa-plus text-[8.5px] opacity-80 ml-0.5"></i>
+                </button>
+
+                <!-- Selector de Páginas de Lienzo -->
+                <div id="sheets-tabs-container" class="flex items-center gap-1 max-w-[130px] md:max-w-[170px] overflow-x-auto scrollbar-none">
+                    <!-- Render dinámico desde JS -->
+                </div>
+                <button onclick="openNewSheetModal()" class="btn-circle-soft !w-7 !h-7" title="Nueva Página de Lienzo">
+                    <i class="fas fa-plus text-xs"></i>
+                </button>
+
+                <!-- Separador -->
+                <div class="h-4 w-px bg-slate-200/60 dark:bg-slate-700/60 mx-0.5"></div>
+
+                <!-- Botones Deshacer / Rehacer -->
+                <button onclick="undo()" id="btn-undo" class="btn-circle-soft !w-7 !h-7" title="Deshacer (Ctrl+Z)">
+                    <i class="fas fa-undo text-xs"></i>
+                </button>
+                <button onclick="redo()" id="btn-redo" class="btn-circle-soft !w-7 !h-7" title="Rehacer (Ctrl+Y)">
+                    <i class="fas fa-redo text-xs"></i>
+                </button>
+
+                <!-- Separador -->
+                <div class="h-4 w-px bg-slate-200/60 dark:bg-slate-700/60 mx-0.5"></div>
+
+                <!-- Botón de Plantillas -->
+                <button onclick="openTemplatesModal()" class="btn-circle-soft !w-7 !h-7 !text-amber-500 hover:!bg-amber-500 hover:!text-white" title="Plantillas y Modelos Contables">
+                    <i class="fas fa-shapes text-xs"></i>
+                </button>
+            </div>
+
+            <!-- CLUSTER DERECHO: Colaboradores + Exportación + Compartir -->
+            <div id="header-right-side" class="glass-pill tempered-glass flex items-center gap-1.5 rounded-[36px] px-2 shrink-0 shadow-lg" style="height: 44px;">
+                <!-- Píldora de Presencia Colaborativa Multijugador -->
+                <div id="collab-presence-pill" class="flex items-center gap-1.5 px-2 shrink-0 cursor-pointer hover:bg-slate-100/60 dark:hover:bg-slate-800/60 rounded-full py-1 transition-colors" onclick="openShareModal()" title="Colaboradores en Vivo en este documento">
+                    <div class="collab-live-pulse" id="collab-live-indicator"></div>
+                    <span id="collab-status-text" class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hidden 2xl:inline">En vivo</span>
+                    <!-- Stack de Avatares -->
+                    <div id="collab-presence-container" class="flex items-center">
+                        <div class="collab-avatar-bubble bg-amber-500 !w-6 !h-6 text-[8.5px]" title="Tú (Propietario)">YO</div>
+                    </div>
+                </div>
+
+                <!-- Separador -->
+                <div class="h-4 w-px bg-slate-200/60 dark:bg-slate-700/60 mx-0.5"></div>
+
+                <!-- Botón de Exportar con Desplegable -->
+                <div class="relative">
+                    <button onclick="toggleExportMenu()" class="btn-clean-amber !h-[30px] !py-0 !px-3 flex items-center gap-1.5 shrink-0 text-xs">
+                        <i class="fas fa-arrow-down-to-bracket text-xs"></i>
+                        <span class="hidden sm:inline">Exportar</span>
+                        <i class="fas fa-chevron-down text-[8px] opacity-70"></i>
+                    </button>
+                    <div id="export-dropdown" class="absolute right-0 top-full mt-2 w-64 glass-card tempered-glass p-2.5 shadow-2xl rounded-3xl flex flex-col gap-1 hidden z-[1100]">
+                        <button onclick="exportAllSheetsToPDF()" class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-2xl flex items-center gap-3 transition-all">
+                            <i class="fas fa-file-pdf text-rose-500 text-sm"></i> Exportar Hojas a PDF Multipágina
+                        </button>
+                        <button onclick="exportCanvasAsImage('png')" class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-2xl flex items-center gap-3 transition-all">
+                            <i class="far fa-file-image text-amber-500 text-sm"></i> Imagen PNG (Alta Res.)
+                        </button>
+                        <button onclick="exportCanvasAsSVG()" class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-2xl flex items-center gap-3 transition-all">
+                            <i class="fas fa-bezier-curve text-sky-500 text-sm"></i> Vectorial SVG
+                        </button>
+                        <button onclick="window.print()" class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-2xl flex items-center gap-3 transition-all">
+                            <i class="fas fa-print text-indigo-500 text-sm"></i> Imprimir / PDF del Navegador
+                        </button>
+                        <div class="h-px bg-slate-200/60 dark:bg-slate-800/60 my-1"></div>
+                        <button onclick="exportarBackupLienzos()" class="w-full text-left px-3.5 py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-2xl flex items-center gap-3 transition-all">
+                            <i class="fas fa-shield-alt text-sm"></i> Archivo Backup (.edc)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botón de Compartir con Badge Colaborativo -->
+                <button onclick="openShareModal()" class="btn-circle-soft !w-7 !h-7 relative text-sky-500 hover:!bg-sky-500 hover:!text-white" title="Invitar y Compartir en Tiempo Real">
+                    <i class="fas fa-user-plus text-xs"></i>
+                    <span id="collab-badge-count" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-sky-500 text-white rounded-full text-[7.5px] font-black flex items-center justify-center shadow-md hidden">1</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         REGLAS GRADUADAS CON MARCADORES DE MEDIDA (PX, CM, MM)
+         ========================================================= -->
+    <div id="ruler-container" class="ruler-container">
+        <!-- Esquina de cambio de unidad (px, cm, mm) -->
+        <button id="ruler-corner-unit" class="ruler-corner" onclick="cycleRulerUnit()" title="Cambiar Unidad de Medida (px, cm, mm)">
+            px
+        </button>
+        <!-- Regla Horizontal Superior -->
+        <canvas id="canvas-ruler-top" class="ruler-canvas-top"></canvas>
+        <!-- Regla Vertical Izquierda -->
+        <canvas id="canvas-ruler-left" class="ruler-canvas-left"></canvas>
+    </div>
+
+    <!-- =========================================================
+         BARRA DE HERRAMIENTAS FLOTANTE LATERAL IZQUIERDA
+         ========================================================= -->
+    <aside class="fixed left-[38px] top-[90px] z-[910] no-print">
+        <div class="glass-dock p-2 flex flex-col gap-1 shadow-2xl relative">
+            
+            <!-- 1. Puntero / Selección (V) -->
+            <div class="relative">
+                <button onclick="setActiveTool('select')" id="tool-select" class="dock-btn active" title="Puntero de Selección">
+                    <i class="fas fa-arrow-pointer"></i>
+                    <span class="dock-tooltip">Seleccionar (V)</span>
+                </button>
+            </div>
+
+            <!-- 2. Mano / Mover Lienzo (H) -->
+            <div class="relative">
+                <button onclick="setActiveTool('hand')" id="tool-hand" class="dock-btn" title="Mano para Mover Lienzo">
+                    <i class="fas fa-hand"></i>
+                    <span class="dock-tooltip">Mover Lienzo (H / Espacio)</span>
+                </button>
+            </div>
+
+            <div class="h-px bg-slate-200/60 dark:bg-slate-800/60 my-0.5"></div>
+
+            <!-- 3. Insertar Hoja Física Tradicional / Artboard (F) -->
+            <div class="relative">
+                <button onclick="toggleSubtool('sheets-popover')" id="tool-sheet" class="dock-btn" title="Insertar Hoja Física Tradicional (Carta, A4, Oficio...)">
+                    <i class="fas fa-file-invoice"></i>
+                    <span class="dock-tooltip">Insertar Hoja Física (F)</span>
+                </button>
+
+                <!-- Popover de Hojas Físicas Tradicionales -->
+                <div id="sheets-popover" class="subtool-popover min-w-[280px] max-h-[80vh] overflow-y-auto">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 dark:border-slate-800/60 mb-2">
+                        <span class="text-[9px] font-black text-amber-500 uppercase tracking-widest">Hojas & Artboards</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="setSheetPresetOrientation('portrait')" id="btn-preset-portrait" class="px-2 py-0.5 bg-amber-500 text-white rounded-md text-[9px] font-bold" title="Vertical">Vert.</button>
+                            <button onclick="setSheetPresetOrientation('landscape')" id="btn-preset-landscape" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-md text-[9px] font-bold" title="Horizontal">Horiz.</button>
+                        </div>
+                    </div>
+
+                    <!-- Botón Rápido de Auto-Organizar -->
+                    <button onclick="autoArrangeSheets()" class="w-full mb-2 p-2 bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all shadow-sm">
+                        <i class="fas fa-wand-magic-sparkles text-xs"></i> Auto-Organizar Hojas en Fila
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-1.5 text-xs mb-2">
+                        <button onclick="addPhysicalSheet('letter')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="far fa-file-lines text-amber-500 text-xs"></i> Carta</span>
+                            <span class="text-[9px] opacity-75">21.6 × 27.9 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('a4')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="far fa-file text-sky-500 text-xs"></i> A4</span>
+                            <span class="text-[9px] opacity-75">21.0 × 29.7 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('legal')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="far fa-file-alt text-indigo-500 text-xs"></i> Oficio</span>
+                            <span class="text-[9px] opacity-75">21.6 × 35.6 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('tabloid')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="fas fa-file-contract text-emerald-500 text-xs"></i> Tabloide</span>
+                            <span class="text-[9px] opacity-75">27.9 × 43.2 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('a3')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="far fa-file-powerpoint text-rose-500 text-xs"></i> A3</span>
+                            <span class="text-[9px] opacity-75">29.7 × 42.0 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('a5')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="far fa-note-sticky text-amber-500 text-xs"></i> A5</span>
+                            <span class="text-[9px] opacity-75">14.8 × 21.0 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('voucher')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="fas fa-money-check text-teal-500 text-xs"></i> Voucher</span>
+                            <span class="text-[9px] opacity-75">20.0 × 8.5 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('business_card')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="far fa-id-card text-purple-500 text-xs"></i> Tarjeta</span>
+                            <span class="text-[9px] opacity-75">8.5 × 5.5 cm</span>
+                        </button>
+                        <button onclick="addPhysicalSheet('slide_16_9')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="fas fa-display text-sky-500 text-xs"></i> Slide 16:9</span>
+                            <span class="text-[9px] opacity-75">Panorámica HD</span>
+                        </button>
+                        <button onclick="openCustomSheetModal()" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl flex flex-col items-start transition-colors">
+                            <span class="font-bold text-[11px] flex items-center gap-1.5"><i class="fas fa-ruler-combined text-amber-500 text-xs"></i> A Medida</span>
+                            <span class="text-[9px] opacity-75">Personalizado...</span>
+                        </button>
+                    </div>
+
+                    <!-- Lista de Hojas Actuales en el Lienzo -->
+                    <div class="pt-2 border-t border-slate-200/60 dark:border-slate-800/60">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Hojas en este Lienzo</span>
+                        <div id="sheet-navigator-list" class="space-y-1 max-h-40 overflow-y-auto pr-1">
+                            <!-- Render dinámico desde JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Formas Geométricas, Diagramas & Contabilidad (R) -->
+            <div class="relative">
+                <button onclick="toggleSubtool('shapes-popover')" id="tool-shape" class="dock-btn" title="Formas y Figuras">
+                    <i class="fas fa-shapes"></i>
+                    <span class="dock-tooltip">Formas Geométricas (R)</span>
+                </button>
+
+                <!-- Popover de Formas -->
+                <div id="shapes-popover" class="subtool-popover min-w-[250px]">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1 block">Formas Básicas</span>
+                    <div class="grid grid-cols-5 gap-1.5 mb-2">
+                        <button onclick="addShapeToCanvas('rect')" class="dock-btn !w-9 !h-9 text-xs" title="Rectángulo"><i class="far fa-square"></i></button>
+                        <button onclick="addShapeToCanvas('rounded-rect')" class="dock-btn !w-9 !h-9 text-xs" title="Rectángulo Redondeado"><i class="fas fa-vector-square"></i></button>
+                        <button onclick="addShapeToCanvas('circle')" class="dock-btn !w-9 !h-9 text-xs" title="Círculo"><i class="far fa-circle"></i></button>
+                        <button onclick="addShapeToCanvas('diamond')" class="dock-btn !w-9 !h-9 text-xs" title="Rombo Decisión"><i class="fas fa-diamond"></i></button>
+                        <button onclick="addShapeToCanvas('capsule')" class="dock-btn !w-9 !h-9 text-xs" title="Píldora / Cápsula"><i class="fas fa-capsules"></i></button>
+                    </div>
+                    
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1 block">Diagramación & Proceso</span>
+                    <div class="grid grid-cols-5 gap-1.5 mb-2">
+                        <button onclick="addShapeToCanvas('triangle')" class="dock-btn !w-9 !h-9 text-xs" title="Triángulo"><i class="fas fa-play -rotate-90"></i></button>
+                        <button onclick="addShapeToCanvas('hexagon')" class="dock-btn !w-9 !h-9 text-xs" title="Hexágono"><i class="fas fa-hexagon"></i></button>
+                        <button onclick="addShapeToCanvas('star')" class="dock-btn !w-9 !h-9 text-xs" title="Estrella"><i class="far fa-star"></i></button>
+                        <button onclick="addShapeToCanvas('cylinder')" class="dock-btn !w-9 !h-9 text-xs" title="Base de Datos / Almacén"><i class="fas fa-database"></i></button>
+                        <button onclick="addShapeToCanvas('cloud')" class="dock-btn !w-9 !h-9 text-xs" title="Nube / Servidor"><i class="fas fa-cloud"></i></button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1.5 mb-2">
+                        <button onclick="addShapeToCanvas('parallelogram')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl text-left text-[10px] font-bold flex items-center gap-2 transition-colors">
+                            <i class="fas fa-italic text-amber-500"></i> Entrada / Salida
+                        </button>
+                        <button onclick="addShapeToCanvas('callout')" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl text-left text-[10px] font-bold flex items-center gap-2 transition-colors">
+                            <i class="far fa-comment-dots text-sky-500"></i> Bocadillo
+                        </button>
+                    </div>
+
+                    <span class="text-[9px] font-black text-amber-500 uppercase tracking-wider mb-1 block">Bloques Contables</span>
+                    <div class="grid grid-cols-1 gap-1">
+                        <button onclick="addTAccount()" class="p-2 bg-slate-100/80 dark:bg-slate-900/80 hover:bg-amber-500 hover:text-white rounded-xl text-left text-[11px] font-bold flex items-center gap-2 transition-colors">
+                            <i class="fas fa-chart-column text-amber-500"></i> Cuenta T (Esquema de Mayor)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Flechas y Conectores (L) -->
+            <div class="relative">
+                <button onclick="toggleSubtool('connectors-popover')" id="tool-connector" class="dock-btn" title="Conectores y Flechas">
+                    <i class="fas fa-arrow-right-long"></i>
+                    <span class="dock-tooltip">Conector / Flecha (L)</span>
+                </button>
+
+                <!-- Popover de Conectores -->
+                <div id="connectors-popover" class="subtool-popover">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Tipo de Conexión</span>
+                    <div class="flex flex-col gap-1">
+                        <button onclick="addConnectorToCanvas('straight')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-minus text-amber-500"></i> Línea Recta
+                        </button>
+                        <button onclick="addConnectorToCanvas('arrow-straight')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-arrow-right text-amber-500"></i> Flecha Directa
+                        </button>
+                        <button onclick="addConnectorToCanvas('orthogonal')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-share text-amber-500"></i> Conector Ortogonal (90°)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Nota Adhesiva / Post-it (N) -->
+            <div class="relative">
+                <button onclick="toggleSubtool('notes-popover')" id="tool-note" class="dock-btn" title="Nota Adhesiva">
+                    <i class="far fa-note-sticky"></i>
+                    <span class="dock-tooltip">Nota Adhesiva (N)</span>
+                </button>
+
+                <!-- Popover de Colores de Notas -->
+                <div id="notes-popover" class="subtool-popover">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Color de Nota</span>
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <button onclick="addStickyNote('#fef08a')" class="w-8 h-8 rounded-xl bg-yellow-200 hover:scale-110 transition-transform shadow-sm"></button>
+                        <button onclick="addStickyNote('#bbf7d0')" class="w-8 h-8 rounded-xl bg-emerald-200 hover:scale-110 transition-transform shadow-sm"></button>
+                        <button onclick="addStickyNote('#bae6fd')" class="w-8 h-8 rounded-xl bg-sky-200 hover:scale-110 transition-transform shadow-sm"></button>
+                        <button onclick="addStickyNote('#fbcfe8')" class="w-8 h-8 rounded-xl bg-pink-200 hover:scale-110 transition-transform shadow-sm"></button>
+                        <button onclick="addStickyNote('#fed7aa')" class="w-8 h-8 rounded-xl bg-amber-200 hover:scale-110 transition-transform shadow-sm"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Texto Enriquecido Libre (T) -->
+            <div class="relative">
+                <button onclick="addTextBlock()" id="tool-text" class="dock-btn" title="Insertar Bloque de Texto">
+                    <i class="fas fa-font"></i>
+                    <span class="dock-tooltip">Texto Libre (T)</span>
+                </button>
+            </div>
+
+            <!-- 8. Tabla / Matriz Contable -->
+            <div class="relative">
+                <button onclick="addTableBlock()" id="tool-table" class="dock-btn" title="Insertar Tabla Contable">
+                    <i class="fas fa-table-cells"></i>
+                    <span class="dock-tooltip">Tabla de Datos</span>
+                </button>
+            </div>
+
+            <!-- 9. Componentes UI & Contabilidad -->
+            <div class="relative">
+                <button onclick="toggleSubtool('ui-popover')" id="tool-ui" class="dock-btn" title="Componentes UI y Widgets Contables">
+                    <i class="fas fa-layer-group"></i>
+                    <span class="dock-tooltip">Componentes UI & Widgets</span>
+                </button>
+
+                <!-- Popover de UI Mockups & Contables -->
+                <div id="ui-popover" class="subtool-popover min-w-[230px]">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1 block">Widgets Contables</span>
+                    <div class="flex flex-col gap-1 mb-2">
+                        <button onclick="addTAccount()" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-table-columns text-amber-500"></i> Cuenta T Interactiva
+                        </button>
+                        <button onclick="addUIComponent('kpi-card')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-chart-line text-emerald-500"></i> Tarjeta KPI / Métrica
+                        </button>
+                        <button onclick="addUIComponent('audit-badge')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-certificate text-rose-500"></i> Sello de Auditoría
+                        </button>
+                    </div>
+
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1 block">Wireframe & UI</span>
+                    <div class="flex flex-col gap-1">
+                        <button onclick="addUIComponent('button')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-square-check text-sky-500"></i> Botón Interactivo
+                        </button>
+                        <button onclick="addUIComponent('input-box')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-i-cursor text-amber-500"></i> Campo de Formulario
+                        </button>
+                        <button onclick="addUIComponent('badge')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-tag text-purple-500"></i> Píldora de Estado
+                        </button>
+                        <button onclick="addUIComponent('checklist')" class="px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white rounded-xl flex items-center gap-2.5 text-left transition-colors">
+                            <i class="fas fa-list-check text-teal-500"></i> Lista de Verificación
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-px bg-slate-200/60 dark:bg-slate-800/60 my-0.5"></div>
+
+            <!-- 10. Pincel / Trazo Libre (P) -->
+            <div class="relative">
+                <button onclick="toggleSubtool('brush-popover')" id="tool-brush" class="dock-btn" title="Dibujo a Mano Alzada">
+                    <i class="fas fa-paint-brush"></i>
+                    <span class="dock-tooltip">Pincel Libre (P)</span>
+                </button>
+
+                <!-- Popover de Pincel -->
+                <div id="brush-popover" class="subtool-popover">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Grosor de Trazo</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setBrushSize(2)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-white flex items-center justify-center text-xs font-bold transition-colors">2</button>
+                        <button onclick="setBrushSize(5)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-white flex items-center justify-center text-xs font-bold transition-colors">5</button>
+                        <button onclick="setBrushSize(10)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-white flex items-center justify-center text-xs font-bold transition-colors">10</button>
+                        <button onclick="setBrushSize(20)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-white flex items-center justify-center text-xs font-bold transition-colors">20</button>
+                    </div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mt-1 mb-1">Modo de Trazado</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="setBrushMode('pen')" id="brush-mode-pen" class="flex-1 py-1.5 bg-amber-500 text-white rounded-xl text-xs font-black text-center transition-all">Lápiz</button>
+                        <button onclick="setBrushMode('highlighter')" id="brush-mode-highlighter" class="flex-1 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold text-center transition-all">Marcador</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. Subir Imagen -->
+            <div class="relative">
+                <input type="file" id="image-upload-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                <button onclick="document.getElementById('image-upload-input').click()" class="dock-btn" title="Cargar Imagen">
+                    <i class="far fa-image"></i>
+                    <span class="dock-tooltip">Insertar Imagen</span>
+                </button>
+            </div>
+
+            <!-- 12. Borrador / Limpiar -->
+            <div class="relative">
+                <button onclick="clearCanvasPrompt()" class="dock-btn !text-rose-500 hover:!bg-rose-500/15" title="Borrar o Limpiar">
+                    <i class="fas fa-trash-can"></i>
+                    <span class="dock-tooltip">Limpiar Lienzo</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- =========================================================
+         ESPACIO PRINCIPAL DE DIBUJO Y MANIPULACIÓN (VIEWPORT)
+         ========================================================= -->
+    <main id="canvas-viewport" class="grid-lines">
+        <!-- Mundo Virtual del Canvas (Transformable vía Zoom & Paneo) -->
+        <div id="canvas-world">
+            
+            <!-- Capa 0: Fondo Dinámico de Tipos de Vista (Hojas A4/Carta, Diapositivas, Marcos de Tablero) -->
+            <div id="canvas-viewmode-backdrop" class="absolute top-0 left-0 w-[800000px] h-[800000px] pointer-events-none"></div>
+
+            <!-- Capa 1: Selección Remota de Colaboradores en Vivo -->
+            <div id="collab-selection-layer" class="absolute top-0 left-0 w-[800000px] h-[800000px] pointer-events-none"></div>
+
+            <!-- Capa 2: SVG para Trazos Libres y Conectores Vectoriales -->
+            <svg id="canvas-svg-layer" class="absolute top-0 left-0 w-[800000px] h-[800000px] pointer-events-none" viewBox="0 0 800000 800000" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <!-- Marcadores de Flechas -->
+                    <marker id="arrowhead-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+                    </marker>
+                    <marker id="arrowhead-slate" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+                    </marker>
+                    <marker id="arrowhead-sky" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" />
+                    </marker>
+                </defs>
+                <!-- Grupo para Conectores -->
+                <g id="svg-connectors-group"></g>
+                <!-- Grupo para Trazos de Lápiz y Marcador -->
+                <g id="svg-freehand-group"></g>
+                <!-- Trazo activo en vivo -->
+                <path id="svg-active-stroke" d="" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+
+            <!-- Capa 3: Elementos DOM Interactivos (Notas, Figuras, Tablas, Textos, Mockups) -->
+            <div id="canvas-dom-layer" class="absolute top-0 left-0 w-[800000px] h-[800000px]"></div>
+
+            <!-- Capa 4: Cursores Remotos de Colaboradores en Tiempo Real -->
+            <div id="collab-cursors-layer" class="absolute top-0 left-0 w-[800000px] h-[800000px] pointer-events-none"></div>
+
+            <!-- Bounding Box y Tiradores de Transformación -->
+            <div id="transform-box" class="transform-box hidden">
+                <div class="resize-handle handle-nw" data-handle="nw"></div>
+                <div class="resize-handle handle-n"  data-handle="n"></div>
+                <div class="resize-handle handle-ne" data-handle="ne"></div>
+                <div class="resize-handle handle-e"  data-handle="e"></div>
+                <div class="resize-handle handle-se" data-handle="se"></div>
+                <div class="resize-handle handle-s"  data-handle="s"></div>
+                <div class="resize-handle handle-sw" data-handle="sw"></div>
+                <div class="resize-handle handle-w"  data-handle="w"></div>
+                <div class="rotate-line"></div>
+                <div class="rotate-handle" data-handle="rotate"></div>
+            </div>
+
+            <!-- Rectángulo de Selección en Arrastre -->
+            <div id="selection-marquee"></div>
+        </div>
+    </main>
+
+    <!-- =========================================================
+         PANEL INSPECTOR DE PROPIEDADES (LATERAL DERECHO MINIMALISTA)
+         ========================================================= -->
+    <aside id="properties-inspector" class="glass-card tempered-glass p-4 shadow-2xl rounded-3xl no-print collapsed">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200/60 dark:border-slate-800/60 mb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-black shadow-sm">
+                    <i class="fas fa-sliders"></i>
+                </div>
+                <div>
+                    <span class="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block leading-none">Ajustes</span>
+                    <h3 id="inspector-title" class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider mt-0.5">Propiedades</h3>
+                </div>
+            </div>
+            <button onclick="toggleInspectorCollapse()" class="btn-circle-soft !w-6 !h-6" title="Minimizar panel">
+                <i class="fas fa-times text-[10px]"></i>
+            </button>
+        </div>
+
+        <!-- CONTENIDO DINÁMICO DEL INSPECTOR -->
+        <div id="inspector-content" class="space-y-3.5">
+            <!-- Inyectado dinámicamente -->
+        </div>
+    </aside>
+
+    <!-- =========================================================
+         PANEL CONTROLADOR DE CAPAS (LAYERS CONTROLLER)
+         ========================================================= -->
+    <aside id="layers-panel" class="glass-card tempered-glass p-4 shadow-2xl rounded-3xl no-print collapsed">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200/60 dark:border-slate-800/60 mb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-black shadow-sm">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div>
+                    <span class="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block leading-none">Jerarquía</span>
+                    <h3 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider mt-0.5">Capas (<span id="layers-count">0</span>)</h3>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="bringSelectedLayerForward()" class="btn-circle-soft !w-6 !h-6" title="Subir Capa (Ctrl + ])">
+                    <i class="fas fa-arrow-up text-[10px]"></i>
+                </button>
+                <button onclick="sendSelectedLayerBackward()" class="btn-circle-soft !w-6 !h-6" title="Bajar Capa (Ctrl + [)">
+                    <i class="fas fa-arrow-down text-[10px]"></i>
+                </button>
+                <button onclick="toggleLayersPanel()" class="btn-circle-soft !w-6 !h-6 ml-1" title="Cerrar panel de capas">
+                    <i class="fas fa-times text-[10px]"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- LISTA DINÁMICA DE CAPAS -->
+        <div id="layers-list-container" class="space-y-1.5 overflow-y-auto max-h-[calc(100vh-270px)] pr-1">
+            <div class="text-center py-6 text-slate-400 text-xs italic">No hay elementos en el lienzo</div>
+        </div>
+    </aside>
+
+    <!-- =========================================================
+         BARRA INFERIOR UNIFICADA MINIMALISTA (SIN BORDES TOSCOS)
+         ========================================================= -->
+    <footer class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[910] flex items-center no-print">
+        <div class="glass-pill tempered-glass px-4 py-1.5 flex items-center gap-2.5 rounded-[36px] shadow-2xl">
+            
+            <!-- Controles de Zoom & Navegación -->
+            <div class="flex items-center gap-1">
+                <button onclick="setZoomDelta(-0.15)" class="btn-circle-soft !w-7 !h-7" title="Alejar (-)">
+                    <i class="fas fa-minus text-[10px]"></i>
+                </button>
+                
+                <button onclick="resetZoom()" id="zoom-indicator" class="px-2.5 py-1 text-xs font-black text-slate-700 dark:text-slate-200 hover:text-amber-500 bg-slate-100/80 dark:bg-slate-800/80 rounded-full min-w-[50px] text-center transition-colors" title="Restablecer Zoom (100%)">
+                    100%
+                </button>
+
+                <button onclick="setZoomDelta(0.15)" class="btn-circle-soft !w-7 !h-7" title="Acercar (+)">
+                    <i class="fas fa-plus text-[10px]"></i>
+                </button>
+
+                <button onclick="resetViewCenter()" class="btn-circle-soft !w-7 !h-7 ml-0.5" title="Regresar al Centro del Lienzo (0, 0)">
+                    <i class="fas fa-crosshairs text-[10px]"></i>
+                </button>
+
+                <button onclick="zoomTo100()" class="btn-circle-soft !w-7 !h-7" title="Zoom al 100% (Tamaño real sin mover lienzo)">
+                    <i class="fas fa-expand text-[10px]"></i>
+                </button>
+            </div>
+
+            <div class="h-5 w-px bg-slate-200/60 dark:bg-slate-800/60"></div>
+
+            <!-- Ajustes de Cuadrícula y Reglas -->
+            <div class="flex items-center gap-1">
+                <button onclick="cycleGridStyle()" id="btn-grid-style" class="btn-circle-soft !w-7 !h-7" title="Cambiar Cuadrícula (Puntos, Cuadrícula, Lisa)">
+                    <i class="fas fa-border-all text-xs"></i>
+                </button>
+
+                <button onclick="toggleRulersVisibility()" id="btn-toggle-rulers" class="btn-circle-soft !w-7 !h-7 active text-amber-500" title="Mostrar/Ocultar Reglas Graduadas y Medidas (R)">
+                    <i class="fas fa-ruler-combined text-xs"></i>
+                </button>
+
+                <button onclick="toggleSnapToGrid()" id="btn-snap-grid" class="btn-circle-soft !w-7 !h-7" title="Ajuste Magnético">
+                    <i class="fas fa-magnet text-xs"></i>
+                </button>
+            </div>
+
+            <div class="h-5 w-px bg-slate-200/60 dark:bg-slate-800/60"></div>
+
+            <!-- Paneles Toggles & Modo Zen -->
+            <div class="flex items-center gap-1">
+                <button onclick="toggleLayersPanel()" id="btn-toggle-layers" class="btn-circle-soft !w-7 !h-7" title="Controlador de Capas (L)">
+                    <i class="fas fa-layer-group text-xs"></i>
+                </button>
+                <button onclick="toggleInspectorCollapse()" id="btn-toggle-inspector" class="btn-circle-soft !w-7 !h-7" title="Mostrar/Ocultar Inspector">
+                    <i class="fas fa-sliders text-xs"></i>
+                </button>
+                <button onclick="toggleMinimap()" id="btn-toggle-minimap" class="btn-circle-soft !w-7 !h-7" title="Mostrar/Ocultar Minimapa">
+                    <i class="fas fa-map text-xs"></i>
+                </button>
+                <button onclick="toggleZenMode()" id="btn-toggle-zen" class="btn-circle-soft !w-7 !h-7 text-amber-500" title="Modo Zen Inmersivo / Ocultar toda la UI (Tab)">
+                    <i class="fas fa-eye-slash text-xs"></i>
+                </button>
+                <button onclick="openShortcutsModal()" class="btn-circle-soft !w-7 !h-7" title="Atajos de teclado (?)">
+                    <i class="fas fa-keyboard text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BOTÓN MAGNÉTICO FLOTANTE PARA RESTAURAR UI EN MODO ZEN -->
+    <button id="magnetic-ui-restorer" class="magnetic-restorer-pill hidden" onclick="toggleZenMode()" title="Restaurar toda la interfaz (Tab o Clic)">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+        <i class="fas fa-eye text-amber-500 text-xs"></i>
+        <span>Mostrar Interfaz</span>
+        <kbd class="px-1.5 py-0.5 bg-black/10 dark:bg-white/10 rounded text-[9px] tabular-nums font-semibold">Tab</kbd>
+    </button>
+
+    <!-- =========================================================
+         MINIMAPA FLOTANTE
+         ========================================================= -->
+    <div id="minimap-card" class="no-print hidden">
+        <canvas id="minimap-canvas" width="190" height="125" class="w-full h-full block"></canvas>
+        <div id="minimap-viewport-indicator"></div>
+    </div>
+
+    <!-- =========================================================
+         MODALES PROFESIONALES (GLASSMORPHISM MINIMALISTA)
+         ========================================================= -->
+
+    <!-- 1. Modal Biblioteca de Plantillas Contables y de Diseño -->
+    <div id="templates-modal" class="educonta-modal-overlay hidden">
+        <div class="educonta-modal-content max-w-2xl w-full relative p-6 md:p-8">
+            <button onclick="closeTemplatesModal()" class="btn-circle-soft absolute top-5 right-5 text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center text-xl">
+                    <i class="fas fa-shapes"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white">Biblioteca de Plantillas</h3>
+                    <p class="text-xs text-slate-400">Selecciona un esquema profesional para comenzar de inmediato.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[60vh] overflow-y-auto pr-1">
+                
+                <!-- Plantilla 1: PEPS Bodega -->
+                <div onclick="applyTemplate('peps-inventory')" class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] group">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
+                            <i class="fas fa-boxes-stacked"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors">Flujo PEPS Físico (FIFO)</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Esquema visual de bodega con estantes, lotes con fecha de ingreso y flechas de prioridad de despacho.</p>
+                </div>
+
+                <!-- Plantilla 2: Clasificación ABC -->
+                <div onclick="applyTemplate('abc-matrix')" class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] group">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xs">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors">Clasificación ABC de Inventario</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Zonas A (80% valor), B (15%) y C (5%) con tarjetas de control, auditoría y frecuencias de conteo.</p>
+                </div>
+
+                <!-- Plantilla 3: Esquemas de Mayor (Cuentas T) -->
+                <div onclick="applyTemplate('t-accounts')" class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] group">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
+                            <i class="fas fa-scale-balanced"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors">Esquemas de Mayor (Cuentas T)</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Diagrama contable de Cuentas T conectadas con columnas de Debe, Haber y determinación de Saldos.</p>
+                </div>
+
+                <!-- Plantilla 4: Business Model Canvas -->
+                <div onclick="applyTemplate('business-canvas')" class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] group">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors">Business Model Canvas</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Los 9 bloques estratégicos organizados en lienzo interactivo con notas adhesivas modificables.</p>
+                </div>
+
+                <!-- Plantilla 5: Matriz FODA / Financiera -->
+                <div onclick="applyTemplate('swot-matrix')" class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] group">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xs">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors">Matriz FODA Empresarial</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Cuadrantes de Fortalezas, Oportunidades, Debilidades y Amenazas con tarjetas colorimétricas.</p>
+                </div>
+
+                <!-- Plantilla 6: Mockup UI Contable -->
+                <div onclick="applyTemplate('ui-mockup')" class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] group">
+                    <div class="flex items-center gap-2.5 mb-2">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors">Prototipo UI de Software</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Marco de ventana con barra de estado, tarjetas KPI, gráficos simulados y botones de acción.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Modal Atajos de Teclado (?) -->
+    <div id="shortcuts-modal" class="educonta-modal-overlay hidden">
+        <div class="educonta-modal-content max-w-md w-full relative p-6 md:p-8">
+            <button onclick="closeShortcutsModal()" class="btn-circle-soft absolute top-5 right-5 text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center text-lg">
+                    <i class="fas fa-keyboard"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-800 dark:text-white">Atajos de Teclado</h3>
+                    <p class="text-[11px] text-slate-400">Trabaja a máxima velocidad como un diseñador pro.</p>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Herramienta Selección</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">V</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Mover Lienzo (Mano)</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">H / Espacio</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Insertar Rectángulo</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">R</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Insertar Texto Libre</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">T</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Insertar Nota Adhesiva</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">N</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Modo Inmersivo Zen (Ocultar UI)</span>
+                    <kbd class="px-2.5 py-1 bg-amber-100 dark:bg-amber-950/40 text-amber-600 rounded-lg tabular-nums font-bold text-[10px]">Tab / F11</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Panel de Capas</span>
+                    <kbd class="px-2.5 py-1 bg-amber-100 dark:bg-amber-950/40 text-amber-600 rounded-lg tabular-nums font-bold text-[10px]">L</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Subir / Bajar Capa</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">Ctrl + ] / [</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Mostrar / Ocultar Reglas</span>
+                    <kbd class="px-2.5 py-1 bg-amber-100 dark:bg-amber-950/40 text-amber-600 rounded-lg tabular-nums font-bold text-[10px]">Shift + R</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Editar Texto de Elemento</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">Doble Clic</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Duplicar selección</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">Ctrl + D</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/60">
+                    <span class="text-slate-600 dark:text-slate-300">Deshacer / Rehacer</span>
+                    <kbd class="px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 rounded-lg tabular-nums font-bold text-[10px]">Ctrl + Z / Y</kbd>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-slate-600 dark:text-slate-300">Eliminar Selección</span>
+                    <kbd class="px-2.5 py-1 bg-rose-100 dark:bg-rose-950/40 text-rose-600 rounded-lg tabular-nums font-bold text-[10px]">Supr / Backspace</kbd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal Nueva Hoja / Página -->
+    <div id="sheet-modal" class="educonta-modal-overlay hidden">
+        <div class="educonta-modal-content max-w-sm w-full relative p-6">
+            <button onclick="closeSheetModal()" class="btn-circle-soft absolute top-4 right-4"><i class="fas fa-times text-sm"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/15 flex items-center justify-center mb-4 mx-auto text-amber-500"><i class="fas fa-plus text-xl"></i></div>
+            <h4 class="text-base font-black text-slate-800 dark:text-white text-center mb-4">Nueva Página de Lienzo</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Nombre de la Página</label>
+                    <input type="text" id="sheet-input-name" class="w-full bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 focus:bg-amber-50 dark:focus:bg-amber-950/30 transition-all" placeholder="Ej: Diagrama Bodega Central...">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeSheetModal()" class="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
+                <button onclick="saveNewSheet()" class="flex-1 py-2.5 btn-clean-amber">Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         BARRA FLOTANTE DE CONTROL DE PRESENTACIÓN (SLIDESHOW)
+         ========================================================= -->
+    <div id="slide-presenter-bar" class="no-print">
+        <div class="glass-pill tempered-glass px-5 py-2.5 flex items-center gap-3.5 rounded-[36px] shadow-2xl border border-amber-500/30">
+            <button onclick="prevSlide()" class="btn-circle-soft !w-9 !h-9" title="Diapositiva Anterior (←)">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            
+            <div class="flex items-center gap-2 px-2">
+                <i class="fas fa-display text-amber-500 text-xs"></i>
+                <span id="slide-counter-badge" class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">Diapositiva 1 / 1</span>
+            </div>
+
+            <button onclick="nextSlide()" class="btn-circle-soft !w-9 !h-9" title="Siguiente Diapositiva (→)">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+
+            <div class="h-6 w-px bg-slate-200/60 dark:bg-slate-800/60 mx-1"></div>
+
+            <button onclick="toggleSlideFullscreen()" class="btn-circle-soft !w-9 !h-9" title="Pantalla Completa (F11)">
+                <i class="fas fa-expand text-xs"></i>
+            </button>
+
+            <button onclick="setViewMode('lienzo')" class="btn-circle-soft !w-9 !h-9 !text-rose-500 hover:!bg-rose-500/20" title="Salir de Presentación">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. Modal Compartir Documento & Colaboración Multijugador -->
+    <div id="share-modal" class="educonta-modal-overlay hidden">
+        <div class="educonta-modal-content max-w-lg w-full relative p-6 md:p-8">
+            <button onclick="closeShareModal()" class="btn-circle-soft absolute top-5 right-5"><i class="fas fa-times text-sm"></i></button>
+            
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-sky-500/15 text-sky-500 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-users-viewfinder"></i>
+                </div>
+                <div>
+                    <h4 class="text-base font-black text-slate-800 dark:text-white">Colaboración en Tiempo Real</h4>
+                    <p class="text-xs text-slate-400">Edita simultáneamente con tu equipo, visualiza cursores y cambios en vivo.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Enlace Rápido para Invitar -->
+                <div class="bg-slate-50 dark:bg-slate-900/70 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800/60">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Enlace de Invitación Directa</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-invite-link" readonly class="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs tabular-nums text-slate-600 dark:text-slate-300 select-all outline-none" value="">
+                        <button onclick="copyInviteLink()" id="btn-copy-invite" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5 shrink-0">
+                            <i class="fas fa-copy"></i> <span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Colaboradores Conectados en Vivo -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Activos en esta sesión</label>
+                        <span id="collab-live-count-label" class="text-[9px] font-bold text-emerald-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 1 conectado</span>
+                    </div>
+                    <div id="collaborators-live-list" class="space-y-2 max-h-28 overflow-y-auto pr-1">
+                        <!-- Render dinámico de conectados en vivo -->
+                    </div>
+                </div>
+
+                <!-- Añadir Colaborador por UID -->
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Añadir Permiso Permanente por ID</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-uid-input" class="flex-1 bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all" placeholder="Pega el UID de Supabase...">
+                        <button onclick="addCollaborator()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase rounded-2xl transition-all shadow-md shrink-0">Añadir</button>
+                    </div>
+                </div>
+
+                <!-- Personas con Acceso Permanente -->
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Personas con acceso guardado</label>
+                    <div id="collaborators-list" class="space-y-1.5 max-h-24 overflow-y-auto pr-1">
+                        <!-- Render dinámico -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button onclick="closeShareModal()" class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Modal Hoja de Tamaño Personalizado (Artboard a Medida) -->
+    <div id="custom-sheet-modal" class="educonta-modal-overlay hidden">
+        <div class="educonta-modal-content max-w-sm w-full relative p-6">
+            <button onclick="closeCustomSheetModal()" class="btn-circle-soft absolute top-4 right-4"><i class="fas fa-times text-sm"></i></button>
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/15 flex items-center justify-center mb-4 mx-auto text-amber-500"><i class="fas fa-ruler-combined text-xl"></i></div>
+            <h4 class="text-base font-black text-slate-800 dark:text-white text-center mb-1">Hoja de Tamaño Personalizado</h4>
+            <p class="text-[11px] text-slate-400 text-center mb-4">Define dimensiones exactas en centímetros o píxeles.</p>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Nombre / Título de la Hoja</label>
+                    <input type="text" id="custom-sheet-title" class="w-full bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none" placeholder="Ej: Balance General Mayor (30x40 cm)">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] font-black text-amber-500 uppercase tracking-widest block mb-1">Ancho (cm)</label>
+                        <input type="number" id="custom-sheet-w-cm" step="0.1" value="21.6" oninput="convertCustomCmToPx()" class="w-full bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none tabular-nums">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-amber-500 uppercase tracking-widest block mb-1">Alto (cm)</label>
+                        <input type="number" id="custom-sheet-h-cm" step="0.1" value="27.9" oninput="convertCustomCmToPx()" class="w-full bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none tabular-nums">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Ancho (px)</label>
+                        <input type="number" id="custom-sheet-w-px" value="816" oninput="convertCustomPxToCm()" class="w-full bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none tabular-nums">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Alto (px)</label>
+                        <input type="number" id="custom-sheet-h-px" value="1056" oninput="convertCustomPxToCm()" class="w-full bg-slate-100/80 dark:bg-slate-900 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 outline-none tabular-nums">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Orientación Inicial</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setCustomModalOrientation('portrait')" id="btn-custom-orient-p" class="py-2 px-3 rounded-xl text-xs font-bold bg-amber-500 text-white flex items-center justify-center gap-1.5"><i class="fas fa-file"></i> Vertical</button>
+                        <button type="button" onclick="setCustomModalOrientation('landscape')" id="btn-custom-orient-l" class="py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center gap-1.5"><i class="fas fa-file -rotate-90"></i> Horizontal</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeCustomSheetModal()" class="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
+                <button onclick="saveCustomSheet()" class="flex-1 py-2.5 btn-clean-amber">Insertar Hoja</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-xl"></i>
+        <div>
+            <h4 class="font-black text-xs">Guardado con Éxito</h4>
+            <p class="text-[10px] text-emerald-100">Cambios guardados en tu espacio</p>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/pages/editor-lienzos.js"></script>
+</body>
+
+</html>
+
+

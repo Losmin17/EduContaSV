@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte y Contacto | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+</head>
+
+<body class="bg-slate-50 text-slate-800 transition-colors duration-300 min-h-screen flex flex-col font-sans">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <main class="flex-1 pt-24 pb-12 px-4 md:px-8 max-w-4xl mx-auto w-full flex items-center justify-center">
+        
+        <div class="glass-card w-full max-w-2xl p-8 rounded-3xl relative overflow-hidden group hover:shadow-2xl hover:shadow-sky-500/10 transition-all duration-500">
+            <!-- Decorative blobs -->
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-sky-400/20 rounded-full blur-3xl group-hover:bg-sky-400/30 transition-colors"></div>
+            <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-indigo-400/20 rounded-full blur-3xl group-hover:bg-indigo-400/30 transition-colors"></div>
+            
+            <div class="relative z-10">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sky-100 text-sky-600 mb-4 shadow-inner">
+                        <i class="fas fa-headset text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-2">Centro de Soporte</h1>
+                    <p class="text-slate-500 text-sm">¿Tienes dudas o encontraste un error? Escríbenos y adjunta una captura de pantalla.</p>
+                </div>
+
+                <form id="support-form" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Nombre</label>
+                            <input type="text" id="sup-nombre" required placeholder="Ej. Juan Pérez"
+                                class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all placeholder-slate-400">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Correo Electrónico</label>
+                            <input type="email" id="sup-correo" required placeholder="tu@correo.com"
+                                class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all placeholder-slate-400">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Asunto</label>
+                        <select id="sup-asunto" required
+                            class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all text-slate-700">
+                            <option value="" disabled selected>Selecciona una opción...</option>
+                            <option value="Duda Contable">Duda Contable</option>
+                            <option value="Problema Técnico">Problema Técnico / Error</option>
+                            <option value="Sugerencia">Sugerencia de Mejora</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Mensaje</label>
+                        <textarea id="sup-mensaje" required rows="4" placeholder="Describe tu problema o consulta con detalle..."
+                            class="w-full px-4 py-3 bg-white/50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all placeholder-slate-400 resize-none"></textarea>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Adjuntar Imagen (Opcional)</label>
+                        <div class="relative w-full">
+                            <input type="file" id="sup-imagen" accept="image/png, image/jpeg, image/jpg, image/webp"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                onchange="updateFileName(this)">
+                            <div class="w-full px-4 py-3 bg-white/50 border border-slate-200 border-dashed rounded-2xl flex items-center justify-center gap-2 text-slate-500 transition-all hover:bg-slate-50">
+                                <i class="fas fa-cloud-upload-alt text-sky-500"></i>
+                                <span id="file-name-display" class="text-sm font-medium">Haz clic o arrastra una imagen (Max. 5MB)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-submit-support"
+                        class="w-full py-4 mt-4 bg-sky-500 text-white font-bold rounded-2xl hover:bg-sky-400 transition-colors shadow-lg shadow-sky-500/30 flex justify-center items-center gap-2 relative overflow-hidden">
+                        <span id="btn-text">Enviar Mensaje</span>
+                        <i id="btn-icon" class="fas fa-paper-plane"></i>
+                        <!-- Loading spinner -->
+                        <div id="btn-spinner" class="hidden absolute inset-0 bg-sky-600 flex items-center justify-center">
+                            <i class="fas fa-circle-notch fa-spin text-xl"></i>
+                            <span class="ml-2">Enviando...</span>
+                        </div>
+                    </button>
+                </form>
+
+                <div id="support-success" class="hidden mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+                    <i class="fas fa-check-circle text-emerald-500 text-3xl mb-2"></i>
+                    <h3 class="text-emerald-800 font-bold">¡Mensaje Enviado!</h3>
+                    <p class="text-emerald-600 text-sm mt-1">Hemos recibido tu solicitud. Te contactaremos pronto.</p>
+                    <button type="button" onclick="resetSupportForm()" class="mt-3 px-4 py-2 bg-emerald-500 text-white text-xs font-bold rounded-full hover:bg-emerald-600 transition-colors">Enviar otro mensaje</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="custom-modal" class="educonta-modal-overlay">
+        <!-- Contenido genérico de modal, inyectado por showModal() -->
+        <div class="educonta-modal-content w-full max-w-sm text-center p-6">
+            <h3 id="modal-title" class="text-lg font-bold text-slate-800 mb-2"></h3>
+            <p id="modal-msg" class="text-slate-600 text-sm mb-6"></p>
+            <div id="modal-password-container" class="hidden mb-4 flex-col gap-2">
+                <input type="password" id="modal-password-input" placeholder="Contraseña Maestra..." class="w-full px-4 py-2 bg-slate-100 border-none rounded-xl text-center focus:ring-2 focus:ring-rose-500 outline-none">
+            </div>
+            <div class="flex gap-3 justify-center">
+                <button onclick="window.closeModal()" class="px-5 py-2.5 rounded-full bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors text-sm">Cancelar</button>
+                <button id="modal-confirm-btn" class="px-5 py-2.5 rounded-full text-white font-bold transition-colors text-sm shadow-md">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/security.js"></script>
+    <script src="js/core/supabase.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/core/theme.js"></script>
+    <script src="js/core/components.js"></script>
+    <script src="js/pages/soporte.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.injectSharedUI) window.injectSharedUI('shared-header');
+        });
+        
+        function updateFileName(input) {
+            const display = document.getElementById('file-name-display');
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    window.showAlert("Archivo muy grande", "La imagen no debe superar los 5MB.");
+                    input.value = '';
+                    display.innerText = "Haz clic o arrastra una imagen (Max. 5MB)";
+                    return;
+                }
+                display.innerText = file.name;
+            } else {
+                display.innerText = "Haz clic o arrastra una imagen (Max. 5MB)";
+            }
+        }
+    </script>
+</body>
+</html>
+
+

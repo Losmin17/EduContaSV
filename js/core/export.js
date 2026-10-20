@@ -12,7 +12,13 @@ window.exportarPDF = async function(baseFilename) {
 
             try {
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({ format: 'a4', orientation: 'portrait' });
+                const usarFormatoCuadros = baseFilename === 'Planilla' && window.getActiveCols && window.getActiveCols().length > 16;
+                const doc = new jsPDF({
+                    format: 'letter',
+                    orientation: usarFormatoCuadros
+                        ? 'portrait'
+                        : (baseFilename === 'Planilla' ? 'landscape' : 'portrait')
+                });
 
                 // Colores Corporativos
                 const bDark = [15, 23, 42];
@@ -23,8 +29,8 @@ window.exportarPDF = async function(baseFilename) {
                 const dateStr = new Date().toLocaleDateString();
 
                 // Datos del proyecto actual (para lógica multisectorial)
-                const project = projects.find(p => p.id === currentProjectId);
-                const sector = project?.sector || 'COM';
+                const project = window.proyecto_actual || (typeof projects !== 'undefined' && typeof currentProjectId !== 'undefined' ? projects.find(p => p.id === currentProjectId) : null);
+                const sector = project?.sector || 'ALL';
                 const catalogo = project?.catalogo || 'MAESTRO';
 
                 const fmt = (n) => typeof n === 'number' ? '$ ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : n;
@@ -53,7 +59,8 @@ window.exportarPDF = async function(baseFilename) {
                     }
 
                     doc.setDrawColor(200, 200, 200);
-                    doc.line(14, subtitle ? 39 : 35, 196, subtitle ? 39 : 35);
+                    const pageW = doc.internal.pageSize.getWidth();
+                    doc.line(14, subtitle ? 39 : 35, pageW - 14, subtitle ? 39 : 35);
                 };
 
                 // === 1. LIBRO DIARIO ===
@@ -124,6 +131,293 @@ window.exportarPDF = async function(baseFilename) {
                         lastPage = doc.internal.getNumberOfPages();
                     });
                 }
+                // === 1.5 PLANILLA DE SALARIOS ===
+                else if (baseFilename === 'Planilla') {
+                    const sheet = window.proyecto_actual.sheets[window.activeSheetIndex];
+                    const activeCols = window.getActiveCols();
+                    const emps = sheet.employees || [];
+                    const usarFormatoCuadros = activeCols.length > 16;
+                    
+                    if (usarFormatoCuadros) {
+                        emps.forEach((emp, empIdx) => {
+                            if (empIdx > 0) {
+                                doc.addPage('letter', 'portrait');
+                            }
+                            
+                            // 1. Cabecera de la Boleta
+                            buildHeader('Detalle Individual de Pago', `Período: ${sheet.name} — Fecha: ${sheet.date || ''}`);
+                            
+                            // Nombre y código del empleado en grande
+                            doc.setFontSize(11);
+                            doc.setFont("helvetica", "bold");
+                            doc.setTextColor(...bDark);
+                            doc.text(`TRABAJADOR: ${emp.nombre.toUpperCase() || 'SIN NOMBRE'}`, 14, 45);
+                            doc.setFontSize(9);
+                            doc.setFont("helvetica", "normal");
+                            doc.text(`Código de Registro: ${emp.codigo || '—'}`, 14, 49);
+                            
+                            // Definimos la estructura de los 4 cuadros (2x2 grid) para tamaño carta (Letter: 215.9mm ancho)
+                            const colW = 90;
+                            const gapX = 8;
+                            
+                            // --- CUADRO 1: IDENTIFICACIÓN Y LABORAL (Secciones 1 y 2) ---
+                            const infoRows = [];
+                            const addInfoRow = (label, valKey) => {
+                                if (activeCols.some(c => c.colKey === valKey)) {
+                                    infoRows.push([label, emp[valKey] || '—']);
+                                }
+                            };
+                            addInfoRow('Sexo', 'sexo');
+                            addInfoRow('DUI / Pasaporte', 'dui');
+                            addInfoRow('NIT', 'nit');
+                            addInfoRow('Nº ISSS', 'isss_num');
+                            addInfoRow('Nº AFP', 'afp_num');
+                            addInfoRow('Fecha Nacimiento', 'fecha_nac');
+                            addInfoRow('Estado Civil', 'estado_civil');
+                            addInfoRow('Fecha Ingreso', 'fecha_ingreso');
+                            addInfoRow('Cargo / Puesto', 'cargo');
+                            addInfoRow('Departamento', 'departamento');
+                            addInfoRow('Jornada Laboral', 'jornada');
+                            addInfoRow('Tipo Contrato', 'tipo_contrato');
+                            addInfoRow('Fecha Salida', 'fecha_salida');
+                            addInfoRow('Observaciones', 'observaciones');
+                            
+                            // --- CUADRO 2: DEVENGADOS E INGRESOS (Secciones 3 y 4) ---
+                            const ingRows = [];
+                            const comp = emp._computed || {};
+                            const addIngRow = (label, valKey) => {
+                                if (activeCols.some(c => c.colKey === valKey)) {
+                                    let val = comp[valKey] !== undefined ? comp[valKey] : (emp[valKey] || 0);
+                                    if (typeof val === 'number') {
+                                        if (valKey === 'dias_trab' || valKey === 'dias_incap') {
+                                            ingRows.push([label, val.toString()]);
+                                        } else if (val > 0) {
+                                            ingRows.push([label, fmt(val)]);
+                                        }
+                                    } else if (val && val !== '—') {
+                                        ingRows.push([label, val]);
+                                    }
+                                }
+                            };
+                            addIngRow('Salario Base', 'salario_base');
+                            addIngRow('Tipo Licencia', 'tipo_incap');
+                            addIngRow('Días Incap.', 'dias_incap');
+                            addIngRow('Días Trab.', 'dias_trab');
+                            addIngRow('Salario Días Trab.', 'salario_dias_trab');
+                            addIngRow('Subsidio Patrono', 'subsidio_patrono');
+                            addIngRow('Subsidio ISSS', 'subsidio_isss');
+                            addIngRow('H. Ordinarias', 'horas_ordinarias');
+                            addIngRow('H.E. Diurnas (Hrs)', 'horas_ext_diurnas');
+                            addIngRow('H.E. Nocturnas (Hrs)', 'horas_ext_nocturnas');
+                            addIngRow('H.E. Festivas (Hrs)', 'horas_ext_festivas');
+                            addIngRow('Pago Horas Ord.', 'pago_ordinario');
+                            addIngRow('Pago H.E. Diurnas', 'pago_ext_diurnas');
+                            addIngRow('Pago H.E. Nocturnas', 'pago_ext_nocturnas');
+                            addIngRow('Pago H.E. Festivas', 'pago_ext_festivas');
+                            addIngRow('Bonificaciones', 'bonificaciones');
+                            addIngRow('Comisiones', 'comisiones');
+                            addIngRow('Incentivos', 'incentivos');
+                            addIngRow('Vacaciones', 'vacaciones');
+                            addIngRow('Aguinaldo Prop.', 'aguinaldo');
+                            addIngRow('Indemnización', 'indemnizacion');
+                            addIngRow('Otros Beneficios', 'otros_beneficios');
+                            
+                            // --- CUADRO 3: DEDUCCIONES Y RETENCIONES (Sección 5) ---
+                            const dedRows = [];
+                            const addDedRow = (label, valKey) => {
+                                if (activeCols.some(c => c.colKey === valKey)) {
+                                    let val = comp[valKey] !== undefined ? comp[valKey] : (emp[valKey] || 0);
+                                    if (typeof val === 'number' && val > 0) {
+                                        dedRows.push([label, fmt(val)]);
+                                    }
+                                }
+                            };
+                            addDedRow('ISSS Laboral (3%)', 'isss_lab');
+                            addDedRow('AFP Laboral (7.25%)', 'afp_lab');
+                            addDedRow('Retención Renta (MH)', 'renta');
+                            addDedRow('Desc. Tardanzas', 'descuento_tardanzas');
+                            addDedRow('Otros Descuentos', 'otros_descuentos');
+                            addDedRow('ISSS Patronal (7.5%)', 'isss_patronal');
+                            addDedRow('AFP Patronal (8.75%)', 'afp_patronal');
+                            
+                            // --- CUADRO 4: RESUMEN DE LIQUIDACIÓN (Sección 6) ---
+                            const resRows = [];
+                            resRows.push(['Total Devengado', fmt(comp.total_devengado || 0)]);
+                            resRows.push(['Total Deducciones', fmt(comp.total_deducciones || 0)]);
+                            resRows.push(['Líquido a Recibir', { content: fmt(comp.salario_neto || 0), styles: { fontStyle: 'bold', textColor: [99, 102, 241], fontSize: 11 } }]);
+                            if (activeCols.some(c => c.colKey === 'forma_pago')) {
+                                resRows.push(['Forma de Pago', emp.forma_pago || '—']);
+                            }
+                            
+                            // Render Tables (Grid)
+                            // 1. Identificación (Columna Izquierda, X = 14)
+                            doc.autoTable({
+                                startY: 54,
+                                margin: { left: 14 },
+                                tableWidth: colW,
+                                head: [[{ content: 'IDENTIFICACIÓN Y LABORAL', colSpan: 2, styles: { halign: 'center', fillColor: bDark, textColor: 255, fontStyle: 'bold', fontSize: 8 } }]],
+                                body: infoRows.length ? infoRows : [['No hay columnas activas', '']],
+                                theme: 'grid',
+                                styles: { fontSize: 7.5, cellPadding: 2 },
+                                columnStyles: {
+                                    0: { cellWidth: 35, fontStyle: 'bold', fillColor: [248, 250, 252] },
+                                    1: { cellWidth: 'auto' }
+                                }
+                            });
+                            const card1Y = doc.lastAutoTable.finalY;
+                            
+                            // 3. Deducciones (abajo de 1, X = 14)
+                            doc.autoTable({
+                                startY: card1Y + 6,
+                                margin: { left: 14 },
+                                tableWidth: colW,
+                                head: [[{ content: 'DEDUCCIONES Y RETENCIONES', colSpan: 2, styles: { halign: 'center', fillColor: [244, 63, 94], textColor: 255, fontStyle: 'bold', fontSize: 8 } }]],
+                                body: dedRows.length ? dedRows : [['Exento de deducciones', '']],
+                                theme: 'grid',
+                                styles: { fontSize: 7.5, cellPadding: 2 },
+                                columnStyles: {
+                                    0: { cellWidth: 45, fontStyle: 'bold', fillColor: [255, 241, 242] },
+                                    1: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold' }
+                                }
+                            });
+                            const card3Y = doc.lastAutoTable.finalY;
+                            
+                            // 2. Devengados (Columna Derecha, X = 112)
+                            doc.autoTable({
+                                startY: 54,
+                                margin: { left: 112 },
+                                tableWidth: colW,
+                                head: [[{ content: 'DEVENGADOS E INGRESOS', colSpan: 2, styles: { halign: 'center', fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold', fontSize: 8 } }]],
+                                body: ingRows.length ? ingRows : [['Sin ingresos registrados', '']],
+                                theme: 'grid',
+                                styles: { fontSize: 7.5, cellPadding: 2 },
+                                columnStyles: {
+                                    0: { cellWidth: 45, fontStyle: 'bold', fillColor: [240, 253, 250] },
+                                    1: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold' }
+                                }
+                            });
+                            const card2Y = doc.lastAutoTable.finalY;
+                            
+                            // 4. Resumen (derecha, abajo de 2, X = 112)
+                            doc.autoTable({
+                                startY: card2Y + 6,
+                                margin: { left: 112 },
+                                tableWidth: colW,
+                                head: [[{ content: 'RESUMEN DE LIQUIDACIÓN', colSpan: 2, styles: { halign: 'center', fillColor: [99, 102, 241], textColor: 255, fontStyle: 'bold', fontSize: 8 } }]],
+                                body: resRows,
+                                theme: 'grid',
+                                styles: { fontSize: 7.5, cellPadding: 2 },
+                                columnStyles: {
+                                    0: { cellWidth: 45, fontStyle: 'bold', fillColor: [245, 243, 255] },
+                                    1: { cellWidth: 'auto', halign: 'right' }
+                                }
+                            });
+                            const card4Y = doc.lastAutoTable.finalY;
+                            
+                            // Signatures at the bottom
+                            const signatureY = Math.max(card3Y, card4Y) + 20;
+                            if (signatureY < 250) {
+                                doc.setDrawColor(200, 200, 200);
+                                doc.setLineWidth(0.3);
+                                doc.line(30, signatureY, 85, signatureY);
+                                doc.line(135, signatureY, 190, signatureY);
+                                
+                                doc.setFontSize(8);
+                                doc.setFont("helvetica", "normal");
+                                doc.setTextColor(100);
+                                doc.text("Firma del Trabajador", 40, signatureY + 4);
+                                doc.text("Firma Autorizada", 150, signatureY + 4);
+                            }
+                        });
+                    } else {
+                        buildHeader('Planilla de Salarios', `Período: ${sheet.name} — Fecha: ${sheet.date || ''}`);
+                        
+                        // Column headers
+                        const headers = activeCols.map(col => window.COL[col.colKey].label.replace(/<br>/g, ' '));
+                        
+                        // Body rows
+                        const rows = emps.map(e => {
+                            return activeCols.map(col => {
+                                const colKey = col.colKey;
+                                const colDef = window.COL[colKey];
+                                let val = '';
+                                if (colDef.type === 'number' || colDef.type === 'computed') {
+                                    const comp = e._computed || {};
+                                    val = comp[colKey] !== undefined ? comp[colKey] : (e[colKey] || 0);
+                                } else {
+                                    val = e[colKey] || '';
+                                }
+                                
+                                if (typeof val === 'number') {
+                                    if (colKey === 'dias_trab' || colKey === 'dias_incap') {
+                                        return val.toString();
+                                    }
+                                    return fmt(val);
+                                }
+                                return val;
+                            });
+                        });
+                        
+                        // Add totals row at the end of the table
+                        if (emps.length > 0) {
+                            const totalsRow = activeCols.map(col => {
+                                const colKey = col.colKey;
+                                const colDef = window.COL[colKey];
+                                
+                                if (colKey === 'nombre') {
+                                    return 'TOTALES';
+                                }
+                                if (colDef.type !== 'number' && colDef.type !== 'computed') {
+                                    return '';
+                                }
+                                
+                                let sum = 0;
+                                emps.forEach(e => {
+                                    const comp = e._computed || {};
+                                    sum += comp[colKey] !== undefined ? comp[colKey] : (e[colKey] || 0);
+                                });
+                                if (colKey === 'dias_trab' || colKey === 'dias_incap') {
+                                    return sum.toString();
+                                }
+                                return fmt(sum);
+                            });
+                            rows.push(totalsRow);
+                        }
+                        
+                        // Column styles for autotable
+                        const colStyles = {};
+                        activeCols.forEach((col, idx) => {
+                            const colKey = col.colKey;
+                            const colDef = window.COL[colKey];
+                            
+                            if (colKey === 'codigo') {
+                                colStyles[idx] = { font: 'courier', halign: 'center' };
+                            } else if (colDef.type !== 'number' && colDef.type !== 'computed') {
+                                colStyles[idx] = { halign: 'left' };
+                            } else {
+                                colStyles[idx] = { halign: 'right', fontStyle: 'bold' };
+                            }
+                        });
+                        
+                        let lastPage = doc.internal.getNumberOfPages();
+                        doc.autoTable({
+                            startY: 42,
+                            head: [headers],
+                            body: rows,
+                            theme: 'grid',
+                            headStyles: { fillColor: bDark, textColor: 255, fontSize: 7, cellPadding: 2 },
+                            bodyStyles: { fontSize: 6.5, textColor: 50, cellPadding: 2 },
+                            columnStyles: colStyles,
+                            margin: { top: 42, bottom: 20, left: 10, right: 10 },
+                            didDrawPage: (data) => {
+                                if (data.pageNumber > lastPage) {
+                                    buildHeader('Planilla de Salarios (Continuación)', `Período: ${sheet.name} — Fecha: ${sheet.date || ''}`);
+                                    lastPage = data.pageNumber;
+                                }
+                            }
+                        });
+                    }
+                }
                 // === 2. LIBROS MAYORES (CUENTAS T EN GRID) ===
                 else if (baseFilename === 'Libros_Mayores') {
                     buildHeader('Libros Mayores / Cuentas T', 'Agrupación de Movimientos');
@@ -134,7 +428,7 @@ window.exportarPDF = async function(baseFilename) {
                     let rowMaxY = currY;
                     const colW = 57;
                     const gapX = 5;
-                    const pageW = 210;
+                    const pageW = doc.internal.pageSize.getWidth();
 
                     accounts.forEach((a) => {
                         const maxLen = Math.max(a.debeList.length, a.haberList.length);

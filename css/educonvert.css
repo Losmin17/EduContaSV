@@ -1,0 +1,601 @@
+﻿/* EduConvert Core Design System & Styling - EduConta SV */
+
+:root {
+    --celeste-sv: #0ea5e9;
+    --emerald-sv: #10b981;
+    --azul-corporativo: #0c4a6e;
+    --glass-bg: rgba(15, 23, 42, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.2);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+}
+
+/* Global Elements */
+body {
+    background-color: #0b111e;
+    color: #e2e8f0;
+}
+
+/* Glassmorphism Styles */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 24px;
+}
+
+.glass-pill {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Tab Transitions */
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+
+.tab-btn {
+    color: #94a3b8;
+    background: transparent;
+    border: 1px solid transparent;
+}
+.tab-btn:hover {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.03);
+}
+.tab-btn.active {
+    color: #ffffff;
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+/* Button & Form Inputs */
+.btn-primary {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(14, 165, 233, 0.4);
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.input-field {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    border-radius: 14px;
+    padding: 0.75rem 1rem;
+    outline: none;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+.input-field:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+    background: rgba(15, 23, 42, 0.8);
+}
+
+.label-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    display: block;
+    padding-left: 0.25rem;
+}
+
+/* Annotator Lines & Badges */
+.annotator-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+.annotator-line:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.line-number {
+    width: 36px;
+    text-align: right;
+    color: #475569;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.line-text {
+    flex-grow: 1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #cbd5e1;
+}
+
+.badge-tag {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    user-select: none;
+    width: 44px;
+    text-align: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+/* Tag Type Specific Colors */
+.badge-tag.type-TIT {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.badge-tag.type-CAP {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.badge-tag.type-SEC {
+    background: rgba(45, 212, 191, 0.15);
+    color: #2dd4bf;
+    border: 1px solid rgba(45, 212, 191, 0.3);
+}
+.badge-tag.type-ART {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-tag.type-TART {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badge-tag.type-TXT {
+    background: rgba(148, 163, 184, 0.08);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+}
+.badge-tag.type-IGN {
+    background: rgba(244, 63, 94, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+/* Tree Structure View */
+.tree-node-title {
+    font-weight: 800;
+    color: #c084fc;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tree-node-chapter {
+    font-weight: 700;
+    color: #60a5fa;
+    margin-left: 14px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tree-node-section {
+    font-weight: 600;
+    color: #2dd4bf;
+    margin-left: 28px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tree-node-article {
+    font-weight: 500;
+    color: #34d399;
+    margin-left: 42px;
+    margin-top: 3px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tree-node-article:hover {
+    background: rgba(52, 211, 153, 0.1);
+}
+
+/* Animations & Fade-ins */
+.fade-in {
+    animation: fadeInEffect 0.35s ease-out forwards;
+}
+
+@keyframes fadeInEffect {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Wizard Indicators */
+.wizard-step.active div {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: white;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+}
+.wizard-step.active span {
+    color: #0ea5e9;
+}
+.wizard-step.completed div {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+.wizard-step.completed span {
+    color: #10b981;
+}
+
+/* ========================================================
+   ESTILOS DE LA HOJA UNIVERSAL (WORD + EXCEL + VISIO)
+   ======================================================== */
+
+.canvas-block {
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 8px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+.canvas-block:hover {
+    border-color: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.canvas-block-controls {
+    position: absolute;
+    right: 8px;
+    top: -14px;
+    display: none;
+    gap: 4px;
+    z-index: 50;
+}
+.canvas-block:hover .canvas-block-controls {
+    display: flex;
+}
+
+.canvas-control-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.canvas-control-btn:hover {
+    background: #1e293b;
+    color: white;
+}
+.canvas-control-btn.btn-delete:hover {
+    background: rgba(244, 63, 94, 0.2);
+    color: #f43f5e;
+    border-color: rgba(244, 63, 94, 0.3);
+}
+
+.text-block-editor {
+    outline: none;
+    min-height: 24px;
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.text-block-editor h2, .text-block-editor h3 {
+    color: white;
+    font-weight: 800;
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+.text-block-editor h2 { font-size: 1.35rem; border-left: 3px solid #0ea5e9; padding-left: 8px; }
+.text-block-editor h3 { font-size: 1.15rem; border-left: 3px solid #cbd5e1; padding-left: 8px; }
+.text-block-editor ul { list-style-type: disc; padding-left: 20px; }
+.text-block-editor ol { list-style-type: decimal; padding-left: 20px; }
+
+.spreadsheet-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(15, 23, 42, 0.5);
+    padding: 12px;
+}
+
+.canvas-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    text-align: left;
+    color: #cbd5e1;
+}
+.canvas-table th {
+    background: rgba(15, 23, 42, 0.8);
+    color: white;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.canvas-table td {
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.canvas-table tr:hover td {
+    background: rgba(255, 255, 255, 0.01);
+}
+.canvas-table tr.table-totals {
+    background: rgba(14, 165, 233, 0.05);
+    font-weight: 800;
+    color: #0ea5e9;
+    border-top: 2px solid rgba(14, 165, 233, 0.3);
+}
+
+.cell-editable {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    width: 100%;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+.cell-editable:focus {
+    background: rgba(15, 23, 42, 0.9);
+    box-shadow: 0 0 0 1px #0ea5e9;
+}
+.cell-numeric {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.table-actions-panel {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.diagram-workspace {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background-color: #090d16;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+    background-size: 20px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+}
+
+.diagram-svg-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.diagram-svg-line {
+    fill: none;
+    stroke: #0ea5e9;
+    stroke-width: 2.5;
+    marker-end: url(#arrowhead);
+    transition: stroke 0.15s;
+}
+.diagram-svg-line:hover {
+    stroke: #10b981;
+    stroke-width: 3.5;
+}
+
+.diagram-node {
+    position: absolute;
+    width: 150px;
+    min-height: 60px;
+    border-radius: 12px;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    cursor: grab;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.diagram-node:hover {
+    border-color: #0ea5e9;
+    box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
+}
+.diagram-node:active {
+    cursor: grabbing;
+}
+.diagram-node.selected {
+    border-color: #10b981;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.diagram-node.shape-process { border-radius: 8px; }
+.diagram-node.shape-decision { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; transform: rotate(0deg); width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.diagram-node.shape-startend { border-radius: 30px; }
+.diagram-node.shape-document { border-radius: 8px 8px 0 8px; border-bottom-style: dashed; }
+.diagram-node.shape-database { border-radius: 10px / 20px; }
+
+.diagram-node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    border-b: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 2px;
+}
+.diagram-node-type-icon {
+    font-size: 9px;
+    color: #475569;
+}
+.diagram-node-btn-del {
+    font-size: 9px;
+    color: #64748b;
+    cursor: pointer;
+}
+.diagram-node-btn-del:hover {
+    color: #f43f5e;
+}
+
+.diagram-node-content-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    width: 100%;
+    resize: none;
+    padding: 2px 0;
+}
+
+.diagram-anchor-port {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 55px;
+    background: #475569;
+    border: 1px solid #1e293b;
+    z-index: 30;
+    cursor: crosshair;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.15s, transform 0.15s;
+}
+.diagram-node:hover .diagram-anchor-port {
+    opacity: 1;
+}
+.diagram-anchor-port:hover {
+    background: #0ea5e9;
+    transform: scale(1.4);
+}
+.diagram-anchor-port.port-top { top: -4px; left: calc(50% - 4px); }
+.diagram-anchor-port.port-right { right: -4px; top: calc(50% - 4px); }
+.diagram-anchor-port.port-bottom { bottom: -4px; left: calc(50% - 4px); }
+.diagram-anchor-port.port-left { left: -4px; top: calc(50% - 4px); }
+
+.diagram-toolbar {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+    z-index: 40;
+}
+
+.diagram-tool-btn {
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 6px;
+    color: #cbd5e1;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.diagram-tool-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+.diagram-tool-btn.active {
+    background: rgba(14, 165, 233, 0.15);
+    color: #0ea5e9;
+    border-color: rgba(14, 165, 233, 0.3);
+}
+
+.diagram-connection-tag {
+    position: absolute;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 8px;
+    padding: 1px 4px;
+    color: #94a3b8;
+    z-index: 25;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    outline: none;
+}
+.diagram-connection-tag:focus {
+    border-color: #0ea5e9;
+    color: white;
+}

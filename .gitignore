@@ -1,0 +1,53 @@
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Mac OS
+.DS_Store
+
+# Executables & Binaries
+*.exe
+tailwind3.exe
+
+# Editor directories and files
+.idea/
+.vscode/.history/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.vscode/
+
+# Ignore workspace settings if desired, though some prefer to keep them.
+# Uncomment if you want to ignore all vscode settings:
+# .vscode/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node
+node_modules/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# AI/Agent Data (Gemini/Antigravity)
+scratch/
+.gemini/
+brain/
+.agents
+
+# User Private / Local Workspace Resources
+user/

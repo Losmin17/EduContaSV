@@ -1,96 +1,926 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-env="catalogo">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CatÃ¡logo Maestro | EduConta SV</title>
+    <title>Catálogo Maestro | EduConta SV</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="robots" content="noindex, nofollow">
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
     <link href="css/output.css" rel="stylesheet">
+
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+    <style>
+        /* ==========================================================================
+           DISEÑO GLASSMORPHIC PREMIUM PARA CATÁLOGO
+           ========================================================================== */
+        /* Bloqueo de scroll en el body y ajuste flex de pantalla */
+        html, body {
+            height: 100vh !important;
+            overflow: hidden !important;
+        }
+        body {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        #shared-components-root {
+            flex-shrink: 0 !important;
+        }
+        #catalog-screen {
+            flex: 1 1 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            height: calc(100vh - 86px) !important;
+            min-height: 0 !important;
+            margin-top: 0.25rem !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0.75rem !important;
+        }
+
+        /* Título Principal con Gradiente Índigo / Violeta Institucional */
+        .catalog-title-accent {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Buscador Glassmorphic */
+        .catalog-search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .catalog-search-input {
+            width: 100%;
+            border-radius: 36px;
+            padding: 0.65rem 2.5rem 0.65rem 2.75rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* Light Theme Search */
+        html[data-theme="light"] .catalog-search-input {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+        html[data-theme="light"] .catalog-search-input:focus {
+            background: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+        }
+        /* Dark Theme Search */
+        html[data-theme="dark"] .catalog-search-input,
+        html:not([data-theme="light"]) .catalog-search-input {
+            background: rgba(18, 19, 28, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f8fafc;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        html[data-theme="dark"] .catalog-search-input:focus,
+        html:not([data-theme="light"]) .catalog-search-input:focus {
+            background: rgba(24, 25, 38, 0.95);
+            border-color: rgba(129, 140, 248, 0.6);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22), 0 0 24px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Contenedor de Tabs Glassmorphic */
+        .catalog-tabs-container {
+            position: relative;
+            display: flex;
+            gap: 4px;
+            padding: 6px;
+            border-radius: 28px;
+            margin: 0 auto;
+            width: fit-content;
+            max-width: 100%;
+            transition: all 0.3s ease;
+        }
+        html[data-theme="light"] .catalog-tabs-container {
+            background: rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(15, 23, 42, 0.05);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+        html[data-theme="dark"] .catalog-tabs-container,
+        html:not([data-theme="light"]) .catalog-tabs-container {
+            background: rgba(16, 17, 26, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Botón de Filtro */
+        .cat-filter-btn {
+            position: relative;
+            z-index: 10;
+            padding: 0.6rem 1.25rem;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.2s ease;
+            border-radius: 24px;
+            white-space: nowrap;
+        }
+        .cat-filter-btn:active {
+            transform: scale(0.97);
+        }
+        html[data-theme="light"] .cat-filter-btn {
+            color: #64748b !important;
+        }
+        html[data-theme="light"] .cat-filter-btn:hover:not(.active) {
+            color: #0f172a !important;
+        }
+        html[data-theme="light"] .cat-filter-btn.active {
+            color: #6366f1 !important;
+        }
+        html[data-theme="dark"] .cat-filter-btn,
+        html:not([data-theme="light"]) .cat-filter-btn {
+            color: #94a3b8 !important;
+        }
+        html[data-theme="dark"] .cat-filter-btn:hover:not(.active),
+        html:not([data-theme="light"]) .cat-filter-btn:hover:not(.active) {
+            color: #f1f5f9 !important;
+        }
+        html[data-theme="dark"] .cat-filter-btn.active,
+        html:not([data-theme="light"]) .cat-filter-btn.active {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.5) !important;
+        }
+
+        /* Indicador Deslizante */
+        #catalog-tab-indicator {
+            position: absolute;
+            top: 6px;
+            bottom: 6px;
+            left: 0;
+            border-radius: 24px;
+            transition: all 0.3s ease-out;
+            transform-origin: center;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+        }
+        .cat-filter-btn.active,
+        .cat-filter-btn.active:hover {
+            transform: none !important;
+        }
+        html[data-theme="light"] #catalog-tab-indicator {
+            background: #ffffff;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+        html[data-theme="dark"] #catalog-tab-indicator,
+        html:not([data-theme="light"]) #catalog-tab-indicator {
+            background: rgba(99, 102, 241, 0.16);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+        }
+
+        /* ==========================================================================
+           CONTENEDOR SPLIT-VIEW (IDE CONTABLE & FICHA VIVA)
+           ========================================================================== */
+        .catalog-split-grid {
+            display: flex;
+            gap: 1.25rem;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            flex: 1 1 0;
+        }
+        .catalog-panel-glass {
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 0;
+            transition: all 0.25s ease;
+        }
+        html[data-theme="light"] .catalog-panel-glass {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.03);
+        }
+        html[data-theme="dark"] .catalog-panel-glass,
+        html:not([data-theme="light"]) .catalog-panel-glass {
+            background: rgba(12, 13, 20, 0.65);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
+        }
+
+        /* Subfiltros por nivel (Pills) */
+        .cat-level-btn {
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+        html[data-theme="light"] .cat-level-btn {
+            background: rgba(15, 23, 42, 0.04);
+            color: #64748b;
+        }
+        html[data-theme="light"] .cat-level-btn:hover:not(.active) {
+            background: rgba(15, 23, 42, 0.08);
+            color: #1e293b;
+        }
+        html[data-theme="light"] .cat-level-btn.active {
+            background: #6366f1;
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+        }
+        html[data-theme="dark"] .cat-level-btn,
+        html:not([data-theme="light"]) .cat-level-btn {
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        html[data-theme="dark"] .cat-level-btn:hover:not(.active),
+        html:not([data-theme="light"]) .cat-level-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f1f5f9;
+        }
+        html[data-theme="dark"] .cat-level-btn.active,
+        html:not([data-theme="light"]) .cat-level-btn.active {
+            background: #6366f1;
+            color: #ffffff;
+            border-color: #818cf8;
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.45);
+        }
+
+        .catalog-scrollable {
+            flex: 1 1 0 !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+            scrollbar-gutter: stable;
+            position: relative;
+            min-height: 0 !important;
+        }
+        /* Scrollbar custom */
+        .catalog-scrollable::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .catalog-scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        html[data-theme="light"] .catalog-scrollable::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        html[data-theme="dark"] .catalog-scrollable::-webkit-scrollbar-thumb,
+        html:not([data-theme="light"]) .catalog-scrollable::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 3px;
+        }
+        html[data-theme="dark"] .catalog-scrollable::-webkit-scrollbar-thumb:hover,
+        html:not([data-theme="light"]) .catalog-scrollable::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        /* Encabezado Tabla */
+        .catalog-thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        .catalog-thead th {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 1rem 1.5rem;
+            text-align: left;
+        }
+        html[data-theme="light"] .catalog-thead th {
+            background: #f8fafc;
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        html[data-theme="dark"] .catalog-thead th,
+        html:not([data-theme="light"]) .catalog-thead th {
+            background: rgba(12, 12, 14, 0.96);
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        /* Filas y Jerarquía de Cuentas */
+        .catalog-row {
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+            cursor: pointer;
+        }
+        .catalog-row td {
+            font-size: 13px !important;
+            font-weight: 500 !important;
+        }
+        /* Resaltado de fila hover */
+        html[data-theme="light"] .catalog-row:hover:not(.catalog-row-active) {
+            background: rgba(241, 245, 249, 0.9) !important;
+        }
+        html[data-theme="dark"] .catalog-row:hover:not(.catalog-row-active),
+        html:not([data-theme="light"]) .catalog-row:hover:not(.catalog-row-active) {
+            background: rgba(255, 255, 255, 0.04) !important;
+        }
+        /* Fila Activa en el Split-View */
+        html[data-theme="light"] .catalog-row.catalog-row-active {
+            background: rgba(99, 102, 241, 0.09) !important;
+            border-left: 4px solid #6366f1 !important;
+        }
+        html[data-theme="dark"] .catalog-row.catalog-row-active,
+        html:not([data-theme="light"]) .catalog-row.catalog-row-active {
+            background: rgba(99, 102, 241, 0.18) !important;
+            border-left: 4px solid #818cf8 !important;
+            box-shadow: inset 0 0 24px rgba(99, 102, 241, 0.08);
+        }
+        html[data-theme="light"] .catalog-row.catalog-row-active td {
+            color: #1e1b4b !important;
+        }
+        html[data-theme="dark"] .catalog-row.catalog-row-active td,
+        html:not([data-theme="light"]) .catalog-row.catalog-row-active td {
+            color: #ffffff !important;
+        }
+        .catalog-row.catalog-row-active .cat-row-name {
+            font-weight: 800 !important;
+        }
+
+        /* Niveles de jerarquía */
+        .catalog-row.level-1 {
+            font-weight: 800 !important;
+        }
+        html[data-theme="light"] .catalog-row.level-1 {
+            background: rgba(248, 250, 252, 0.95);
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        html[data-theme="dark"] .catalog-row.level-1,
+        html:not([data-theme="light"]) .catalog-row.level-1 {
+            background: rgba(20, 21, 32, 0.75);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        /* Tarjeta de Cuenta "T" Didáctica */
+        .cuenta-t-box {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid;
+            transition: all 0.2s ease;
+        }
+        html[data-theme="light"] .cuenta-t-box {
+            background: #ffffff;
+            border-color: rgba(99, 102, 241, 0.22);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05);
+        }
+        html[data-theme="dark"] .cuenta-t-box,
+        html:not([data-theme="light"]) .cuenta-t-box {
+            background: rgba(18, 19, 30, 0.75);
+            border-color: rgba(99, 102, 241, 0.28);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(99, 102, 241, 0.03);
+        }
+
+        /* Asiento Contable Tipo */
+        .asiento-table-wrap {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid;
+        }
+        html[data-theme="light"] .asiento-table-wrap {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        html[data-theme="dark"] .asiento-table-wrap,
+        html:not([data-theme="light"]) .asiento-table-wrap {
+            background: rgba(14, 15, 24, 0.6);
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        .asiento-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .asiento-table th {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 6px 10px;
+        }
+        .asiento-table td {
+            padding: 6px 10px;
+        }
+
+        /* Breadcrumbs */
+        #catalog-breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            padding: 0.25rem 0.5rem;
+        }
+        html[data-theme="light"] #catalog-breadcrumbs {
+            color: #64748b;
+        }
+        html[data-theme="dark"] #catalog-breadcrumbs,
+        html:not([data-theme="light"]) #catalog-breadcrumbs {
+            color: #94a3b8;
+        }
+
+        /* Copy Button custom */
+        .catalog-copy-btn {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 6px;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 6px;
+        }
+        .catalog-row:hover .catalog-copy-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+        html[data-theme="light"] .catalog-copy-btn {
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            color: #475569;
+        }
+        html[data-theme="light"] .catalog-copy-btn:hover {
+            background: rgba(15, 23, 42, 0.1);
+            color: #0f172a;
+        }
+        html[data-theme="dark"] .catalog-copy-btn,
+        html:not([data-theme="light"]) .catalog-copy-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+        html[data-theme="dark"] .catalog-copy-btn:hover,
+        html:not([data-theme="light"]) .catalog-copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+        }
+
+        /* Tags sectoriales de catálogo - Overrides premium */
+        .cat-tag {
+            font-size: 8px !important;
+            padding: 3px 8px !important;
+            border-radius: 6px !important;
+            font-weight: 850 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            display: inline-block !important;
+            backdrop-filter: blur(4px) !important;
+            -webkit-backdrop-filter: blur(4px) !important;
+        }
+        /* SSF */
+        html[data-theme="light"] .tag-ssf {
+            background: rgba(224, 242, 254, 0.8) !important;
+            color: #0369a1 !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+        }
+        html[data-theme="dark"] .tag-ssf,
+        html:not([data-theme="light"]) .tag-ssf {
+            background: rgba(14, 165, 233, 0.12) !important;
+            color: #38bdf8 !important;
+            border: 1px solid rgba(14, 165, 233, 0.25) !important;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.05) !important;
+        }
+        /* INV */
+        html[data-theme="light"] .tag-inv {
+            background: rgba(241, 245, 249, 0.8) !important;
+            color: #334155 !important;
+            border: 1px solid rgba(148, 163, 184, 0.4) !important;
+        }
+        html[data-theme="dark"] .tag-inv,
+        html:not([data-theme="light"]) .tag-inv {
+            background: rgba(245, 158, 11, 0.12) !important;
+            color: #fbbf24 !important;
+            border: 1px solid rgba(245, 158, 11, 0.25) !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.05) !important;
+        }
+        /* AGR */
+        html[data-theme="light"] .tag-agr {
+            background: rgba(220, 252, 231, 0.8) !important;
+            color: #15803d !important;
+            border: 1px solid rgba(74, 222, 128, 0.4) !important;
+        }
+        html[data-theme="dark"] .tag-agr,
+        html:not([data-theme="light"]) .tag-agr {
+            background: rgba(16, 185, 129, 0.12) !important;
+            color: #34d399 !important;
+            border: 1px solid rgba(16, 185, 129, 0.25) !important;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.05) !important;
+        }
+        /* GUB */
+        html[data-theme="light"] .tag-gub {
+            background: rgba(254, 226, 226, 0.8) !important;
+            color: #b91c1c !important;
+            border: 1px solid rgba(248, 113, 113, 0.4) !important;
+        }
+        html[data-theme="dark"] .tag-gub,
+        html:not([data-theme="light"]) .tag-gub {
+            background: rgba(244, 63, 94, 0.12) !important;
+            color: #fb7185 !important;
+            border: 1px solid rgba(244, 63, 94, 0.25) !important;
+            box-shadow: 0 0 10px rgba(244, 63, 94, 0.05) !important;
+        }
+        
+        /* Tooltip Premium */
+        #catalog-tooltip {
+            transition: opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: left center;
+            z-index: 9999;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 320px;
+        }
+        #catalog-tooltip.show {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+        html[data-theme="dark"] #catalog-tooltip,
+        html:not([data-theme="light"]) #catalog-tooltip {
+            background: rgba(20, 20, 24, 0.98);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+        html[data-theme="dark"] #catalog-tooltip h4,
+        html:not([data-theme="light"]) #catalog-tooltip h4 { color: #f8fafc; }
+        html[data-theme="dark"] #catalog-tooltip p,
+        html:not([data-theme="light"]) #catalog-tooltip p { color: #94a3b8; }
+        
+        .tt-grid-box {
+            background: rgba(248, 250, 252, 0.5); /* bg-slate-50/50 approx */
+            border: 1px solid rgba(241, 245, 249, 0.6);
+        }
+        html[data-theme="dark"] .tt-grid-box,
+        html:not([data-theme="light"]) .tt-grid-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        html[data-theme="dark"] #catalog-tooltip .text-slate-700,
+        html:not([data-theme="light"]) #catalog-tooltip .text-slate-700 { color: #e2e8f0; }
+        html[data-theme="dark"] #catalog-tooltip .text-slate-400,
+        html:not([data-theme="light"]) #catalog-tooltip .text-slate-400 { color: #64748b; }
+        
+        #tt-arrow {
+            width: 14px;
+            height: 14px;
+        }
+        html[data-theme="dark"] #catalog-tooltip #tt-arrow,
+        html:not([data-theme="light"]) #catalog-tooltip #tt-arrow {
+            background: rgba(20, 20, 24, 0.98);
+            border-left-color: rgba(255, 255, 255, 0.08);
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+            border-top-color: transparent;
+            border-right-color: transparent;
+        }
+        
+        /* Font sizes for tooltip to avoid Tailwind arbitrary classes */
+        .tt-title { font-size: 13px; line-height: 1.25; }
+        .tt-desc { font-size: 11.5px; }
+        .tt-label { font-size: 9.5px; letter-spacing: 0.05em; }
+        .tt-val { font-size: 11px; }
+        .tt-footer { font-size: 9.5px; letter-spacing: 0.05em; }
+
+        /* Drawer Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
+        html[data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb,
+        html:not([data-theme="light"]) .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+        
+        /* Drawer Base Styles */
+        #catalog-drawer-backdrop {
+            z-index: 200;
+        }
+        #catalog-drawer {
+            z-index: 210;
+            width: 380px;
+            max-width: calc(100vw - 32px);
+            border-radius: 24px;
+            right: 16px;
+            top: 100px; /* Adjusted to clear the top header */
+            bottom: 20px;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .drawer-closed { transform: translateX(120%); }
+        .drawer-open { transform: translateX(0); }
+        
+        .drawer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        html[data-theme="dark"] #catalog-drawer,
+        html:not([data-theme="light"]) #catalog-drawer {
+            background: rgba(16, 16, 20, 0.8); /* Stronger glass to look clean */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+        html[data-theme="light"] #catalog-drawer {
+            background: rgba(255, 255, 255, 0.85); /* Clean white glass */
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Drawer Inner Styles */
+        .drawer-header { border-bottom: 1px solid; }
+        .drawer-footer { border-top: 1px solid; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .drawer-close-btn { transition: all 0.2s; cursor: pointer; }
+        .drawer-card { border-radius: 12px; padding: 12px; border: 1px solid; }
+        .drawer-text-primary { font-size: 12px; font-weight: 700; }
+        .drawer-text-secondary { font-size: 13px; font-weight: 500; line-height: 1.6; }
+        .drawer-text-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: block; }
+        .drawer-section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .drawer-example-card { border-radius: 12px; padding: 16px; border: 1px solid; }
+        .drawer-example-text { font-size: 12.5px; font-weight: 500; line-height: 1.6; }
+        
+        .drawer-btn-secondary { border-radius: 12px; padding: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 1px solid; transition: all 0.2s; }
+        .drawer-btn-primary { border-radius: 12px; padding: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; background: #0284c7; color: white; border: none; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3); transition: all 0.2s; }
+        .drawer-btn-primary:hover { background: #0369a1; }
+
+        .drawer-badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid; }
+        .drawer-norm { padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; border: 1px solid; }
+
+        /* Light Mode */
+        html[data-theme="light"] .drawer-header { border-color: rgba(226, 232, 240, 0.6); }
+        html[data-theme="light"] .drawer-title { color: #1e293b; }
+        html[data-theme="light"] .drawer-close-btn { background: rgba(241, 245, 249, 0.8); color: #64748b; }
+        html[data-theme="light"] .drawer-close-btn:hover { background: #e2e8f0; }
+        
+        html[data-theme="light"] .drawer-card { background: rgba(255, 255, 255, 0.6); border-color: rgba(226, 232, 240, 0.8); }
+        html[data-theme="light"] .drawer-text-primary { color: #334155; }
+        html[data-theme="light"] .drawer-text-secondary { color: #475569; }
+        html[data-theme="light"] .drawer-text-label { color: #94a3b8; }
+        html[data-theme="light"] .drawer-section-title { color: #94a3b8; }
+        
+        html[data-theme="light"] .drawer-example-card { background: #f0f9ff; border-color: #e0f2fe; }
+        html[data-theme="light"] .drawer-example-text { color: #075985; }
+        
+        html[data-theme="light"] .drawer-footer { border-color: rgba(226, 232, 240, 0.6); background: rgba(255, 255, 255, 0.4); }
+        html[data-theme="light"] .drawer-btn-secondary { background: rgba(255, 255, 255, 0.8); border-color: rgba(226, 232, 240, 1); color: #475569; }
+        html[data-theme="light"] .drawer-btn-secondary:hover { background: #f8fafc; }
+
+        html[data-theme="light"] .drawer-badge-indigo { background: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
+        html[data-theme="light"] .drawer-badge-slate { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+        html[data-theme="light"] .drawer-norm { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+
+        /* Dark Mode */
+        html[data-theme="dark"] .drawer-header, html:not([data-theme="light"]) .drawer-header { border-color: rgba(255, 255, 255, 0.05); }
+        html[data-theme="dark"] .drawer-title, html:not([data-theme="light"]) .drawer-title { color: #f8fafc; }
+        html[data-theme="dark"] .drawer-close-btn, html:not([data-theme="light"]) .drawer-close-btn { background: rgba(255, 255, 255, 0.05); color: #94a3b8; }
+        html[data-theme="dark"] .drawer-close-btn:hover, html:not([data-theme="light"]) .drawer-close-btn:hover { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        
+        html[data-theme="dark"] .drawer-card, html:not([data-theme="light"]) .drawer-card { background: rgba(30, 30, 40, 0.4); border-color: rgba(255, 255, 255, 0.05); }
+        html[data-theme="dark"] .drawer-text-primary, html:not([data-theme="light"]) .drawer-text-primary { color: #e2e8f0; }
+        html[data-theme="dark"] .drawer-text-secondary, html:not([data-theme="light"]) .drawer-text-secondary { color: #cbd5e1; }
+        html[data-theme="dark"] .drawer-text-label, html:not([data-theme="light"]) .drawer-text-label { color: #64748b; }
+        html[data-theme="dark"] .drawer-section-title, html:not([data-theme="light"]) .drawer-section-title { color: #64748b; }
+        
+        html[data-theme="dark"] .drawer-example-card, html:not([data-theme="light"]) .drawer-example-card { background: rgba(12, 74, 110, 0.2); border-color: rgba(7, 89, 133, 0.3); }
+        html[data-theme="dark"] .drawer-example-text, html:not([data-theme="light"]) .drawer-example-text { color: #7dd3fc; }
+        
+        html[data-theme="dark"] .drawer-footer, html:not([data-theme="light"]) .drawer-footer { border-color: rgba(255, 255, 255, 0.05); background: rgba(16, 16, 20, 0.4); }
+        html[data-theme="dark"] .drawer-btn-secondary, html:not([data-theme="light"]) .drawer-btn-secondary { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        html[data-theme="dark"] .drawer-btn-secondary:hover, html:not([data-theme="light"]) .drawer-btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+        html[data-theme="dark"] .drawer-badge-indigo, html:not([data-theme="light"]) .drawer-badge-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+        html[data-theme="dark"] .drawer-badge-slate, html:not([data-theme="light"]) .drawer-badge-slate { background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border-color: rgba(255, 255, 255, 0.1); }
+        html[data-theme="dark"] .drawer-norm, html:not([data-theme="light"]) .drawer-norm { background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border-color: rgba(255, 255, 255, 0.1); }
+    </style>
 </head>
 <body class="pt-24 pb-12 relative">
-    <div id="shared-components-root"></div>
-    <main id="catalog-screen" class="max-w-5xl mx-auto px-6 md:px-8 mt-6 md:mt-12 no-print fade-in">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
-            <div>
-                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Catálogo <span
-                        class="text-indigo-500">Maestro</span></h2>
-                <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Listado Integral de
-                    Cuentas y Sectores (100% de Registros)</p>
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-indigo" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
             </div>
-            <div class="relative w-full md:w-72">
-                <i class="fas fa-search absolute left-4 top-3 text-slate-400 z-10"></i>
-                <input type="text" id="catalog-search"
-                    class="w-full bg-white border border-slate-200 rounded-[36px] pl-10 pr-10 py-2 text-sm text-slate-700 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 outline-none transition-all"
-                    placeholder="Buscar cuenta o código..." oninput="filterCatalog()">
-                <button id="catalog-clear-search" onclick="clearCatalogSearch()"
-                    class="absolute right-3 top-2.5 text-slate-400 hover:text-rose-500 transition-colors z-10"
-                    title="Limpiar búsqueda">
-                    <i class="fas fa-times-circle text-lg"></i>
-                </button>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+    <main id="catalog-screen" class="max-w-full mx-auto px-6 md:px-8 mt-6 md:mt-12 no-print fade-in">
+        <!-- CABECERA DEL CATÁLOGO UNIFICADA -->
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 md:mb-8 gap-4 w-full no-print">
+            <!-- Columna Izquierda: Título y Subtítulo -->
+            <div class="lg:flex-1 lg:basis-0 flex flex-col items-center lg:items-start text-center lg:text-left shrink-0">
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Catálogo <span
+                        class="catalog-title-accent">Maestro</span></h2>
+                <p class="text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase mt-2 tracking-widest leading-normal">
+                    Listado Integral de Cuentas y Sectores (100% de Registros)
+                </p>
+            </div>
+
+            <!-- Columna Central: Pestañas de Filtro (Siempre Centradas) -->
+            <div class="lg:flex-initial flex justify-center w-full lg:w-auto">
+                <div class="catalog-tabs-container">
+                    <!-- Indicador deslizante de fondo -->
+                    <div id="catalog-tab-indicator"></div>
+
+                    <button onclick="setCatalogFilter('Todos')" data-cat="Todos" data-idx="0"
+                        class="cat-filter-btn active">Completo</button>
+                    <button onclick="setCatalogFilter('SSF')" data-cat="SSF" data-idx="1"
+                        class="cat-filter-btn">SSF (Banca/Seguros)</button>
+                    <button onclick="setCatalogFilter('INV')" data-cat="INV" data-idx="2"
+                        class="cat-filter-btn">NIC 2 (Inventarios)</button>
+                    <button onclick="setCatalogFilter('AGR')" data-cat="AGR" data-idx="3"
+                        class="cat-filter-btn">NIC 41 (Agricultura)</button>
+                    <button onclick="setCatalogFilter('Gub')" data-cat="Gub" data-idx="4"
+                        class="cat-filter-btn">Gubernamental</button>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Buscador -->
+            <div class="lg:flex-1 lg:basis-0 flex justify-center lg:justify-end w-full lg:w-auto">
+                <div class="catalog-search-wrapper w-full max-w-[280px]">
+                    <i class="fas fa-search absolute left-4 top-3 text-slate-400 z-10"></i>
+                    <input type="text" id="catalog-search"
+                        class="catalog-search-input"
+                        placeholder="Buscar cuenta o código..." oninput="debouncedFilterCatalog()">
+                    <button id="catalog-clear-search" onclick="clearCatalogSearch()"
+                        class="absolute right-3 top-2.5 text-slate-400 hover:text-rose-500 transition-colors z-10 hidden"
+                        title="Limpiar búsqueda">
+                        <i class="fas fa-times-circle text-lg"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="w-full overflow-x-auto overflow-y-scrollbar-hide no-print mb-6 px-4">
-            <div
-                class="relative flex gap-1 p-1.5 bg-slate-200/30 backdrop-blur-md border border-white/50 shadow-sm rounded-[28px] mx-auto max-w-6xl">
-                <!-- Indicador deslizante de fondo -->
-                <div id="catalog-tab-indicator"
-                    class="absolute top-1.5 bottom-1.5 left-0 rounded-[36px] bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(15,23,42,0.1)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-0">
+        <!-- Migas de Pan (Breadcrumbs) -->
+        <div id="catalog-breadcrumbs" class="hidden"></div>
+
+        <!-- CONTENEDOR SPLIT-VIEW (IDE CONTABLE & FICHA VIVA) -->
+        <div id="catalog-split-container" class="catalog-split-grid flex-1 min-h-0 w-full flex flex-col lg:flex-row gap-5">
+            <!-- PANEL IZQUIERDO: EXPLORADOR JERÁRQUICO -->
+            <section id="catalog-explorer-panel" class="catalog-panel-glass w-full lg:w-[58%] xl:w-[57%] flex flex-col min-h-0 overflow-hidden">
+                <!-- Barra de control / subfiltros del explorador -->
+                <div class="catalog-panel-header p-3 px-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/60 dark:border-white/5 shrink-0">
+                    <!-- Filtros de Nivel (Pills) -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto py-0.5 custom-scrollbar">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1 shrink-0 flex items-center gap-1">
+                            <i class="fas fa-layer-group text-indigo-500"></i> Nivel:
+                        </span>
+                        <button onclick="setCatalogLevelFilter('all')" data-level="all" class="cat-level-btn active">Todos</button>
+                        <button onclick="setCatalogLevelFilter('1')" data-level="1" class="cat-level-btn">1d Clase</button>
+                        <button onclick="setCatalogLevelFilter('2')" data-level="2" class="cat-level-btn">2d Grupo</button>
+                        <button onclick="setCatalogLevelFilter('4')" data-level="4" class="cat-level-btn">4d Mayor</button>
+                        <button onclick="setCatalogLevelFilter('sub')" data-level="sub" class="cat-level-btn">6d+ Subcta</button>
+                    </div>
+
+                    <!-- Contador de Cuentas y Estadísticas -->
+                    <div class="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">
+                        <span id="catalog-count-badge" class="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50 tabular-nums font-mono font-bold">
+                            0 cuentas
+                        </span>
+                    </div>
                 </div>
 
-                <button onclick="setCatalogFilter('Todos')" data-cat="Todos"
-                    class="cat-filter-btn active relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-sky-600 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">Completo</button>
-                <button onclick="setCatalogFilter('SSF')" data-cat="SSF"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">SSF
-                    (Banca/Seguros)</button>
-                <button onclick="setCatalogFilter('INV')" data-cat="INV"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">NIC
-                    2
-                    (Inventarios)</button>
-                <button onclick="setCatalogFilter('AGR')" data-cat="AGR"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">NIC
-                    41
-                    (Agricultura)</button>
-                <button onclick="setCatalogFilter('Gub')" data-cat="Gub"
-                    class="cat-filter-btn relative z-10 px-5 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 focus:outline-none whitespace-nowrap rounded-[36px] transition-colors">Gubernamental</button>
-            </div>
-            <!-- Migas de Pan (Breadcrumbs) -->
-            <div id="catalog-breadcrumbs"
-                class="mb-4 text-xs font-bold text-slate-500 flex flex-wrap gap-2 items-center transition-all">
-            </div>
-
-            <div
-                class="bg-white rounded-[28px] shadow-[0_4px_6px_rgba(0,0,0,0.05)] border border-slate-200 overflow-mx-auto max-w-6xl">
-                <div class="max-h-[600px] overflow-y-auto overflow-x-auto relative">
-                    <table class="w-full text-sm min-w-[600px]">
-                        <thead class="sticky top-0 bg-white z-10 shadow-sm border-b border-slate-200">
-                            <tr class="text-[10px] text-slate-500 uppercase font-black tracking-wider">
-                                <th
-                                    class="py-4 px-6 text-left w-32 sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
-                                    Código</th>
-                                <th
-                                    class="py-4 px-6 text-left sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
-                                    Nombre de la Cuenta</th>
-                                <th
-                                    class="py-4 px-6 text-left sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
-                                    Rubro</th>
-                                <th
-                                    class="py-4 px-6 text-center w-32 sticky top-0 bg-white z-10 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]">
-                                    Sector</th>
+                <!-- Lista / Tabla Scrollable -->
+                <div class="catalog-scrollable flex-1 min-h-0 overflow-y-auto overflow-x-auto relative">
+                    <table class="w-full text-sm min-w-[500px] border-collapse table-fixed">
+                        <thead class="catalog-thead">
+                            <tr>
+                                <th class="w-32 lg:w-36">Código</th>
+                                <th class="w-[52%]">Nombre de la Cuenta</th>
+                                <th class="w-[28%]">Rubro</th>
+                                <th class="w-20 text-center">Sector</th>
                             </tr>
                         </thead>
-                        <tbody id="catalog-table-body" class="divide-y divide-slate-100">
+                        <tbody id="catalog-table-body">
                             <!-- Llenado dinámico -->
                         </tbody>
                     </table>
                 </div>
-            </div>
+
+                <!-- Footer del explorador: atajo en móvil para ver ficha -->
+                <div class="p-3 bg-slate-50/70 dark:bg-white/[0.02] border-t border-slate-200/50 dark:border-white/5 flex lg:hidden items-center justify-between shrink-0">
+                    <span class="text-xs text-slate-500 font-semibold truncate max-w-[200px]" id="catalog-mobile-selected-label">Ninguna cuenta seleccionada</span>
+                    <button onclick="openCatalogMobileInspector()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wide flex items-center gap-1.5 shadow-md shadow-indigo-600/20 transition-all">
+                        <i class="fas fa-file-invoice"></i> Ver Ficha
+                    </button>
+                </div>
+            </section>
+
+            <!-- PANEL DERECHO: FICHA MAESTRA EN TIEMPO REAL -->
+            <aside id="catalog-inspector-panel" class="catalog-panel-glass hidden lg:flex lg:w-[42%] xl:w-[43%] flex-col min-h-0 overflow-hidden relative">
+                <!-- Contenido Dinámico de la Ficha Maestra -->
+                <div id="catalog-inspector-content" class="flex-1 min-h-0 flex flex-col overflow-hidden">
+                    <!-- Se inyecta dinámicamente con renderCatalogInspector() -->
+                </div>
+            </aside>
+        </div>
     </main>
+
+    <!-- Drawer / Side Panel (Móvil) -->
+    <div id="catalog-drawer-backdrop" class="fixed inset-0 hidden" style="background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 200;" onclick="closeCatalogDrawer()"></div>
+
+    <div id="catalog-drawer" class="fixed flex flex-col overflow-hidden transition-transform duration-300 drawer-closed" style="will-change: transform;">
+        <div id="catalog-drawer-content" class="flex-1 flex flex-col min-h-0 overflow-hidden">
+            <!-- Dinámico idéntico al inspector -->
+        </div>
+    </div>
+
+    <script src="js/core/security.js"></script>
     <script src="js/core/supabase.js"></script>
     <script src="js/core/db.js"></script>
     <script src="js/core/auth.js"></script>
@@ -103,9 +933,11 @@
             }
             setTimeout(() => {
                 const btnVolver = document.getElementById('btn-volver');
-                if (btnVolver) btnVolver.classList.remove('hidden');
+                if (btnVolver && !window.isAuditMode) btnVolver.classList.remove('hidden');
             }, 50);
         });
     </script>
 </body>
 </html>
+
+

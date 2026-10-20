@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="es" data-env="documentos">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Documentos | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/styles.css?v=1.1.1">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1.0.5">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SheetJS para importación de hojas de cálculo Excel / CSV / ODS -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="js/core/excel-import-helper.js"></script>
+    <style>
+        /* Preloader unificado via styles.css */
+
+        /* =========================================================
+           SELECTOR DE CATÁLOGO CUSTOM
+           ========================================================= */
+        .catalog-selector-wrap {
+            margin-top: 4px;
+        }
+
+        .catalog-current {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 36px;
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+
+        .catalog-current:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+        }
+
+        .catalog-current.open {
+            border-color: #38bdf8;
+            border-radius: 18px 18px 0 0;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+        }
+
+        .catalog-current-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .catalog-current-arrow {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+
+        .catalog-current.open .catalog-current-arrow {
+            transform: rotate(180deg);
+        }
+
+        .catalog-options-panel {
+            height: 0;
+            overflow: hidden;
+            transition: height var(--modal-accordion-duration) var(--modal-spring-timing), opacity var(--modal-accordion-duration) var(--modal-spring-timing) !important;
+            opacity: 0;
+            background: #f8fafc;
+            border: 1.5px solid #38bdf8;
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .catalog-options-panel.open {
+            opacity: 1;
+        }
+
+        .catalog-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .catalog-option:last-child {
+            border-bottom: none;
+        }
+
+        .catalog-option:hover {
+            background: #f0f9ff;
+        }
+
+        .catalog-option.selected {
+            background: #e0f2fe;
+        }
+
+        .catalog-option-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: #e0f2fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #0ea5e9;
+            font-size: 0.875rem;
+        }
+
+        .catalog-option.selected .catalog-option-icon {
+            background: #0ea5e9;
+            color: #fff;
+        }
+
+        .catalog-option-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .catalog-option-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #334155;
+            display: block;
+        }
+
+        .catalog-option-desc {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 500;
+            display: block;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .catalog-option-badge {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: #0ea5e9;
+            background: #e0f2fe;
+            padding: 2px 8px;
+            border-radius: 20px;
+            flex-shrink: 0;
+            align-self: center;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .catalog-option.selected .catalog-option-badge {
+            background: #0ea5e9;
+            color: #fff;
+        }
+
+        /* =========================================================
+           MODAL DE IMPORTACIÓN .edc  — DRAG & DROP PREMIUM
+           (backdrop, z-index y modalPopIn viven en styles.css)
+           ========================================================= */
+
+        /* Dropzone base */
+        #edc-dropzone {
+            position: relative;
+            border: 2.5px dashed #cbd5e1;
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s, box-shadow 0.35s;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+
+        #edc-dropzone.drag-over {
+            border-color: #38bdf8;
+            background: #f0f9ff;
+            box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.18),
+                0 0 40px 10px rgba(56, 189, 248, 0.12);
+        }
+
+        /* Bloom animado al hacer drag-over */
+        #edc-dropzone::before {
+            content: '';
+            position: absolute;
+            inset: -40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            animation: none;
+        }
+
+        #edc-dropzone.drag-over::before {
+            opacity: 1;
+            animation: bloomPulse 1.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes bloomPulse {
+            from {
+                transform: scale(0.85);
+                opacity: 0.6;
+            }
+
+            to {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* Estado: archivo listo */
+        #edc-dropzone.file-ready {
+            border-color: #10b981;
+            background: #ecfdf5;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+        }
+
+        #edc-dropzone.file-ready::before {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
+            opacity: 1;
+        }
+
+        /* Estado: error */
+        #edc-dropzone.file-error {
+            border-color: #f43f5e;
+            background: #fff1f2;
+            box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
+            animation: shakeX 0.4s ease;
+        }
+
+        @keyframes shakeX {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-8px);
+            }
+
+            75% {
+                transform: translateX(8px);
+            }
+        }
+
+        /* Barra de progreso de importación */
+        #import-progress-bar {
+            height: 4px;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #6366f1);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* =========================================================
+           ESTILOS PARA TABS DE MODELO VERTICAL (EduConta SV)
+           ========================================================= */
+        .model-tab-btn-vertical {
+            background: transparent;
+            color: #64748b;
+            border: 1.5px solid transparent;
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .model-tab-btn-vertical:hover {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        .model-tab-btn-vertical.active {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #bae6fd;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.05);
+        }
+
+        .model-tab-btn-vertical.active .icon-wrap {
+            background: #0ea5e9 !important;
+            color: #ffffff !important;
+        }
+
+        /* =========================================================
+           DISEÑO DE DOS COLUMNAS RESPONSIVO (ESCRITORIO & MÓVIL)
+           ========================================================= */
+        /* ── LAYOUT PROYECTOS ── */
+        .proyectos-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            body.pt-28.lg\:pt-28 {
+                padding-top: 95px !important;
+                overflow: hidden !important;
+            }
+
+            #project-screen {
+                height: calc(100vh - 95px);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .proyectos-layout {
+                flex: 1;
+                height: 0;
+                min-height: 0;
+                overflow: visible;
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 2.5rem;
+            }
+
+            .proyectos-sidebar {
+                width: 320px !important;
+                height: calc(100% - 24px) !important;
+                min-height: auto !important;
+                position: static !important;
+                margin-top: 0 !important;
+            }
+
+            #main-content-area {
+                height: calc(100% + 175px) !important;
+                overflow-y: auto !important;
+                padding: 175px 24px 80px 24px !important;
+                margin: -175px -24px 0 -24px !important;
+            }
+        }
+
+        .proyectos-sidebar {
+            width: 100%;
+            padding: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Radio Cards de Selección de Modelo en Modal */
+        .model-opt-card {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .model-opt-card:hover {
+            border-color: #38bdf8;
+            background: #f8fafc;
+        }
+
+        .model-opt-card.selected {
+            border-color: #0ea5e9;
+            background: #f0f9ff;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .model-opt-card.selected .model-check-circle {
+            border-color: #0ea5e9;
+            background: #0ea5e9;
+        }
+
+        .model-opt-card.selected .w-10 {
+            background: #0ea5e9 !important;
+            color: #ffffff !important;
+        }
+
+        /* Hover styles are now handled by external styles.css and dark-mode.css */
+        /* Selección Múltiple (Long Press) */
+        .project-card {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .project-card.multi-selected::after {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            color: #f59e0b;
+            font-size: 1.5rem;
+            background: white;
+            border-radius: 50%;
+            z-index: 10;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        [data-theme="dark"] .project-card.multi-selected::after {
+            background: #1e293b;
+        }
+
+        .project-card.multi-selected {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+            transform: scale(0.98);
+        }
+
+        [data-theme="dark"] .project-card.multi-selected {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+
+        .multi-select-bar {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: calc(100% - 2rem);
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.65) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 
+                0 10px 30px -10px rgba(0, 0, 0, 0.15),
+                0 1px 1px rgba(255, 255, 255, 0.5) inset !important;
+        }
+
+        [data-theme="dark"] .multi-select-bar {
+            background: rgba(15, 23, 42, 0.65) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 
+                0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                0 1px 1px rgba(255, 255, 255, 0.05) inset !important;
+        }
+
+        .multi-select-bar.show {
+            bottom: 24px;
+        }
+
+        /* Anular efectos hover cuando la selección múltiple está activa */
+        #project-grid.multi-select-active .project-card:hover {
+            transform: none !important;
+            box-shadow: 
+                0 4px 24px rgba(15, 23, 42, 0.06),
+                0 1px 4px rgba(15, 23, 42, 0.04),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.8) !important;
+            border-color: var(--glass-border) !important;
+            background: var(--glass-bg) !important;
+        }
+        [data-theme="dark"] #project-grid.multi-select-active .project-card:hover {
+            border-color: var(--glass-border) !important;
+            background: var(--glass-bg) !important;
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.35),
+                inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Mantener estilos de tarjeta seleccionada incluso al hacer hover */
+        #project-grid.multi-select-active .project-card.multi-selected:hover {
+            transform: scale(0.98) !important;
+            border-color: #f59e0b !important;
+            background-color: #fffbeb !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+        }
+        [data-theme="dark"] #project-grid.multi-select-active .project-card.multi-selected:hover {
+            background-color: rgba(245, 158, 11, 0.1) !important;
+            background-image: none !important;
+        }
+    </style>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="page-documentos min-h-screen text-slate-800 antialiased overflow-x-hidden pb-20 lg:pb-0 pt-28 lg:pt-28">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-amber" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- PANTALLA 2: GESTIÓN DE PROYECTOS -->
+    <main id="project-screen" class="max-w-full mx-auto px-4 md:px-8 w-full no-print fade-in relative z-10">
+
+        <!-- CABECERA DE LA PÁGINA -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-2 gap-4 relative z-20">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h2
+                        class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight dark:text-white glow-title">
+                        Mis <span class="text-amber-500">Documentos</span></h2>
+                    <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Selecciona un archivo
+                        para trabajar</p>
+                </div>
+                <!-- (indicador de nube eliminado) -->
+            </div>
+            <div class="flex gap-3 w-full sm:w-auto">
+                <button onclick="openImportEdcModal()"
+                    class="glow-hover btn-bloom-orange flex-1 sm:flex-none px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2"
+                    title="Importar documento desde archivo .edc">
+                    <i class="fas fa-file-import"></i> <span>Importar</span>
+                </button>
+                <button onclick="openNewProjectModal()"
+                    class="glow-hover btn-bloom-orange flex-1 sm:flex-none px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-plus"></i> <span>Nuevo Documento</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="proyectos-layout">
+            <!-- PANEL IZQUIERDO: MODELOS CONTABLES (SIDEBAR) FLOTANTE -->
+            <div class="hidden lg:flex flex-col shrink-0 proyectos-sidebar">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-3 mb-6">Tipos de
+                    Documentos</h3>
+                <div class="flex flex-col gap-4 w-full relative" id="sidebar-btn-container">
+                    <!-- Píldora deslizante con efecto Glassmorphic y animación elástica -->
+                    <div id="sidebar-active-pill" class="absolute left-0 right-0 top-0 h-[84px] rounded-[20px] z-0 pointer-events-none origin-center transition-all duration-[225ms] ease-out"
+                        style="opacity: 0; transform: translateY(0px) scaleY(1) scaleX(1);"></div>
+
+                    <button id="tab-model-textos" data-idx="0" onclick="switchModelTab('textos')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group active-tab">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-file-alt text-lg"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Hoja</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-calculo" data-idx="1" onclick="switchModelTab('calculo')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-file-excel text-lg"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Hojas de Cálculo</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-lienzos" data-idx="2" onclick="switchModelTab('lienzos')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-pencil-ruler text-lg"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Lienzos Libres</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-diagramas" data-idx="3" onclick="switchModelTab('diagramas')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-project-diagram text-lg"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Diagramas</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-diapositivas" data-idx="4" onclick="switchModelTab('diapositivas')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-desktop text-lg"></i></div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Diapositivas</p>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- CONTENIDO DERECHO: PROYECTOS Y ACCIONES -->
+            <div class="flex-1 w-full pb-32 relative z-[5]" id="main-content-area">
+
+                <!-- PANEL MÓVIL DE MODELOS (VISIBLE SÓLO EN MÓVIL) -->
+                <div class="lg:hidden mb-6">
+                    <div
+                        class="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm flex gap-2 overflow-x-auto no-scrollbar">
+                        <button id="tab-model-textos-mobile" onclick="switchModelTab('textos')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-file-alt"></i> Hoja
+                        </button>
+                        <button id="tab-model-calculo-mobile" onclick="switchModelTab('calculo')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-file-excel"></i> Hojas de Cálculo
+                        </button>
+                        <button id="tab-model-lienzos-mobile" onclick="switchModelTab('lienzos')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-pencil-ruler"></i> Lienzos Libres
+                        </button>
+                        <button id="tab-model-diagramas-mobile" onclick="switchModelTab('diagramas')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-project-diagram"></i> Diagramas
+                        </button>
+                        <button id="tab-model-diapositivas-mobile" onclick="switchModelTab('diapositivas')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-desktop"></i> Diapositivas
+                        </button>
+
+                    </div>
+                </div>
+
+                <div>
+                    <div id="project-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    </div>
+
+                    <div id="empty-projects"
+                        class="hidden py-20 text-center border-2 border-dashed border-slate-200 rounded-[28px] bg-white/50 backdrop-blur-sm shadow-sm mt-4 relative z-20">
+                        <i class="fas fa-archive text-4xl text-amber-500 mb-4"></i>
+                        <p class="text-slate-500 font-bold text-sm">No tienes documentos guardados aún.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="project-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full relative p-8">
+            <button onclick="closeProjectModal()"
+                class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 focus:outline-none"><i
+                    class="fas fa-times text-xl"></i></button>
+            <div class="w-16 h-16 rounded-[36px] bg-amber-50 flex items-center justify-center mb-6 mx-auto"><i
+                    class="fas fa-folder-plus text-2xl text-amber-500"></i></div>
+            <h4 id="proj-modal-title" class="text-2xl font-black text-slate-800 text-center mb-6">Nuevo Documento</h4>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between items-end mb-1">
+                        <label id="proj-modal-entity-label" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre del Documento</label>
+                        <button onclick="setRandomProjectName()"
+                            class="text-[9px] font-bold text-amber-500 hover:text-amber-600"><i class="fas fa-dice"></i>
+                            Aleatorio</button>
+                    </div>
+                    <input type="text" id="proj-input-name"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-[36px] px-4 py-3 text-sm font-bold text-slate-700 focus:border-amber-400 outline-none transition-all"
+                        placeholder="Nombre del documento...">
+                </div>
+
+                <!-- SELECTOR DE MODELO DE PROYECTO -->
+                <div id="project-model-selector-block">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Modelo de
+                        Documento</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <!-- Opción Documentos de Texto (Hoja) -->
+                        <div id="model-opt-textos" onclick="selectProjectModel('textos')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-amber-500 bg-amber-50/50 cursor-pointer transition-all flex items-center gap-3 selected">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Hoja</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Procesamiento de texto, cartas y contratos</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-amber-500 bg-amber-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-check text-[8px] text-white"></i>
+                            </div>
+                        </div>
+
+                        <!-- Opción Hojas de Cálculo -->
+                        <div id="model-opt-calculo" onclick="selectProjectModel('calculo')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Hojas de Cálculo</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Editor de celdas y fórmulas (Excel)</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Lienzos Libres -->
+                        <div id="model-opt-lienzos" onclick="selectProjectModel('lienzos')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-pencil-ruler"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Lienzos Libres & Diseño</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Pizarra infinita, diseño, esquemas, documentos y mockups</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Diagramas -->
+                        <div id="model-opt-diagramas" onclick="selectProjectModel('diagramas')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Diagramas</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Organigramas y diagramas de flujo</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Diapositivas -->
+                        <div id="model-opt-diapositivas" onclick="selectProjectModel('diapositivas')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-desktop"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Diapositivas & Presentaciones</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Presentaciones ejecutivas, financieras y pitch decks</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <input type="hidden" id="proj-input-type" value="textos">
+                </div>
+
+                <!-- SELECTOR DE CATÁLOGO CUSTOM -->
+                <div id="catalog-selector-container">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Catálogo
+                        de Cuentas</label>
+                    <div class="catalog-selector-wrap">
+                        <div id="catalog-current-btn" class="catalog-current" onclick="toggleCatalogPanel()">
+                            <span id="catalog-current-label" class="catalog-current-label">Catálogo Maestro</span>
+                            <i class="fas fa-chevron-down catalog-current-arrow"></i>
+                        </div>
+                        <div id="catalog-options-panel" class="catalog-options-panel">
+                            <div class="catalog-option selected" data-value="MAESTRO"
+                                onclick="selectCatalog('MAESTRO','Catálogo Maestro')">
+                                <div class="catalog-option-icon"><i class="fas fa-table-open"></i></div>
+                                <div class="catalog-option-info">
+                                    <span class="catalog-option-name">Catálogo Maestro</span>
+                                    <span class="catalog-option-desc">Cuentas estándar NIC — uso general</span>
+                                </div>
+                                <span class="catalog-option-badge">MAESTRO</span>
+                            </div>
+                            <div class="catalog-option" data-value="BANCOS"
+                                onclick="selectCatalog('BANCOS','Bancos y Seguros')">
+                                <div class="catalog-option-icon"><i class="fas fa-landmark"></i></div>
+                                <div class="catalog-option-info">
+                                    <span class="catalog-option-name">Bancos y Seguros</span>
+                                    <span class="catalog-option-desc">Plan de cuentas regulado por SSF</span>
+                                </div>
+                                <span class="catalog-option-badge">BANCOS</span>
+                            </div>
+                            <div class="catalog-option" data-value="NICS_GRAL"
+                                onclick="selectCatalog('NICS_GRAL','Sector Agrícola')">
+                                <div class="catalog-option-icon"><i class="fas fa-seedling"></i></div>
+                                <div class="catalog-option-info">
+                                    <span class="catalog-option-name">Sector Agrícola</span>
+                                    <span class="catalog-option-desc">Activos biológicos NIC 41 — cultivos/ganado</span>
+                                </div>
+                                <span class="catalog-option-badge">NICS</span>
+                            </div>
+                            <div class="catalog-option" data-value="SAFI"
+                                onclick="selectCatalog('SAFI','Gubernamental SAFI')">
+                                <div class="catalog-option-icon"><i class="fas fa-university"></i></div>
+                                <div class="catalog-option-info">
+                                    <span class="catalog-option-name">Gubernamental SAFI</span>
+                                    <span class="catalog-option-desc">Sistema de Administración Financiera
+                                        Integrado</span>
+                                </div>
+                                <span class="catalog-option-badge">SAFI</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="proj-input-catalogo" value="MAESTRO">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeProjectModal()"
+                    class="flex-1 px-4 py-3 rounded-[36px] bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
+                <button onclick="saveProjectFromModal()"
+                    class="glow-hover btn-bloom-orange flex-1 px-4 py-3 rounded-[36px] bg-amber-500 text-white font-bold text-xs uppercase hover:bg-amber-600 transition-colors shadow-lg">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="import-edc-modal" class="educonta-modal-overlay">
+        <div class="import-modal-box educonta-modal-content max-w-md w-full relative"
+            style="padding: 2rem; overflow-y: auto; max-height: 90vh;">
+            <!-- Cabecera -->
+            <button onclick="closeImportEdcModal()"
+                class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-all focus:outline-none">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+            <div class="w-16 h-16 rounded-[36px] flex items-center justify-center mb-5 mx-auto"
+                style="background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); box-shadow: 0 8px 24px -4px rgba(245,158,11,0.35);">
+                <i class="fas fa-shield-alt text-2xl text-white"></i>
+            </div>
+            <h4 class="text-2xl font-black text-slate-800 text-center mb-1">Importar Documento</h4>
+            <p id="import-modal-subtitle" class="text-[11px] text-slate-400 font-bold uppercase tracking-widest text-center mb-6">Archivos Excel (.xlsx, .xls, .csv) o .edc</p>
+
+            <!-- Barra de progreso oculta -->
+            <div class="w-full bg-slate-100 rounded-full mb-4 overflow-hidden" id="import-progress-wrap"
+                style="height:4px; display:none;">
+                <div id="import-progress-bar"></div>
+            </div>
+
+            <!-- Dropzone -->
+            <div id="edc-dropzone" onclick="document.getElementById('edc-file-input').click()"
+                ondragover="edcDragOver(event)" ondragleave="edcDragLeave(event)" ondrop="edcDrop(event)">
+
+                <!-- Icono central -->
+                <div id="edc-dropzone-icon" class="mb-4 flex justify-center">
+                    <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+                        <i class="fas fa-file-excel text-2xl text-amber-500"></i>
+                    </div>
+                </div>
+
+                <p id="edc-dropzone-label" class="font-black text-slate-600 text-sm mb-1">
+                    Arrastra tu archivo <span class="text-amber-500 font-extrabold">Excel (.xlsx, .xls, .csv)</span> o <span class="text-amber-600 font-extrabold">.edc</span> aquí
+                </p>
+                <p id="edc-dropzone-sub" class="text-[11px] text-slate-400 font-medium">
+                    o haz clic para explorar en tu dispositivo
+                </p>
+
+                <!-- Input real oculto -->
+                <input type="file" id="edc-file-input" accept=".xlsx,.xls,.csv,.ods,.tsv,.edc" class="hidden"
+                    onchange="edcFileSelected(this.files[0])">
+            </div>
+
+            <!-- Nota de compatibilidad -->
+            <p class="text-[10px] text-slate-400 mt-4 text-center leading-relaxed">
+                <i class="fas fa-check-double mr-1 text-amber-500"></i>
+                Compatible con libros de <strong>Microsoft Excel, CSV, ODS</strong> y respaldos <strong>EduConta SV</strong>.
+            </p>
+
+            <!-- Botón confirmar (visible solo cuando hay archivo listo) -->
+            <div id="import-confirm-area" class="hidden mt-5">
+                <div id="import-file-badge"
+                    class="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-4">
+                    <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                        <i id="import-file-icon" class="fas fa-file-excel text-amber-600"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p id="import-file-name" class="text-xs font-black text-slate-700 truncate">archivo.xlsx</p>
+                        <p id="import-file-meta" class="text-[10px] text-slate-400 font-medium">Listo para importar</p>
+                    </div>
+                    <button onclick="resetDropzone()"
+                        class="text-slate-300 hover:text-rose-400 transition-colors shrink-0">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <button id="btn-confirmar-importacion" onclick="confirmarImportacionEdc()"
+                    class="w-full py-3 rounded-[36px] text-white font-black text-sm uppercase tracking-wide hover:opacity-90 transition-all shadow-lg"
+                    style="background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 8px 20px -4px rgba(245,158,11,0.4);">
+                    <i class="fas fa-check-circle mr-2"></i> Importar y Abrir Documento
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/core/security.js"></script>
+    <script src="js/core/supabase.js"></script>
+    <script src="js/core/db.js"></script>
+    <script src="js/core/auth.js"></script>
+    <script src="js/core/components.js"></script>
+    <script src="js/pages/documentos.js?v=1.0.2"></script>
+
+    <!-- BARRA DE SELECCIÓN MÚLTIPLE (LONG PRESS) -->
+    <div id="multi-select-bar"
+        class="multi-select-bar flex items-center justify-between bg-white dark:bg-slate-800 shadow-2xl rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-500">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div>
+                <p id="multi-select-count" class="font-black text-slate-800 dark:text-white text-sm">0 seleccionados</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modo Selección</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="clearMultiSelection()"
+                class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                Cancelar
+            </button>
+            <button onclick="deleteMultiSelected()"
+                class="px-5 py-2 rounded-xl text-xs font-black text-white bg-rose-500 hover:bg-rose-600 shadow-lg hover:shadow-rose-500/30 transition-all flex items-center gap-2">
+                <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+        </div>
+    </div>
+
+    <!-- ESPECÍFICO DE PROYECTOS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inyectar el Header UI Global
+            if (typeof window.injectSharedUI === 'function') {
+                window.injectSharedUI('shared-components-root');
+            }
+
+            // Mostrar botón Volver en Navbar que viene de components.js
+            setTimeout(() => {
+                const btnVolver = document.getElementById('btn-volver');
+                if (btnVolver && !window.isAuditMode) {
+                    btnVolver.classList.remove('hidden');
+                }
+            }, 50);
+
+            // Suavizado de scroll inercial para el contenedor de tarjetas (desplazamientos más cortos y fluidos)
+            const contentArea = document.getElementById('main-content-area');
+            if (contentArea) {
+                let targetScrollTop = contentArea.scrollTop;
+                let currentScrollTop = contentArea.scrollTop;
+                let isMoving = false;
+
+                contentArea.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaY) > 0 && !e.ctrlKey) {
+                        e.preventDefault();
+                        if (!isMoving) {
+                            targetScrollTop = contentArea.scrollTop;
+                            currentScrollTop = contentArea.scrollTop;
+                        }
+                        // Desplazamiento más corto (factor 0.5) con la misma velocidad de animación
+                        targetScrollTop = Math.max(0, Math.min(contentArea.scrollHeight - contentArea.clientHeight, targetScrollTop + e.deltaY * 0.5));
+                        
+                        if (!isMoving) {
+                            isMoving = true;
+                            requestAnimationFrame(updateScroll);
+                        }
+                    }
+                }, { passive: false });
+
+                function updateScroll() {
+                    const diff = targetScrollTop - currentScrollTop;
+                    if (Math.abs(diff) > 0.5) {
+                        currentScrollTop += diff * 0.25; // Interpolación suave de resorte (reacción más rápida)
+                        contentArea.scrollTop = currentScrollTop;
+                        requestAnimationFrame(updateScroll);
+                    } else {
+                        contentArea.scrollTop = targetScrollTop;
+                        currentScrollTop = targetScrollTop;
+                        isMoving = false;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+

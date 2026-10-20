@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contabilidad de Costos Industriales — EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="css/output.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Premium Generales y Glassmorphism -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* ===== TEMA AMBER — Módulo Costos Industriales ===== */
+        .costos-tab-btn {
+            padding: 0 clamp(12px, 1.4vw, 22px);
+            font-weight: 800;
+            font-size: clamp(10px, 0.75vw, 12px);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            border-radius: 999px;
+            transition: color 0.25s ease;
+            position: relative;
+            z-index: 10;
+            white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .costos-tab-btn.active { color: #d97706; }
+        [data-theme="dark"] .costos-tab-btn.active { color: #fbbf24; }
+
+        .costos-mode-btn {
+            padding: 0 clamp(10px, 1.2vw, 18px);
+            font-weight: 800;
+            font-size: clamp(10px, 0.75vw, 11.5px);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-radius: 999px;
+            transition: color 0.25s ease;
+            position: relative;
+            z-index: 10;
+            white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .costos-mode-btn.active { color: #d97706; }
+        [data-theme="dark"] .costos-mode-btn.active { color: #fbbf24; }
+
+        .costos-input {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid rgba(15, 23, 42, 0.1);
+            border-radius: 12px;
+            padding: 7px 11px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            font-size: 14px;
+            text-align: right;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .costos-input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+            background: #ffffff;
+        }
+        .dark .costos-input {
+            background: rgba(15, 23, 42, 0.75);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f1f5f9;
+        }
+        .dark .costos-input:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        html, body {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+        }
+
+        .seccion-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 24px;
+            box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+            padding: 16px 18px;
+        }
+        .dark .seccion-card {
+            background: rgba(15, 23, 42, 0.65);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 6px 26px rgba(0, 0, 0, 0.42);
+        }
+
+        .input-field-card {
+            background: rgba(248, 250, 252, 0.9);
+            border: 1.5px solid rgba(15, 23, 42, 0.08);
+            border-radius: 14px;
+            padding: 7px 11px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .input-field-card:focus-within {
+            border-color: #f59e0b;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+        }
+        .dark .input-field-card {
+            background: rgba(30, 41, 59, 0.5);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .input-field-card:focus-within {
+            border-color: #fbbf24;
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.16);
+        }
+
+        .input-field-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 3px;
+            display: block;
+        }
+        .dark .input-field-label { color: #94a3b8; }
+
+        .total-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 14px;
+            padding: 10px 16px;
+            font-size: 11.5px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .section-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .result-card-amber {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
+            border-radius: 18px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.45);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            gap: 12px;
+        }
+
+        .result-card-dark {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 18px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            gap: 12px;
+        }
+
+        .no-scrollbar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Barra de herramientas fija a altura estrictamente uniforme (48px) */
+        .costos-tool-item {
+            height: 48px !important;
+            min-height: 48px !important;
+            max-height: 48px !important;
+            box-sizing: border-box !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            vertical-align: middle !important;
+        }
+
+        #editor-sticky-controls {
+            top: 74px;
+        }
+        @media (min-width: 1024px) {
+            #editor-sticky-controls {
+                top: 85px;
+            }
+        }
+
+        /* Píldoras elásticas con origen de escala al centro */
+        #costos-tab-indicator,
+        #costos-mode-indicator {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.16), inset 0 0 0 1px rgba(245, 158, 11, 0.16);
+            transform-origin: center center;
+        }
+        [data-theme="dark"] #costos-tab-indicator,
+        .dark #costos-tab-indicator,
+        [data-theme="dark"] #costos-mode-indicator,
+        .dark #costos-mode-indicator {
+            background: #1e293b !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(251, 191, 36, 0.25) !important;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="h-screen max-h-screen overflow-hidden text-slate-800 dark:text-slate-100 antialiased font-sans flex flex-col">
+
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+    <div id="shared-components-root"></div>
+
+    <!-- CABECERA STICKY UNIFICADA DEL EDITOR DE COSTOS (TODAS LAS HERRAMIENTAS EN LA MISMA LÍNEA Y FIJAS) -->
+    <div id="editor-sticky-controls" class="fixed top-[74px] lg:top-[85px] left-0 right-0 z-[900] pt-1.5 pb-1.5 px-3 lg:px-6 pointer-events-none">
+        <!-- Controles Desktop (Todas las herramientas unificadas en una sola línea a la misma altura estricta de 48px) -->
+        <div class="hidden lg:flex items-center justify-between w-full pointer-events-auto gap-2 xl:gap-2.5 max-w-[1720px] 2xl:max-w-[1800px] mx-auto" style="height: 48px;">
+
+            <!-- 1. Identificador de Proyecto Fabril -->
+            <div class="costos-tool-item glass-pill flex items-center gap-2.5 px-3.5 rounded-[36px] border border-white/60 dark:border-slate-700 shadow-sm shrink-0">
+                <div class="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xs shrink-0">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <div class="min-w-0 max-w-[130px] xl:max-w-[170px] flex flex-col justify-center text-left">
+                    <span class="text-[8px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-none mb-0.5 truncate">
+                        <i class="fas fa-gear text-[7px]"></i> NIC 2 · Costos
+                    </span>
+                    <h1 id="current-project-name" class="font-black text-xs text-slate-800 dark:text-white truncate leading-tight outline-none focus:ring-1 focus:ring-amber-400 rounded transition-all" contenteditable="true" onkeydown="handleTitleKey(event);" onblur="updateProjectNameInPlace(this)">
+                        Cargando...
+                    </h1>
+                </div>
+            </div>
+
+            <!-- 2. Pestañas de Vista (Con efecto elástico squish/stretch en la burbuja) -->
+            <div class="costos-tool-item glass-pill p-1 border border-slate-200/50 dark:border-slate-700 shadow-sm rounded-[36px] flex items-center relative shrink-0">
+                <div id="costos-tab-indicator" class="absolute top-1 bottom-1 left-0 rounded-[36px] pointer-events-none transition-all duration-300 ease-out" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                <button type="button" id="tab-edo" onclick="switchCostosView('edo')" class="costos-tab-btn active relative z-10 h-full px-3.5 text-[11px]" data-idx="0">
+                    <i class="fas fa-calculator text-xs"></i> <span class="hidden xl:inline">Estado</span> Producción
+                </button>
+                <button type="button" id="tab-orden" onclick="switchCostosView('orden')" class="costos-tab-btn relative z-10 h-full px-3.5 text-[11px]" data-idx="1">
+                    <i class="fas fa-boxes-stacked text-xs"></i> Órdenes
+                </button>
+                <button type="button" id="tab-prorrateo" onclick="switchCostosView('prorrateo')" class="costos-tab-btn relative z-10 h-full px-3.5 text-[11px]" data-idx="2">
+                    <i class="fas fa-scale-balanced text-xs"></i> Prorrateos
+                </button>
+            </div>
+
+            <!-- 3. Selector de Modo Dual (Con efecto elástico squish/stretch en la burbuja) -->
+            <div class="costos-tool-item glass-pill p-1 border border-white/60 dark:border-slate-700 shadow-sm rounded-[36px] flex items-center relative shrink-0">
+                <div id="costos-mode-indicator" class="absolute top-1 bottom-1 left-0 rounded-[36px] pointer-events-none transition-all duration-300 ease-out" style="width: 0; opacity: 0; transform-origin: center;"></div>
+                <button type="button" id="btn-costos-mode-asistido" onclick="setCostosMode('asistido')" class="costos-mode-btn relative z-10 h-full px-3.5 rounded-[36px] text-[11px] font-black uppercase flex items-center gap-1.5" data-idx="0" title="Modo Asistido (Cálculos automáticos en vivo)">
+                    <i class="fas fa-magic text-[10px]"></i> Asistido
+                </button>
+                <button type="button" id="btn-costos-mode-practica" onclick="setCostosMode('practica')" class="costos-mode-btn active relative z-10 h-full px-3.5 rounded-[36px] text-[11px] font-black uppercase flex items-center gap-1.5" data-idx="1" title="Modo Práctica (Cálculos manuales pedagógicos)">
+                    <i class="fas fa-pencil-alt text-[10px]"></i> Práctica
+                </button>
+            </div>
+
+            <!-- 4. Acciones Fabriles (Auditar MINED / Partida Fabril / Excel / PDF) -->
+            <div class="flex items-center gap-1.5 shrink-0 no-print" style="height: 48px; margin: 0;">
+                <button type="button" onclick="auditCostosPractice()" class="costos-tool-item glow-hover btn-bloom-emerald px-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[36px] font-black text-[10.5px] uppercase transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap" title="Auditar Ejercicio con Baremo MINED">
+                    <i class="fas fa-graduation-cap text-xs"></i> <span>Auditar MINED</span>
+                </button>
+                <button type="button" onclick="generateCostosJournalEntry()" class="costos-tool-item glow-hover btn-bloom-orange px-3.5 bg-amber-600 hover:bg-amber-500 text-white rounded-[36px] font-black text-[10.5px] uppercase transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap" title="Generar Asiento Contable Fabril al Libro Diario">
+                    <i class="fas fa-book-open text-xs"></i> <span>Partida Fabril</span>
+                </button>
+                <button type="button" onclick="exportarExcelCostos()" class="costos-tool-item glass-pill px-3 border border-slate-200/60 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-[36px] font-bold text-[10.5px] uppercase transition-all flex items-center gap-1.5 hover:bg-white dark:hover:bg-slate-800 shadow-sm" title="Exportar Hoja a Excel">
+                    <i class="fas fa-file-excel text-emerald-600 text-xs"></i> <span class="hidden 2xl:inline">Excel</span>
+                </button>
+                <button type="button" onclick="exportarPDFCostos()" class="costos-tool-item glass-pill px-3 border border-slate-200/60 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-[36px] font-bold text-[10.5px] uppercase transition-all flex items-center gap-1.5 hover:bg-white dark:hover:bg-slate-800 shadow-sm" title="Descargar Estado Financiero en PDF">
+                    <i class="fas fa-file-pdf text-rose-600 text-xs"></i> <span class="hidden 2xl:inline">PDF</span>
+                </button>
+            </div>
+
+            <!-- 5. Sincronización y Cierre -->
+            <div id="header-right-side" class="flex items-center gap-2 shrink-0" style="height: 48px; margin: 0;">
+                <div id="main-sync-pill" class="costos-tool-item glass-pill flex flex-col items-center justify-center rounded-[36px] shrink-0 px-2.5 py-1 border border-white/70 dark:border-slate-700 shadow-sm gap-0.5">
+                    <div id="save-indicator" class="flex items-center justify-center gap-1 w-full text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50/80 dark:bg-emerald-950/40 rounded-[36px] px-2 py-0.5 text-[8px] leading-none border border-emerald-100 dark:border-emerald-900/50">
+                        <i class="fas fa-check-circle text-[7px]"></i> <span>LOCAL</span>
+                    </div>
+                    <div id="cloud-indicator" class="flex items-center justify-center gap-1 w-full text-slate-400 font-black bg-white dark:bg-slate-800 rounded-[36px] px-2 py-0.5 text-[8px] leading-none border border-slate-100 dark:border-slate-700">
+                        <i class="fas fa-cloud-upload text-[7px]"></i> <span>PENDIENTE</span>
+                    </div>
+                </div>
+                <button onclick="window.closeProject()" class="costos-tool-item bg-rose-500 hover:bg-rose-600 text-white rounded-[36px] flex items-center justify-center shrink-0 group transition-all shadow-md" style="width: 48px !important;" title="Cerrar Proyecto">
+                    <i class="fas fa-times transition-transform group-hover:rotate-90 text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Controles Móvil -->
+        <div class="flex lg:hidden flex-col gap-2 pointer-events-auto">
+            <div class="flex items-center justify-between w-full gap-2">
+                <div class="flex-1 min-w-0">
+                    <div class="glass-pill rounded-2xl border border-slate-200/50 shadow-sm px-3 py-2 flex items-center gap-2 min-w-0">
+                        <div class="p-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-[36px] shrink-0">
+                            <i class="fas fa-industry text-amber-600 dark:text-amber-400 text-[11px]"></i>
+                        </div>
+                        <div class="min-w-0 flex-1 overflow-hidden">
+                            <p class="text-[8px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-none mb-0.5">Costos Industriales</p>
+                            <p id="mobile-project-name" class="font-black text-slate-800 dark:text-white text-[13px] leading-none truncate">Cargando...</p>
+                        </div>
+                        <div id="save-indicator-mobile" class="hidden items-center gap-1 text-emerald-600 font-black text-[9px] bg-emerald-50 px-2.5 py-1.5 rounded-[36px] shrink-0 uppercase whitespace-nowrap border border-emerald-100">
+                            <i class="fas fa-check-circle"></i> LOCAL
+                        </div>
+                    </div>
+                </div>
+                <button onclick="window.closeProject()" class="h-[48px] px-3.5 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-tight hover:bg-rose-700 transition-all shadow-md flex items-center gap-1 shrink-0">
+                    <i class="fas fa-times text-[11px]"></i>
+                    <span>CERRAR</span>
+                </button>
+            </div>
+
+            <!-- Fila desplazable de herramientas móvil -->
+            <div class="flex items-center overflow-x-auto no-scrollbar gap-1.5 pb-1">
+                <button onclick="switchCostosView('edo')" id="tab-edo-m" class="shrink-0 h-8 px-3 bg-amber-500 text-white rounded-[36px] font-black text-[9.5px] uppercase flex items-center gap-1 shadow-sm">
+                    <i class="fas fa-calculator text-[10px]"></i> Estado
+                </button>
+                <button onclick="switchCostosView('orden')" id="tab-orden-m" class="shrink-0 h-8 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-[36px] font-black text-[9.5px] uppercase flex items-center gap-1 shadow-sm">
+                    <i class="fas fa-boxes-stacked text-[10px]"></i> Órdenes
+                </button>
+                <button onclick="switchCostosView('prorrateo')" id="tab-prorrateo-m" class="shrink-0 h-8 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-[36px] font-black text-[9.5px] uppercase flex items-center gap-1 shadow-sm">
+                    <i class="fas fa-scale-balanced text-[10px]"></i> Prorrateos
+                </button>
+                <button onclick="auditCostosPractice()" class="shrink-0 h-8 px-3 bg-emerald-600 text-white rounded-[36px] font-black text-[9.5px] uppercase flex items-center gap-1 shadow-sm">
+                    <i class="fas fa-graduation-cap text-[10px]"></i> Auditar
+                </button>
+                <button onclick="generateCostosJournalEntry()" class="shrink-0 h-8 px-3 bg-amber-600 text-white rounded-[36px] font-black text-[9.5px] uppercase flex items-center gap-1 shadow-sm">
+                    <i class="fas fa-book-open text-[10px]"></i> Partida
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="w-full px-4 lg:px-6 2xl:px-8 pt-[150px] lg:pt-[160px] pb-6 max-w-[1720px] 2xl:max-w-[1800px] mx-auto flex-1 flex flex-col gap-4 overflow-y-auto no-scrollbar">
+
+        <!-- Panel de Auditoría MINED -->
+        <div id="panel-audit-costos" class="hidden p-6 rounded-[28px] border transition-all duration-300"></div>
+
+        <!-- VISTA 1: ESTADO DE COSTO DE PRODUCCIÓN (VISTA EN GRID DE ALTO RENDIMIENTO) -->
+        <div id="view-edo" class="space-y-4">
+            <!-- Banner Cabecera Fabril Ampliado -->
+            <div class="rounded-[22px] overflow-hidden shadow-md border border-slate-200/50 dark:border-slate-800/80 shrink-0">
+                <div class="px-5 py-3 lg:px-6 lg:py-2.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3" style="background: linear-gradient(135deg, #78350f 0%, #1e293b 60%, #0f172a 100%);">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold text-base border border-amber-500/30 shrink-0">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+                                    Estado Financiero Industrial
+                                </span>
+                                <span class="text-slate-300 text-xs font-bold">NIC 2 · Costeo por Absorción</span>
+                            </div>
+                            <h2 class="text-sm lg:text-base font-black text-white uppercase tracking-tight leading-tight mt-0.5">
+                                Estado de Costo de Producción y Costo de lo Vendido Fabril
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <div class="text-right">
+                            <span class="text-[9px] text-amber-400 font-black uppercase tracking-widest block">Estructura Fabril</span>
+                            <span class="text-sm lg:text-base font-black text-amber-300">MPD + MOD + CIF</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILA 1 GRID: LOS 3 ELEMENTOS FUNDAMENTALES DEL COSTO (MPD, MOD, CIF) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-5 items-stretch">
+
+                <!-- 1. MATERIA PRIMA DIRECTA (MPD) -->
+                <div class="seccion-card flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div class="section-badge bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400">1</div>
+                            <div class="min-w-0 flex-1">
+                                <h4 class="text-xs lg:text-[13px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 truncate">
+                                    I. Materia Prima Directa (MPD)
+                                </h4>
+                                <p class="text-[9.5px] text-slate-400 font-medium">Inv. Inicial + Compras Netas − Inv. Final</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            <div class="input-field-card">
+                                <label class="input-field-label" for="costos-ii-mp">Inv. Inicial de Materia Prima</label>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-slate-400 tabular-nums font-bold text-xs shrink-0">$</span>
+                                    <input type="number" step="0.01" id="costos-ii-mp" oninput="calcCostosLive()" placeholder="0.00" class="costos-input">
+                                </div>
+                            </div>
+
+                            <div class="input-field-card">
+                                <label class="input-field-label" for="costos-compras-mp">(+) Compras Netas de Materia Prima</label>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-slate-400 tabular-nums font-bold text-xs shrink-0">$</span>
+                                    <input type="number" step="0.01" id="costos-compras-mp" oninput="calcCostosLive()" placeholder="0.00" class="costos-input">
+                                </div>
+                            </div>
+
+                            <div class="input-field-card">
+                                <label class="input-field-label" for="costos-if-mp">(−) Inv. Final de Materia Prima</label>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-slate-400 tabular-nums font-bold text-xs shrink-0">$</span>
+                                    <input type="number" step="0.01" id="costos-if-mp" oninput="calcCostosLive()" placeholder="0.00" class="costos-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="total-row mt-1" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(251, 191, 36, 0.06) 100%); border: 1.5px solid rgba(245, 158, 11, 0.25);">
+                        <span class="text-amber-900 dark:text-amber-300 text-xs font-black">Total MPD Utilizada:</span>
+                        <span id="costos-tot-mpd" class="text-lg lg:text-xl font-black tabular-nums text-amber-600 dark:text-amber-400 ml-2">$ 0.00</span>
+                    </div>
+                </div>
+
+                <!-- 2. MANO DE OBRA DIRECTA (MOD) -->
+                <div class="seccion-card flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div class="section-badge bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400">2</div>
+                            <div class="min-w-0 flex-1">
+                                <h4 class="text-xs lg:text-[13px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400 truncate">
+                                    II. Mano de Obra Directa (MOD)
+                                </h4>
+                                <p class="text-[9.5px] text-slate-400 font-medium">Salarios Devengados + Cargas Patronales</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            <div class="input-field-card">
+                                <label class="input-field-label" for="costos-salarios-mod">Salarios Devengados Obreros de Planta</label>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-slate-400 tabular-nums font-bold text-xs shrink-0">$</span>
+                                    <input type="number" step="0.01" id="costos-salarios-mod" oninput="calcCostosLive()" placeholder="0.00" class="costos-input">
+                                </div>
+                            </div>
+
+                            <div class="input-field-card">
+                                <label class="input-field-label" for="costos-cargas-mod">Cargas Patronales Fabriles (ISSS 7.5% + AFP 8.75%)</label>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-slate-400 tabular-nums font-bold text-xs shrink-0">$</span>
+                                    <input type="number" step="0.01" id="costos-cargas-mod" oninput="calcCostosLive()" placeholder="0.00" class="costos-input">
+                                </div>
+                            </div>
+
+                            <!-- Pastilla informativa normativa El Salvador -->
+                            <div class="p-2.5 rounded-xl border border-indigo-200/40 dark:border-indigo-800/40 bg-indigo-50/50 dark:bg-indigo-950/20 text-[9px] lg:text-[9.5px] text-indigo-800 dark:text-indigo-300 flex items-center gap-2">
+                                <i class="fas fa-scale-balanced text-indigo-500 text-xs shrink-0"></i>
+                                <span class="leading-relaxed">Norma Laboral SV: ISSS 7.5% (tope $1,000) y AFP patronal 8.75% sin límite.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="total-row mt-1" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(129, 140, 248, 0.06) 100%); border: 1.5px solid rgba(99, 102, 241, 0.22);">
+                        <span class="text-indigo-900 dark:text-indigo-300 text-xs font-black">Total MOD Aplicada:</span>
+                        <span id="costos-tot-mod" class="text-lg lg:text-xl font-black tabular-nums text-indigo-600 dark:text-indigo-400 ml-2">$ 0.00</span>
+                    </div>
+                </div>
+
+                <!-- 3. COSTOS INDIRECTOS DE FABRICACIÓN (CIF) -->
+                <div class="seccion-card flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <div class="section-badge bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">3</div>
+                            <div class="min-w-0 flex-1">
+                                <h4 class="text-xs lg:text-[13px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 truncate">
+                                    III. Costos Indirectos (CIF)
+                                </h4>
+                                <p class="text-[9.5px] text-slate-400 font-medium">Materiales Ind. + MOI + Servicios + Deprec.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div class="input-field-card">
+                                <label class="input-field-label truncate" for="costos-cif-mat">Materiales Ind.</label>
+                                <input type="number" step="0.01" id="costos-cif-mat" oninput="calcCostosLive()" placeholder="0.00" class="costos-input mt-0.5">
+                            </div>
+
+                            <div class="input-field-card">
+                                <label class="input-field-label truncate" for="costos-cif-moi">Mano Obra Ind. (MOI)</label>
+                                <input type="number" step="0.01" id="costos-cif-moi" oninput="calcCostosLive()" placeholder="0.00" class="costos-input mt-0.5">
+                            </div>
+
+                            <div class="input-field-card">
+                                <label class="input-field-label truncate" for="costos-cif-energia">Energía Fabril</label>
+                                <input type="number" step="0.01" id="costos-cif-energia" oninput="calcCostosLive()" placeholder="0.00" class="costos-input mt-0.5">
+                            </div>
+
+                            <div class="input-field-card">
+                                <label class="input-field-label truncate" for="costos-cif-deprec">Deprec. Maquinaria</label>
+                                <input type="number" step="0.01" id="costos-cif-deprec" oninput="calcCostosLive()" placeholder="0.00" class="costos-input mt-0.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="total-row mt-1" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(52, 211, 153, 0.06) 100%); border: 1.5px solid rgba(16, 185, 129, 0.22);">
+                        <span class="text-emerald-900 dark:text-emerald-300 text-xs font-black">Total CIF Incurrido:</span>
+                        <span id="costos-tot-cif" class="text-lg lg:text-xl font-black tabular-nums text-emerald-600 dark:text-emerald-400 ml-2">$ 0.00</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FILA 2 GRID: LIQUIDACIÓN FABRIL Y DETERMINACIÓN DEL COSTO DE VENTAS (3 COLUMNAS) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-5 items-stretch">
+
+                <!-- PASO A: COSTO INCURRIDO Y AJUSTE DE PROCESO -->
+                <div class="seccion-card flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                <i class="fas fa-calculator text-amber-500"></i> Paso 1 • Costo Incurrido
+                            </span>
+                            <span class="text-[9.5px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">MPD + MOD + CIF</span>
+                        </div>
+
+                        <!-- Fila Destacada Incurrido -->
+                        <div class="total-row" style="background: rgba(15, 23, 42, 0.06); border: 1.5px solid rgba(15, 23, 42, 0.12); border-radius: 14px; padding: 10px 14px;">
+                            <span class="text-slate-800 dark:text-slate-200 text-xs lg:text-[13px] font-black">(=) Costo Incurrido:</span>
+                            <span id="costos-tot-incurrido" class="text-xl lg:text-2xl font-black tabular-nums text-slate-900 dark:text-white">$ 0.00</span>
+                        </div>
+
+                        <!-- Ajustes en proceso -->
+                        <div class="space-y-2">
+                            <div class="input-field-card flex items-center justify-between gap-2 py-2">
+                                <label class="input-field-label mb-0 flex-1 text-[10px] lg:text-[10.5px] truncate" for="costos-ii-pp">(+) Inv. Inicial Prod. en Proceso</label>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-slate-400 tabular-nums text-xs font-bold">$</span>
+                                    <input type="number" step="0.01" id="costos-ii-pp" oninput="calcCostosLive()" placeholder="0.00" class="costos-input" style="width: 120px;">
+                                </div>
+                            </div>
+                            <div class="input-field-card flex items-center justify-between gap-2 py-2">
+                                <label class="input-field-label mb-0 flex-1 text-[10px] lg:text-[10.5px] truncate" for="costos-if-pp">(−) Inv. Final Prod. en Proceso</label>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-slate-400 tabular-nums text-xs font-bold">$</span>
+                                    <input type="number" step="0.01" id="costos-if-pp" oninput="calcCostosLive()" placeholder="0.00" class="costos-input" style="width: 120px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <span>Fórmula: Incurrido + II PP − IF PP</span>
+                        <i class="fas fa-arrow-right text-amber-500"></i>
+                    </div>
+                </div>
+
+                <!-- PASO B: ARTÍCULOS PRODUCIDOS Y TERMINADOS -->
+                <div class="seccion-card flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                                <i class="fas fa-warehouse text-amber-500"></i> Paso 2 • Terminados en Bodega
+                            </span>
+                            <span class="text-[9.5px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">NIC 2</span>
+                        </div>
+
+                        <!-- Tarjeta Ámbar de Artículos Producidos -->
+                        <div class="result-card-amber">
+                            <div class="min-w-0">
+                                <span class="text-[9px] text-amber-200 uppercase font-black tracking-widest block leading-none mb-1">
+                                    Costo de Artículos Producidos
+                                </span>
+                                <h4 class="text-xs lg:text-[13px] font-black leading-tight text-white">Transferido a Bodega</h4>
+                            </div>
+                            <span id="costos-tot-terminados" class="text-xl lg:text-2xl font-black tabular-nums tracking-tight shrink-0 ml-2">$ 0.00</span>
+                        </div>
+
+                        <!-- Ajustes en terminados -->
+                        <div class="space-y-2">
+                            <div class="input-field-card flex items-center justify-between gap-2 py-2">
+                                <label class="input-field-label mb-0 flex-1 text-[10px] lg:text-[10.5px] truncate" for="costos-ii-pt">(+) Inv. Inicial Prod. Terminados</label>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-slate-400 tabular-nums text-xs font-bold">$</span>
+                                    <input type="number" step="0.01" id="costos-ii-pt" oninput="calcCostosLive()" placeholder="0.00" class="costos-input" style="width: 120px;">
+                                </div>
+                            </div>
+                            <div class="input-field-card flex items-center justify-between gap-2 py-2">
+                                <label class="input-field-label mb-0 flex-1 text-[10px] lg:text-[10.5px] truncate" for="costos-if-pt">(−) Inv. Final Prod. Terminados</label>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-slate-400 tabular-nums text-xs font-bold">$</span>
+                                    <input type="number" step="0.01" id="costos-if-pt" oninput="calcCostosLive()" placeholder="0.00" class="costos-input" style="width: 120px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-[10px] text-slate-400 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <span>Fórmula: Producidos + II PT − IF PT</span>
+                        <i class="fas fa-arrow-right text-amber-500"></i>
+                    </div>
+                </div>
+
+                <!-- PASO C: COSTO DE LO VENDIDO (RESULTADO FINAL PARA ESTADO DE RESULTADOS) -->
+                <div class="seccion-card flex flex-col justify-between space-y-3.5">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                <i class="fas fa-chart-line text-emerald-500"></i> Paso 3 • Costo de Ventas
+                            </span>
+                            <span class="text-[9.5px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Resultado</span>
+                        </div>
+
+                        <!-- Tarjeta Oscura con Resplandor Ámbar -->
+                        <div class="result-card-dark">
+                            <div class="min-w-0">
+                                <span class="text-[9px] text-amber-400 uppercase font-black tracking-widest block leading-none mb-1">
+                                    Costo de Ventas Fabril
+                                </span>
+                                <h4 class="text-xs lg:text-[13px] font-black leading-tight text-white">(=) Costo de lo Vendido</h4>
+                                <span class="text-[8.5px] text-slate-400 block mt-0.5">Para Estado de Resultados</span>
+                            </div>
+                            <span id="costos-tot-vendido" class="text-2xl lg:text-3xl font-black tabular-nums text-amber-400 shrink-0 ml-2">$ 0.00</span>
+                        </div>
+
+                        <!-- Acciones Rápidas del Cierre Fabril -->
+                        <div class="grid grid-cols-2 gap-2 pt-0.5">
+                            <button type="button" onclick="generateCostosJournalEntry()" class="w-full py-2.5 px-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase transition-all shadow-md flex items-center justify-center gap-1.5">
+                                <i class="fas fa-book-open text-xs"></i> Partida Fabril
+                            </button>
+                            <button type="button" onclick="auditCostosPractice()" class="w-full py-2.5 px-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase transition-all shadow-md flex items-center justify-center gap-1.5">
+                                <i class="fas fa-graduation-cap text-xs"></i> Auditar MINED
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-[9.5px] text-slate-500 flex items-center justify-between">
+                        <span>Costeo por Absorción</span>
+                        <span class="text-emerald-500 font-bold"><i class="fas fa-check-circle"></i> NIC 2</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VISTA 2: ÓRDENES DE TRABAJO -->
+        <div id="view-orden" class="hidden space-y-6">
+            <div class="seccion-card">
+                <div class="flex items-center justify-between mb-5 pb-4 border-b border-slate-100 dark:border-slate-800 flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-[18px] bg-amber-100/80 dark:bg-amber-950 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold">
+                            <i class="fas fa-boxes-stacked"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">Hojas de Costos por Órdenes de Trabajo</h3>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">Acumulación de Costos por Lote / Pedido Fabril</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openAddOrdenModal()" class="glow-hover btn-bloom-orange px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-[36px] text-[11px] font-black uppercase transition-all flex items-center gap-1.5 no-print">
+                        <i class="fas fa-plus"></i> Nueva Orden
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200 dark:border-slate-700" style="background: rgba(248, 250, 252, 0.95);">
+                                <th class="py-3 px-4">No. Orden</th>
+                                <th class="py-3 px-4">Cliente</th>
+                                <th class="py-3 px-4">Artículo Producido</th>
+                                <th class="py-3 px-4 text-right">Unidades</th>
+                                <th class="py-3 px-4 text-right">MPD ($)</th>
+                                <th class="py-3 px-4 text-right">MOD ($)</th>
+                                <th class="py-3 px-4 text-right">CIF ($)</th>
+                                <th class="py-3 px-4 text-right">Costo Total ($)</th>
+                                <th class="py-3 px-4 text-right">Costo Unit. ($)</th>
+                                <th class="py-3 px-3 text-center no-print">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordenes-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-black border-t-2 border-slate-200 dark:border-slate-700" style="background: rgba(245, 158, 11, 0.06);">
+                                <td colspan="4" class="py-3 px-4 uppercase text-slate-600 dark:text-slate-300 text-[10px]">TOTALES ACUMULADOS:</td>
+                                <td id="tot-ordenes-mpd" class="py-3 px-4 text-right tabular-nums text-amber-700">$ 0.00</td>
+                                <td id="tot-ordenes-mod" class="py-3 px-4 text-right tabular-nums text-indigo-700">$ 0.00</td>
+                                <td id="tot-ordenes-cif" class="py-3 px-4 text-right tabular-nums text-emerald-700">$ 0.00</td>
+                                <td id="tot-ordenes-costo" class="py-3 px-4 text-right tabular-nums text-slate-900 dark:text-white">$ 0.00</td>
+                                <td colspan="2" class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 3: PRORRATEOS CIF -->
+        <div id="view-prorrateo" class="hidden space-y-6">
+            <div class="seccion-card">
+                <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="w-10 h-10 rounded-[18px] bg-amber-100/80 dark:bg-amber-950 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold">
+                        <i class="fas fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">Matriz de Distribución y Prorrateo de Costos Indirectos</h3>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Asignación a Departamentos Productivos según Base Lógica</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200 dark:border-slate-700" style="background: rgba(248, 250, 252, 0.95);">
+                                <th class="py-3 px-4">Concepto del Costo Indirecto</th>
+                                <th class="py-3 px-4">Base de Aplicación</th>
+                                <th class="py-3 px-4 text-right">Depto. Corte / Armado ($)</th>
+                                <th class="py-3 px-4 text-right">Depto. Acabado / Pintura ($)</th>
+                                <th class="py-3 px-4 text-right">Costo Total CIF ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prorrateos-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-black border-t-2 border-slate-200 dark:border-slate-700" style="background: rgba(245, 158, 11, 0.06);">
+                                <td colspan="2" class="py-3 px-4 uppercase text-slate-600 dark:text-slate-300 text-[10px]">TOTALES PRORRATEADOS:</td>
+                                <td id="prorrateo-tot-d1" class="py-3 px-4 text-right tabular-nums text-amber-700">$ 0.00</td>
+                                <td id="prorrateo-tot-d2" class="py-3 px-4 text-right tabular-nums text-amber-700">$ 0.00</td>
+                                <td id="prorrateo-tot-gral" class="py-3 px-4 text-right tabular-nums text-amber-600 font-black">$ 0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST DE SINCRONIZACIÓN -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 border border-emerald-500 text-white px-5 py-4 rounded-[28px] shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <div>
+            <h4 class="font-black text-sm">Costos Guardados</h4>
+            <p class="text-[11px] font-medium text-emerald-100 uppercase tracking-widest mt-0.5">Bóveda fabril actualizada</p>
+        </div>
+    </div>
+
+    <!-- MODAL GLASSMORPHIC: NUEVA ORDEN DE TRABAJO -->
+    <div id="modal-nueva-orden" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-lg w-full relative p-6 sm:p-8 space-y-5">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200/70 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg font-black shrink-0 border border-amber-500/20">
+                        <i class="fas fa-boxes-stacked"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm sm:text-base font-black text-slate-800 dark:text-white uppercase tracking-tight">Nueva Orden de Trabajo</h4>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Hoja de Costos por Lote / Pedido Fabril</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAddOrdenModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center transition-all">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Form Fields -->
+            <form id="form-nueva-orden" onsubmit="event.preventDefault(); saveNuevaOrden();" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label class="input-field-label" for="orden-input-id">No. de Orden</label>
+                        <input type="text" id="orden-input-id" required placeholder="ej. OP-103" class="costos-input text-left font-bold">
+                    </div>
+                    <div>
+                        <label class="input-field-label" for="orden-input-unidades">Unidades a Fabricar</label>
+                        <input type="number" id="orden-input-unidades" min="1" step="1" required placeholder="ej. 100" oninput="calcModalOrdenPreview()" class="costos-input tabular-nums font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="input-field-label" for="orden-input-cliente">Cliente / Destinatario</label>
+                    <input type="text" id="orden-input-cliente" required placeholder="Nombre del cliente o departamento" class="costos-input text-left font-medium">
+                </div>
+
+                <div>
+                    <label class="input-field-label" for="orden-input-producto">Descripción del Artículo Producido</label>
+                    <input type="text" id="orden-input-producto" required placeholder="ej. Escritorios Ejecutivos de Roble" class="costos-input text-left font-medium">
+                </div>
+
+                <!-- Los 3 Elementos del Costo -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 space-y-3">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
+                        Elementos del Costo Asignados a la Orden
+                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="input-field-label text-[9px]" for="orden-input-mpd">MPD ($)</label>
+                            <input type="number" step="0.01" min="0" id="orden-input-mpd" placeholder="0.00" oninput="calcModalOrdenPreview()" class="costos-input text-xs">
+                        </div>
+                        <div>
+                            <label class="input-field-label text-[9px]" for="orden-input-mod">MOD ($)</label>
+                            <input type="number" step="0.01" min="0" id="orden-input-mod" placeholder="0.00" oninput="calcModalOrdenPreview()" class="costos-input text-xs">
+                        </div>
+                        <div>
+                            <label class="input-field-label text-[9px]" for="orden-input-cif">CIF ($)</label>
+                            <input type="number" step="0.01" min="0" id="orden-input-cif" placeholder="0.00" oninput="calcModalOrdenPreview()" class="costos-input text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Live Preview Totals -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800/80 text-xs">
+                        <div>
+                            <span class="text-[9px] uppercase font-bold text-slate-400 block">Costo Total:</span>
+                            <span id="orden-preview-total" class="tabular-nums font-black text-amber-600 dark:text-amber-400 text-sm">$ 0.00</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] uppercase font-bold text-slate-400 block">Costo Unitario:</span>
+                            <span id="orden-preview-unitario" class="tabular-nums font-black text-emerald-600 dark:text-emerald-400 text-sm">$ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones Acciones -->
+                <div class="flex items-center justify-end gap-2.5 pt-2">
+                    <button type="button" onclick="closeAddOrdenModal()" class="px-5 py-2.5 rounded-[36px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs uppercase hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="glow-hover btn-bloom-orange px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-[36px] font-black text-xs uppercase transition-all shadow-md flex items-center gap-2">
+                        <i class="fas fa-check"></i> Guardar Orden
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts Esenciales -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/bridge-diario.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script defer src="js/core/export.js"></script>
+    <script defer src="js/pages/editor-costos.js"></script>
+
+    <!-- Inyección Garantizada del Header Global de EduContaSV -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.injectSharedUI === 'function') {
+                window.injectSharedUI('shared-components-root');
+            }
+        });
+        window.addEventListener('load', () => {
+            const root = document.getElementById('shared-components-root');
+            if (root && root.children.length === 0 && typeof window.injectSharedUI === 'function') {
+                window.injectSharedUI('shared-components-root');
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+

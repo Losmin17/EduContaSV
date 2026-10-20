@@ -1,121 +1,1031 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-env="biblioteca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca Legal | EduConta SV</title>
+    <title>Biblioteca Contable & Legal | EduConta SV</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Biblioteca Contable Integral de EduConta SV: Leyes salvadoreñas, glosario técnico, métodos contables paso a paso y parámetros fiscales actualizados 2026.">
+
+    <!-- Preconnect hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
     <link href="css/output.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=1.1.2">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1.0.6">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+
+    <style>
+        /* Bloqueo estricto de transformaciones en las barras sticky y botones de filtro (sin afectar al indicador deslizante) */
+        .library-glass-bar,
+        .alpha-pill,
+        .category-chip,
+        .tab-btn-emerald {
+            transform: none !important;
+            scale: 1 !important;
+            animation: none !important;
+        }
+
+        .library-glass-bar:hover,
+        .library-glass-bar:active,
+        .alpha-pill:not(.active):hover,
+        .alpha-pill:not(.active):active,
+        .alpha-pill:not(.active):focus,
+        .category-chip:not(.active):hover,
+        .category-chip:not(.active):active,
+        .category-chip:not(.active):focus,
+        .tab-btn-emerald:hover,
+        .tab-btn-emerald:active {
+            transform: none !important;
+            scale: 1 !important;
+            box-shadow: none !important;
+        }
+
+        /* Indicador deslizante dinámico de pestaña activa */
+        #library-tab-indicator {
+            position: absolute !important;
+            top: 4px !important;
+            bottom: 4px !important;
+            left: 0 !important;
+            border-radius: 12px !important;
+            background-color: #10b981 !important;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35) !important;
+            pointer-events: none !important;
+            z-index: 1 !important;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, width;
+            transform-origin: center;
+            opacity: 0;
+        }
+
+        /* Estilo Glassmorphism 100% UNIFICADO idéntico al Header Global */
+        .library-glass-bar {
+            background: rgba(255, 255, 255, 0.72) !important;
+            backdrop-filter: blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.65) !important;
+            border-radius: 28px !important; /* Mismo radio exacto que el header (28px) */
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.08),
+                0 2px 8px rgba(15, 23, 42, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            transition: background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+
+        .dark .library-glass-bar,
+        html[data-theme="dark"] .library-glass-bar {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+            backdrop-filter: blur(28px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 15px rgba(16, 185, 129, 0.08),
+                inset 0 0 0 transparent !important;
+        }
+
+        /* Cabecera de Sección Alfabética Sticky (Pinning dinámico al scroll + Animación de desvanecimiento) */
+        .glosario-group-header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 20;
+            transition: opacity 0.15s ease, visibility 0.15s ease, background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            will-change: opacity, visibility;
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            border-radius: 28px !important;
+            box-shadow:
+                0 4px 20px rgba(15, 23, 42, 0.05),
+                0 1px 3px rgba(15, 23, 42, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+        }
+
+        .dark .glosario-group-header,
+        html[data-theme="dark"] .glosario-group-header {
+            background: linear-gradient(135deg, rgba(20, 28, 48, 0.88) 0%, rgba(15, 23, 42, 0.92) 100%) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 15px rgba(16, 185, 129, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        }
+
+        /* Pestañas (Tabs) con estilo Glass individual */
+        .tab-btn-emerald {
+            transition: color 0.15s ease !important;
+            background-color: transparent !important;
+        }
+        .tab-btn-emerald.active {
+            background-color: transparent !important;
+            color: #ffffff !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .tab-btn-emerald.active:hover {
+            transform: none !important;
+        }
+        .tab-btn-emerald:not(.active):hover {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+            color: #10b981;
+        }
+
+        /* Botones de letras (A-Z) */
+        .alpha-pill {
+            transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease !important;
+            user-select: none;
+            background-color: transparent;
+        }
+        .alpha-pill.active {
+            background-color: #10b981 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.45), 0 2px 8px rgba(16, 185, 129, 0.35) !important;
+            opacity: 1 !important;
+        }
+        .alpha-pill.active:hover,
+        .alpha-pill.active:focus,
+        .alpha-pill.active:active {
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.55), 0 3px 10px rgba(16, 185, 129, 0.4) !important;
+        }
+        /* Letras con términos disponibles */
+        .alpha-pill.has-terms:not(.active) {
+            color: #1e293b !important;
+            font-weight: 800 !important;
+            opacity: 1 !important;
+        }
+        .dark .alpha-pill.has-terms:not(.active),
+        html[data-theme="dark"] .alpha-pill.has-terms:not(.active) {
+            color: #f1f5f9 !important;
+            font-weight: 800 !important;
+            opacity: 1 !important;
+        }
+        .alpha-pill.has-terms:not(.active):hover {
+            color: #10b981 !important;
+            background-color: rgba(16, 185, 129, 0.12) !important;
+        }
+        /* Letras sin términos disponibles (atenuadas) */
+        .alpha-pill.no-terms:not(.active) {
+            color: #94a3b8 !important;
+            opacity: 0.28 !important;
+            cursor: not-allowed !important;
+        }
+        .dark .alpha-pill.no-terms:not(.active),
+        html[data-theme="dark"] .alpha-pill.no-terms:not(.active) {
+            color: #475569 !important;
+            opacity: 0.25 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Chips de categoría */
+        .category-chip {
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+            background: rgba(241, 245, 249, 0.35) !important;
+        }
+        .dark .category-chip,
+        html[data-theme="dark"] .category-chip {
+            background: rgba(30, 41, 59, 0.35) !important;
+        }
+        .category-chip.active {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+        }
+        .category-chip.active:hover,
+        .category-chip.active:focus,
+        .category-chip.active:active {
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.5), 0 3px 10px rgba(16, 185, 129, 0.35) !important;
+        }
+
+        /* Glass highlight y badges */
+        .badge-verified {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.25));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #059669;
+        }
+        .dark .badge-verified {
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35));
+        }
+
+        /* ========================================================================= */
+        /* ANIMACIÓN DE ENTRADA AL DESPLAZARSE (SCALE REVEAL NOTORIO Y FLUIDO) */
+        /* ========================================================================= */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: scale(0.84);
+            transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.3, 1),
+                        transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+            will-change: opacity, transform;
+            transform-origin: center center;
+        }
+
+        .reveal-on-scroll.is-visible {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal-on-scroll {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+        }
+
+        /* Tarjetas de Guías Contables (Acordeones): Animación hover suave y estable, sin escalado ni vibraciones */
+        #metodos-guides-container .glass-card,
+        #metodos-guides-container .glass-card:hover,
+        #metodos-guides-container .glass-card.reveal-on-scroll.is-visible,
+        #metodos-guides-container .glass-card.reveal-on-scroll.is-visible:hover {
+            transform: none !important;
+            scale: 1 !important;
+            will-change: auto !important;
+        }
+
+        #metodos-guides-container .glass-card {
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+            border-radius: 24px !important;
+        }
+
+        #metodos-guides-container .glass-card:hover {
+            border-color: rgba(16, 185, 129, 0.45) !important;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 0 20px rgba(16, 185, 129, 0.1) !important;
+        }
+
+        .dark #metodos-guides-container .glass-card:hover,
+        html[data-theme="dark"] #metodos-guides-container .glass-card:hover {
+            background-color: #0f172a !important;
+            border-color: rgba(16, 185, 129, 0.45) !important;
+            box-shadow: 0 14px 40px -5px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.12) !important;
+        }
+
+        /* Área de contenido con desplazamiento fluido y suave */
+        #library-content-area {
+            scroll-behavior: smooth;
+        }
+
+        /* Scrollbar personalizado para el área de contenido */
+        #library-content-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        #library-content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #library-content-area::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 4px;
+        }
+        .dark #library-content-area::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] #library-content-area::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ========================================================================= */
+        /* ========================================================================= */
+        /* ESCENARIO Y CARRUSEL 3D INTERACTIVO (FÍSICA SPRING REBOUND EDUCONTA)      */
+        /* ========================================================================= */
+        .tab-pane.hidden,
+        #tab-pane-parametros.hidden {
+            display: none !important;
+        }
+
+        #tab-pane-parametros:not(.hidden) {
+            height: calc(100vh - 140px);
+            min-height: 560px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 100vw;
+            position: relative;
+            overflow: hidden !important;
+            padding: 0;
+            margin: 0 auto;
+        }
+
+        .parametros-carousel-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 100vw;
+            height: 100%;
+            margin: 0 auto;
+            user-select: none;
+            overflow: hidden !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Contenedor de Perspectiva 3D Amplio y Proporcional */
+        .perspective-container {
+            perspective: 1500px;
+            perspective-origin: 50% 50%;
+            width: 100%;
+            max-width: 100vw;
+            height: 540px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            touch-action: pan-y;
+            overflow: visible;
+        }
+
+        @media (min-height: 700px) {
+            .perspective-container {
+                height: 580px;
+            }
+        }
+
+        @media (min-height: 820px) {
+            .perspective-container {
+                height: 630px;
+            }
+        }
+
+        @media (min-height: 960px) {
+            .perspective-container {
+                height: 680px;
+            }
+        }
+
+        /* Escenario de Tarjetas 3D */
+        .parametros-stage {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.22, 1.12, 0.36, 1);
+            overflow: visible;
+        }
+
+        /* Tarjeta 3D con dimensiones amplias y curva elástica spring rebound */
+        .param-card-3d {
+            position: absolute;
+            width: min(92vw, 400px);
+            border-radius: 36px;
+            transform-style: preserve-3d;
+            will-change: transform, opacity, box-shadow;
+            transition: transform 0.8s cubic-bezier(0.22, 1.12, 0.36, 1), 
+                        opacity 0.6s ease, 
+                        box-shadow 0.6s ease;
+            cursor: pointer;
+        }
+
+        @media (min-width: 640px) {
+            .param-card-3d {
+                width: min(92vw, 600px);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .param-card-3d {
+                width: 740px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .param-card-3d {
+                width: 880px;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .param-card-3d {
+                width: 1020px;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .param-card-3d {
+                width: 1140px;
+            }
+        }
+
+        .param-card-3d.active-card {
+            cursor: default;
+            box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.14), 0 0 0 1.5px #10b981;
+        }
+
+        .dark .param-card-3d.active-card,
+        html[data-theme="dark"] .param-card-3d.active-card {
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.7), 0 0 0 1.5px #10b981;
+        }
+
+        /* Tarjeta interior sólida, limpia y sin efectos de cristal o blur */
+        .param-card-inner {
+            position: relative;
+            width: 100%;
+            min-height: 480px;
+            background-color: #ffffff;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 36px;
+            padding: 24px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
+            transition: border-color 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        @media (min-width: 640px) {
+            .param-card-inner {
+                padding: 28px 30px;
+                min-height: 520px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .param-card-inner {
+                padding: 34px 40px;
+                min-height: 560px;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .param-card-inner {
+                padding: 40px 48px;
+                min-height: 600px;
+            }
+        }
+
+        .dark .param-card-inner,
+        html[data-theme="dark"] .param-card-inner {
+            background-color: #0f172a;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1.5px solid #334155;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .param-card-3d.active-card .param-card-inner {
+            border-color: #10b981;
+        }
+
+        .dark .param-card-3d.active-card .param-card-inner,
+        html[data-theme="dark"] .param-card-3d.active-card .param-card-inner {
+            border-color: #10b981;
+            background-color: #0f172a;
+        }
+
+        /* Botones de navegación circulares sólidos y nítidos */
+        .parametros-nav-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1.5px solid #e2e8f0;
+            color: #0f172a;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+            cursor: pointer;
+            z-index: 25;
+        }
+
+        @media (min-width: 768px) {
+            .parametros-nav-btn {
+                width: 52px;
+                height: 52px;
+            }
+        }
+
+        .parametros-nav-btn:hover {
+            transform: scale(1.1);
+            background: #10b981 !important;
+            color: #ffffff !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .parametros-nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .dark .parametros-nav-btn,
+        html[data-theme="dark"] .parametros-nav-btn {
+            background: #1e293b;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1.5px solid #334155;
+            color: #f8fafc;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .dark .parametros-nav-btn:hover,
+        html[data-theme="dark"] .parametros-nav-btn:hover {
+            background: #10b981 !important;
+            color: #ffffff !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5) !important;
+        }
+
+        /* Píldoras de paginación interactivas */
+        .param-dot {
+            height: 9px;
+            width: 9px;
+            border-radius: 9999px;
+            background: rgba(148, 163, 184, 0.4);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+
+        .param-dot:hover:not(.active) {
+            background: rgba(16, 185, 129, 0.6);
+            transform: scale(1.2);
+        }
+
+        .param-dot.active {
+            width: 32px;
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Paginación con Píldoras */
+        .parametros-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+    </style>
 </head>
-<body class="pt-24 pb-12 relative">
+
+<body class="page-biblioteca h-screen overflow-hidden text-slate-800 antialiased selection:bg-emerald-500/30">
+
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-emerald" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
     <div id="shared-components-root"></div>
-    <main id="legal-screen" class="max-w-5xl mx-auto px-6 md:px-8 mt-6 md:mt-12 no-print fade-in">
-        <div class="mb-8 md:mb-12">
-            <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Biblioteca <span
-                    class="text-emerald-500">Legal</span></h2>
-            <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Base de datos de leyes y
-                normativas contables</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Secciones Legales -->
-            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-3 bg-emerald-50 rounded-[36px]"><i class="fas fa-university text-emerald-600"></i></div>
-                    <h4 class="font-bold text-slate-800">Sector Financiero</h4>
-                </div>
-                <ul class="space-y-2 text-xs text-slate-500 font-medium">
-                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley de Bancos</li>
-                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley de Sociedades de Seguros
-                    </li>
-                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley de Bancos Cooperativos
-                    </li>
-                    <li class="hover:text-emerald-600 transition-colors cursor-pointer">• Ley del Mercado de Valores
-                    </li>
-                </ul>
-            </div>
-
-            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-3 bg-indigo-50 rounded-[36px]"><i
-                            class="fas fa-file-invoice-dollar text-indigo-600"></i>
+    
+    <!-- ========================================================================= -->
+    <!-- CABECERA FLOTANTE 100% FIJA (TÍTULO + PESTAÑAS + FILTROS EN Z-INDEX 30) -->
+    <!-- ========================================================================= -->
+    <header id="library-fixed-header-group" class="fixed top-[84px] left-0 right-0 z-30 px-3 md:px-4 max-w-full mx-auto pointer-events-none select-none">
+        
+        <!-- Barra Principal Unificada: Título + Selector de Pestañas + Botón de Actualizar -->
+        <div class="mb-2.5 pointer-events-auto">
+            <div class="library-glass-bar flex flex-col lg:flex-row items-center justify-between p-2.5 px-4 md:px-6 gap-3 w-full">
+                <!-- Columna Izquierda: Título y Subtítulo -->
+                <div class="flex items-center gap-3 shrink-0 pl-1 w-full lg:w-auto justify-between lg:justify-start">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight dark:text-white glow-title leading-tight">
+                            Biblioteca <span class="text-emerald-500">Contable</span>
+                        </h2>
+                        <p class="text-slate-400 font-bold text-[9px] uppercase mt-0.5 tracking-widest hidden sm:block">
+                            Repositorio oficial de normativas, leyes y terminologías
+                        </p>
                     </div>
-                    <h4 class="font-bold text-slate-800">Normas Contables</h4>
+                    <!-- Botón visible en pantallas móviles -->
+                    <div class="block lg:hidden shrink-0">
+                        <button onclick="window.refreshLibraryData()"
+                            class="glow-hover btn-bloom-emerald px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full font-bold text-xs uppercase transition-all shadow-md flex items-center gap-1.5"
+                            title="Actualizar y sincronizar base de datos">
+                            <i class="fas fa-rotate"></i> <span>Actualizar</span>
+                        </button>
+                    </div>
                 </div>
-                <ul class="space-y-2 text-xs text-slate-500 font-medium">
-                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• Disposiciones de las NIC</li>
-                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• NIIF para PYMES</li>
-                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• Principios Éticos del Contador
-                    </li>
-                    <li class="hover:text-indigo-600 transition-colors cursor-pointer">• Pronunciamientos del CVPCPA
-                    </li>
-                </ul>
-            </div>
 
-            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-3 bg-sky-50 rounded-[36px]"><i class="fas fa-gavel text-sky-600"></i></div>
-                    <h4 class="font-bold text-slate-800">Administración Pública</h4>
-                </div>
-                <ul class="space-y-2 text-xs text-slate-500 font-medium">
-                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley AFI (Adm. Financiera)</li>
-                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley del Servicio Civil</li>
-                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley de Ética Gubernamental</li>
-                    <li class="hover:text-sky-600 transition-colors cursor-pointer">• Ley de Compras Públicas</li>
-                </ul>
-            </div>
+                <!-- Columna Central: Selector de Pestañas -->
+                <div class="relative flex items-center p-1 bg-slate-200/40 dark:bg-slate-800/50 rounded-2xl overflow-x-auto max-w-full w-full lg:w-auto justify-start lg:justify-center">
+                    <div id="library-tab-indicator" class="absolute top-1 bottom-1 left-0 rounded-xl bg-emerald-500 pointer-events-none transition-all duration-300 ease-out shadow-sm shadow-emerald-500/30" style="width: 0; opacity: 0; transform-origin: center;"></div>
 
-            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-3 bg-amber-50 rounded-[36px]"><i class="fas fa-briefcase text-amber-600"></i></div>
-                    <h4 class="font-bold text-slate-800">Derecho Mercantil</h4>
-                </div>
-                <ul class="space-y-2 text-xs text-slate-500 font-medium">
-                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Código de Comercio</li>
-                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Ley de Sociedades</li>
-                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Derechos de Registro</li>
-                    <li class="hover:text-amber-600 transition-colors cursor-pointer">• Registro de Comercio</li>
-                </ul>
-            </div>
+                    <button onclick="switchLibraryTab('glosario')" id="tab-btn-glosario" data-idx="0" class="tab-btn-emerald active relative z-10 flex-1 lg:flex-none py-2 px-3.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 text-white whitespace-nowrap">
+                        <i class="fas fa-book-bookmark text-sm"></i> <span>Glosario & Términos</span>
+                    </button>
 
-            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-3 bg-rose-50 rounded-[36px]"><i class="fas fa-users-cog text-rose-600"></i></div>
-                    <h4 class="font-bold text-slate-800">Derecho Laboral</h4>
-                </div>
-                <ul class="space-y-2 text-xs text-slate-500 font-medium">
-                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Código de Trabajo</li>
-                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Ley del Seguro Social (ISSS)</li>
-                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Ley de Pensiones (AFP)</li>
-                    <li class="hover:text-rose-600 transition-colors cursor-pointer">• Trámites Administrativos</li>
-                </ul>
-            </div>
+                    <button onclick="switchLibraryTab('metodos')" id="tab-btn-metodos" data-idx="1" class="tab-btn-emerald relative z-10 flex-1 lg:flex-none py-2 px-3.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        <i class="fas fa-list-check text-sm"></i> <span>Métodos & Guías</span>
+                    </button>
 
-            <div class="glass-card bg-white p-6 hover:shadow-xl transition-all border border-slate-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-3 bg-slate-50 rounded-[36px]"><i class="fas fa-ship text-slate-600"></i></div>
-                    <h4 class="font-bold text-slate-800">Aduanas y Tributos</h4>
+                    <button onclick="switchLibraryTab('leyes')" id="tab-btn-leyes" data-idx="2" class="tab-btn-emerald relative z-10 flex-1 lg:flex-none py-2 px-3.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        <i class="fas fa-scale-balanced text-sm"></i> <span>Leyes & Normas</span>
+                    </button>
+
+                    <button onclick="switchLibraryTab('parametros')" id="tab-btn-parametros" data-idx="3" class="tab-btn-emerald relative z-10 flex-1 lg:flex-none py-2 px-3.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                        <i class="fas fa-calculator text-sm"></i> <span>Tablas & Parámetros</span>
+                    </button>
                 </div>
-                <ul class="space-y-2 text-xs text-slate-500 font-medium">
-                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Leyes Aduaneras</li>
-                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Código Tributario</li>
-                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Ley del IVA / ISR</li>
-                    <li class="hover:text-slate-800 transition-colors cursor-pointer">• Entes Reguladores (SSSF/CVPCPA)
-                    </li>
-                </ul>
+                <script>
+                    (function() {
+                        const pill = document.getElementById('library-tab-indicator');
+                        const btn = document.getElementById('tab-btn-glosario');
+                        if (pill && btn && btn.offsetWidth > 0) {
+                            pill.style.transition = 'none';
+                            pill.style.width = btn.offsetWidth + 'px';
+                            pill.style.transform = 'translateX(' + btn.offsetLeft + 'px) scaleX(1) scaleY(1)';
+                            pill.style.opacity = '1';
+                        }
+                    })();
+                </script>
+
+                <!-- Columna Derecha: Botón de Acción Actualizar (Desktop y Tablets) -->
+                <div class="hidden lg:flex items-center gap-3 shrink-0 pr-1">
+                    <button onclick="window.refreshLibraryData()"
+                        class="glow-hover btn-bloom-emerald px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2 shrink-0"
+                        title="Actualizar y sincronizar base de datos">
+                        <i class="fas fa-rotate"></i> <span>Actualizar</span>
+                    </button>
+                </div>
             </div>
         </div>
+
+        <!-- Fila 3: Controles Dinámicos y Filtros según la Pestaña Activa -->
+        <div class="pointer-events-auto">
+            <!-- Controles Glosario (Tarjeta Individual Glass con A-Z + Buscador Integrado a la Derecha) -->
+            <div id="tab-controls-glosario" class="space-y-2">
+                <div class="library-glass-bar p-3 px-4 md:px-6 space-y-2.5 !mb-1">
+                    <!-- Filtro por Categorías (Espacio ampliado para renderizado de glow sin recorte) -->
+                    <div class="flex items-center gap-2 overflow-x-auto py-2.5 px-1.5 -my-1.5" id="glosario-category-filters">
+                        <button onclick="filterGlosarioCategory('all')" data-cat="all" class="category-chip active px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap">
+                            Todos los Términos
+                        </button>
+                        <button onclick="filterGlosarioCategory('financiera')" data-cat="financiera" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-emerald-500">
+                            Contabilidad Financiera
+                        </button>
+                        <button onclick="filterGlosarioCategory('fiscal')" data-cat="fiscal" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-emerald-500">
+                            Tributaria & Fiscal (SV)
+                        </button>
+                        <button onclick="filterGlosarioCategory('laboral')" data-cat="laboral" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-emerald-500">
+                            Laboral & Planillas
+                        </button>
+                        <button onclick="filterGlosarioCategory('costos')" data-cat="costos" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-emerald-500">
+                            Costos & Kardex
+                        </button>
+                        <button onclick="filterGlosarioCategory('niif')" data-cat="niif" class="category-chip px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200/80 dark:border-slate-700/80 whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-emerald-500">
+                            NIIF / NIC
+                        </button>
+                    </div>
+
+                    <!-- Fila de Barra Alfabética A-Z y Buscador a la Derecha -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
+                        <!-- Contenedor con Botón Filtrar + Letras A-Z (Espacio ampliado para renderizado de glow sin recorte) -->
+                        <div class="flex items-center gap-2 overflow-x-auto min-w-0 flex-1 pr-2 py-2.5 -my-2">
+                            <!-- Botón Toggle de Modo Filtro -->
+                            <button id="btn-toggle-alpha-filter" onclick="toggleAlphaFilterMode()"
+                                class="shrink-0 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all bg-slate-100/80 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200/70 dark:border-slate-700/70 hover:border-emerald-500 hover:text-emerald-500 shadow-sm"
+                                title="Modo Filtrar DESACTIVADO: Desplaza la lista hacia la letra pulsada. Clic para activar filtro exclusivo.">
+                                <i class="fas fa-filter text-[10px] opacity-60"></i> <span>Filtrar</span>
+                            </button>
+                            <div class="h-4 w-px bg-slate-200 dark:bg-slate-700 shrink-0"></div>
+
+                            <!-- Letras A-Z -->
+                            <div class="flex items-center gap-1 overflow-x-auto min-w-0 flex-1 py-2 px-1.5 -my-1" id="glosario-alpha-bar">
+                                <!-- Dinámico: Se inyectan las letras A-Z -->
+                            </div>
+                        </div>
+
+                        <!-- Buscador Integrado a la Derecha -->
+                        <div class="relative w-full md:w-64 lg:w-72 shrink-0 group">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                                <i class="fas fa-search text-xs"></i>
+                            </div>
+                            <input type="text" id="library-global-search" 
+                                class="w-full bg-slate-100/40 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 rounded-xl pl-8 pr-8 py-1.5 text-xs text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none placeholder-slate-400 transition-all" 
+                                placeholder="Buscar conceptos, términos..."
+                                oninput="handleLibrarySearch(this.value)">
+                            <button id="clear-search-btn" onclick="clearLibrarySearch()" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                <i class="fas fa-times-circle text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles Métodos (Tarjeta Individual Glass) -->
+            <div id="tab-controls-metodos" class="hidden">
+                <div class="library-glass-bar p-3.5 px-4 md:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 !mb-1">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 mb-0.5">
+                            <i class="fas fa-laptop-code"></i> Procedimientos Prácticos
+                        </span>
+                        <h3 class="text-sm font-black text-slate-900 dark:text-white">
+                            Guías Contables Paso a Paso
+                        </h3>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="expandAllMethodGuides(true)" class="px-3.5 py-1.5 bg-slate-100/40 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-emerald-500 transition-colors shadow-sm">
+                            <i class="fas fa-angles-down text-emerald-500 mr-1"></i> Expandir Todo
+                        </button>
+                        <button onclick="expandAllMethodGuides(false)" class="px-3.5 py-1.5 bg-slate-100/40 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-emerald-500 transition-colors shadow-sm">
+                            <i class="fas fa-angles-up text-emerald-500 mr-1"></i> Colapsar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles Leyes -->
+            <div id="tab-controls-leyes" class="hidden"></div>
+        </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- ÁREA DE CONTENIDO SCROLLABLE (SE DESPLAZA POR DEBAJO DE TODOS LOS HEADERS) -->
+    <!-- ========================================================================= -->
+    <main id="library-content-area" class="fixed inset-0 pt-[350px] pb-16 px-3 md:px-4 overflow-y-auto z-10 custom-scrollbar transition-[padding-top] duration-150 ease-out">
+
+            <!-- CONTENIDO DE LAS PESTAÑAS -->
+            
+            <!-- PESTAÑA 1: GLOSARIO & TERMINOLOGÍAS CONTABLES -->
+            <section id="tab-pane-glosario" class="tab-pane space-y-6">
+                <!-- Contenedor Agrupado de Términos Alfabéticamente -->
+                <div class="space-y-10" id="glosario-cards-container">
+                    <div class="py-16 text-center text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-emerald-500"></i>
+                        <p class="font-bold text-xs uppercase tracking-widest">Cargando terminologías contables...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PESTAÑA 2: MÉTODOS Y GUÍAS PASO A PASO -->
+            <section id="tab-pane-metodos" class="tab-pane space-y-6 hidden" style="display: none;">
+                <!-- Contenedor de Guías Acordeón Interactivas -->
+                <div class="space-y-4 max-w-full" id="metodos-guides-container">
+                    <div class="py-16 text-center text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-emerald-500"></i>
+                        <p class="font-bold text-xs uppercase tracking-widest">Cargando guías contables...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PESTAÑA 3: LEYES Y NORMATIVAS (MARCO LEGAL SV) -->
+            <section id="tab-pane-leyes" class="tab-pane space-y-6 hidden" style="display: none;">
+                <!-- Grid de Secciones de Leyes por Categoría (3 columnas en desktop, 2 en tablet, 1 en móvil) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-full" id="leyes-cards-container">
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-emerald-500"></i>
+                        <p class="font-bold text-xs uppercase tracking-widest">Cargando marco jurídico...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PESTAÑA 4: TABLAS RÁPIDAS Y PARÁMETROS FISCALES 2026 (ESCENARIO 3D INTERACTIVO) -->
+            <section id="tab-pane-parametros" class="tab-pane hidden" style="display: none;">
+                <div class="parametros-carousel-wrapper">
+                    <!-- Escenario 3D con Perspectiva y Física Spring Rebound -->
+                    <div class="perspective-container" id="parametros-perspective-container">
+                        <div class="parametros-stage" id="parametros-cards-container">
+                            <!-- Se inyectarán las tarjetas 3D por Javascript -->
+                        </div>
+                    </div>
+
+                    <!-- Controles de Navegación Flotantes Inferiores -->
+                    <div class="flex flex-col items-center justify-center gap-2 mt-3 mb-1 relative z-20">
+                        <div class="flex items-center justify-center gap-4">
+                            <button onclick="window.prevParamSlide && window.prevParamSlide()" class="parametros-nav-btn" aria-label="Tarjeta Anterior" title="Tarjeta Anterior">
+                                <i class="fas fa-chevron-left text-sm"></i>
+                            </button>
+                            
+                            <!-- Paginación Interactiva de Píldoras -->
+                            <div id="parametros-dots-container" class="flex items-center justify-center gap-2.5 bg-slate-200 dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-300 dark:border-slate-700 shadow-md">
+                                <!-- Inyectadas dinámicamente -->
+                            </div>
+
+                            <button onclick="window.nextParamSlide && window.nextParamSlide()" class="parametros-nav-btn" aria-label="Tarjeta Siguiente" title="Tarjeta Siguiente">
+                                <i class="fas fa-chevron-right text-sm"></i>
+                            </button>
+                        </div>
+                        <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500 tracking-wide flex items-center justify-center gap-2 select-none opacity-85">
+                            <i class="fas fa-keyboard text-emerald-500/80 text-xs"></i>
+                            <span>Navega con flechas ◀ ▶ o arrastra para alternar entre las 6 tablas</span>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
     </main>
 
-    
+    <!-- ========================================================================= -->
+    <!-- MODAL DE DETALLE DE TÉRMINO CONTABLE (COMPACTO GLASSMORPHIC) -->
+    <!-- ========================================================================= -->
+    <div id="term-detail-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-lg w-full p-5 md:p-6 relative bg-white/95 dark:bg-slate-900/95 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-2xl backdrop-blur-2xl">
+            <!-- Botón Cerrar -->
+            <button onclick="closeTermModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 flex items-center justify-center transition-transform hover:scale-110 text-xs">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center gap-2 mb-2.5">
+                <span id="modal-term-category" class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Categoría
+                </span>
+                <span class="text-[9px] font-bold text-slate-400 flex items-center gap-1">
+                    <i class="fas fa-check-circle text-emerald-500"></i> Oficial SV 2026
+                </span>
+            </div>
+
+            <h3 id="modal-term-title" class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
+                Término Contable
+            </h3>
+
+            <!-- Definición -->
+            <div class="mb-3.5">
+                <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                    <i class="fas fa-align-left text-emerald-500"></i> Definición Técnica
+                </h5>
+                <p id="modal-term-definition" class="text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    Descripción del término contable.
+                </p>
+            </div>
+
+            <!-- Base Legal en El Salvador -->
+            <div id="modal-term-legal-box" class="mb-3.5 p-3 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/20">
+                <h5 class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-0.5 flex items-center gap-1.5">
+                    <i class="fas fa-gavel"></i> Base Legal en El Salvador
+                </h5>
+                <p id="modal-term-legal" class="text-xs text-slate-700 dark:text-slate-300 font-semibold">
+                    Referencia legal aplicable.
+                </p>
+            </div>
+
+            <!-- Ejemplo Práctico / Aplicación -->
+            <div id="modal-term-example-box" class="mb-3.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
+                <h5 class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5 flex items-center gap-1.5">
+                    <i class="fas fa-lightbulb text-amber-500"></i> Ejemplo de Aplicación
+                </h5>
+                <div id="modal-term-example" class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                    Ejemplo numérico o asiento.
+                </div>
+            </div>
+
+            <!-- Términos Relacionados -->
+            <div id="modal-term-related-box" class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider mr-1">Relacionados:</span>
+                <div id="modal-term-related" class="flex flex-wrap gap-1">
+                    <!-- Pills dinámicas -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL DE DETALLE DE LEY / NORMATIVA (COMPACTO GLASSMORPHIC) -->
+    <!-- ========================================================================= -->
+    <div id="law-detail-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full p-5 md:p-6 relative bg-white/95 dark:bg-slate-900/95 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-2xl backdrop-blur-2xl">
+            <!-- Botón Cerrar -->
+            <button onclick="closeLawModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 flex items-center justify-center transition-transform hover:scale-110 text-xs">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Badges de Estado y Categoría -->
+            <div class="flex items-center gap-2 mb-2.5">
+                <span id="modal-law-category" class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Sector Financiero
+                </span>
+                <span id="modal-law-status" class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Disponible
+                </span>
+            </div>
+
+            <!-- Título y Decreto -->
+            <h3 id="modal-law-title" class="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight mb-1">
+                Ley de Bancos
+            </h3>
+            <p id="modal-law-subtitle" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+                Decreto Legislativo No. 700
+            </p>
+
+            <!-- Descripción -->
+            <div class="mb-4">
+                <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                    <i class="fas fa-file-contract text-emerald-500"></i> Alcance y Objeto Legal
+                </h5>
+                <p id="modal-law-description" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                    Descripción de la ley.
+                </p>
+            </div>
+
+            <!-- Caja de Estado / Disponibilidad -->
+            <div id="modal-law-infobox" class="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-500/20 mb-4">
+                <!-- Dinámico -->
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button id="modal-law-reader-btn" class="flex-1 py-2 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
+                    <span>Abrir en Visor de Leyes</span> <i class="fas fa-arrow-up-right-from-square text-[10px]"></i>
+                </button>
+                <button onclick="closeLawModal()" class="py-2 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Core de EduConta SV -->
+    <script src="js/core/security.js"></script>
     <script src="js/core/supabase.js"></script>
+    <script src="js/core/glosario-seeds.js"></script>
     <script src="js/core/auth.js"></script>
     <script src="js/core/components.js"></script>
+    <script src="js/pages/biblioteca.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.injectSharedUI === 'function') {
@@ -123,9 +1033,11 @@
             }
             setTimeout(() => {
                 const btnVolver = document.getElementById('btn-volver');
-                if (btnVolver) btnVolver.classList.remove('hidden');
+                if (btnVolver && !window.isAuditMode) btnVolver.classList.remove('hidden');
             }, 50);
         });
     </script>
 </body>
 </html>
+
+

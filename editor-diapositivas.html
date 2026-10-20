@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diapositivas &amp; Presentaciones | EduConta SV</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Script de Control del Tema (Evita Parpadeos en Modo Oscuro) -->
+    <script src="js/core/theme.js"></script>
+
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        },
+                        amber: {
+                            450: '#f59e0b',
+                            550: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Estilos Premium Generales y Glassmorphism de EduConta SV -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
+    <style>
+        /* =========================================================
+           RESET Y MAQUETACIÓN INMERSIVA DE PANTALLA COMPLETA
+           ========================================================= */
+        *, *::before, *::after {
+            box-sizing: border-box !important;
+        }
+
+        /* RESET ESTRICTO DE BOTONES: CERO BISELES 3D NATIVOS DEL NAVEGADOR */
+        button, [type="button"], [type="reset"], [type="submit"] {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            border: none;
+            outline: none !important;
+            box-sizing: border-box !important;
+            font-family: inherit;
+            background: transparent;
+        }
+
+        button:focus, button:focus-visible {
+            outline: none !important;
+            box-shadow: none;
+        }
+
+        /* =========================================================
+           SISTEMA DE BOTONES NEOMÓRFICOS Y DE NAVEGACIÓN EDUCONTA SV
+           ========================================================= */
+        /* 1. Botón Hero Presentar (Ámbar Neomórfico) */
+        .btn-hero-presentar {
+            height: 36px !important;
+            padding: 0 16px !important;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 7px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-transform: none !important;
+            letter-spacing: normal !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        .btn-hero-presentar:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45) !important;
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+        .btn-hero-presentar:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* 2. Botón Hero Guardar (Verde Esmeralda) */
+        .btn-hero-save {
+            height: 36px !important;
+            padding: 0 14px !important;
+            background: #10b981 !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-transform: none !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        .btn-hero-save:hover {
+            background: #059669 !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+            transform: translateY(-1px) !important;
+        }
+        .btn-hero-save:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* 3. Botón Hero Compartir (Celeste Sky) */
+        .btn-hero-share {
+            height: 36px !important;
+            padding: 0 14px !important;
+            background: #0ea5e9 !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-transform: none !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        .btn-hero-share:hover {
+            background: #0284c7 !important;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.38) !important;
+            transform: translateY(-1px) !important;
+        }
+        .btn-hero-share:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* 4. Botón Nav Glass (Exportar / Toggle Diapos / etc.) */
+        .btn-nav-glass {
+            height: 36px !important;
+            padding: 0 14px !important;
+            background: rgba(241, 245, 249, 0.85) !important;
+            color: #334155 !important;
+            border: 1px solid rgba(203, 213, 225, 0.8) !important;
+            border-style: solid !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-sizing: border-box !important;
+            text-transform: none !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        .btn-nav-glass:hover {
+            background: rgba(226, 232, 240, 0.95) !important;
+            color: #0f172a !important;
+            border-color: rgba(245, 158, 11, 0.4) !important;
+            transform: translateY(-1px) !important;
+        }
+        .btn-nav-glass:active {
+            transform: scale(0.96) !important;
+        }
+
+        [data-theme="dark"] .btn-nav-glass {
+            background: rgba(30, 41, 59, 0.65) !important;
+            color: #f1f5f9 !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-style: solid !important;
+        }
+        [data-theme="dark"] .btn-nav-glass:hover {
+            background: rgba(51, 65, 85, 0.8) !important;
+            color: #ffffff !important;
+            border-color: rgba(245, 158, 11, 0.45) !important;
+        }
+
+        /* 5. Botón Nav Salir (Con acento Rose al interactuar) */
+        .btn-nav-exit {
+            height: 36px !important;
+            padding: 0 14px !important;
+            background: rgba(241, 245, 249, 0.85) !important;
+            color: #64748b !important;
+            border: 1px solid rgba(203, 213, 225, 0.8) !important;
+            border-style: solid !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-sizing: border-box !important;
+            text-transform: none !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        .btn-nav-exit:hover {
+            background: rgba(244, 63, 94, 0.12) !important;
+            border-color: rgba(244, 63, 94, 0.35) !important;
+            color: #e11d48 !important;
+            transform: translateY(-1px) !important;
+        }
+        .btn-nav-exit:active {
+            transform: scale(0.96) !important;
+        }
+
+        [data-theme="dark"] .btn-nav-exit {
+            background: rgba(30, 41, 59, 0.65) !important;
+            color: #94a3b8 !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-style: solid !important;
+        }
+        [data-theme="dark"] .btn-nav-exit:hover {
+            background: rgba(244, 63, 94, 0.16) !important;
+            border-color: rgba(244, 63, 94, 0.45) !important;
+            color: #fb7185 !important;
+        }
+
+        html, body {
+            height: 100vh !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            overflow: hidden !important;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            background-color: #f8fafc;
+        }
+
+        [data-theme="dark"] html, [data-theme="dark"] body {
+            background-color: #0b1120;
+        }
+
+        /* =========================================================
+           ARQUITECTURA MASTER GLASSMORPHIC BARRA FLOTANTE (.header-master-bar)
+           ========================================================= */
+        .header-master-bar,
+        .header-master-bar.glowinglass {
+            background: rgba(255, 255, 255, 0.76) !important;
+            backdrop-filter: blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.65) !important;
+            border-radius: 28px !important;
+            box-sizing: border-box !important;
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.08),
+                0 2px 8px rgba(15, 23, 42, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        [data-theme="dark"] .header-master-bar,
+        [data-theme="dark"] .header-master-bar.glowinglass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+            backdrop-filter: blur(28px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 0 15px rgba(245, 158, 11, 0.08),
+                inset 0 0 0 transparent !important;
+        }
+
+        .drawer-glass {
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(28px) saturate(190%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        [data-theme="dark"] .drawer-glass {
+            background: rgba(13, 20, 36, 0.92) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 20px 50px -8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .tempered-glass {
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(25px) saturate(190%) !important;
+            -webkit-backdrop-filter: blur(25px) saturate(190%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.07), 0 4px 12px -2px rgba(0, 0, 0, 0.03) !important;
+        }
+
+        [data-theme="dark"] .tempered-glass {
+            background: rgba(15, 23, 42, 0.92) !important;
+            border: 1px solid rgba(51, 65, 85, 0.45) !important;
+            box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(245, 158, 11, 0.12) !important;
+        }
+
+        /* ── ANIMACIÓN FLUIDA DEL ESTANTE RIBBON (.toolbar-secondary) ── */
+        .toolbar-secondary {
+            will-change: transform, opacity, filter, max-height, margin-top;
+            box-sizing: border-box !important;
+            display: flex !important;
+            align-items: center !important;
+            overflow-y: hidden !important;
+            transition: 
+                transform 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.38s ease,
+                filter 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+                max-height 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-top 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+                min-height 0.42s cubic-bezier(0.16, 1, 0.3, 1),
+                padding 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .toolbar-secondary.revealed,
+        body:not(.ribbon-shelf-collapsed) .toolbar-secondary:not(.collapsed) {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+            filter: blur(0px) !important;
+            max-height: 52px !important;
+            min-height: 48px !important;
+            margin-top: 6px !important;
+            pointer-events: auto !important;
+        }
+
+        .toolbar-secondary.collapsed,
+        body.ribbon-shelf-collapsed .toolbar-secondary {
+            opacity: 0 !important;
+            transform: translateY(-24px) scale(0.96) !important;
+            filter: blur(10px) !important;
+            max-height: 0px !important;
+            min-height: 0px !important;
+            margin-top: 0px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            border-top-width: 0px !important;
+            border-bottom-width: 0px !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+        }
+
+        /* Pestañas Ribbon Navigation */
+        .ribbon-tab-btn {
+            position: relative;
+            z-index: 10;
+            padding: 5px 14px;
+            font-size: 11.5px;
+            font-weight: 700;
+            border-radius: 9999px;
+            transition: color 0.25s ease, transform 0.15s ease;
+            cursor: pointer;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #64748b;
+        }
+
+        .ribbon-tab-btn:hover {
+            color: #b45309;
+        }
+
+        .ribbon-tab-btn.active {
+            color: #d97706 !important;
+            font-weight: 800 !important;
+        }
+
+        [data-theme="dark"] .ribbon-tab-btn {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .ribbon-tab-btn:hover {
+            color: #fbbf24;
+        }
+
+        [data-theme="dark"] .ribbon-tab-btn.active {
+            color: #fbbf24 !important;
+        }
+
+        #ribbon-bubble-indicator {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.15), width 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.15), opacity 0.2s ease;
+        }
+
+        [data-theme="dark"] #ribbon-bubble-indicator {
+            background: rgba(245, 158, 11, 0.22);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        /* Botón de barra de herramientas */
+        .tool-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .tool-btn:hover {
+            background-color: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .tool-btn.active {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #f59e0b;
+        }
+
+        [data-theme="dark"] .tool-btn {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .tool-btn:hover {
+            background-color: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        [data-theme="dark"] .tool-btn.active {
+            background-color: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            border-color: #f59e0b;
+        }
+
+        .tool-icon-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #64748b;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .tool-icon-btn:hover {
+            background-color: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+        }
+
+        .tool-icon-btn.active {
+            background-color: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        [data-theme="dark"] .tool-icon-btn {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .tool-icon-btn:hover {
+            background-color: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+        }
+
+        [data-theme="dark"] .tool-icon-btn.active {
+            background-color: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+            border-color: #78350f;
+        }
+
+        /* =========================================================
+           ESCENARIO DE LA DIAPOSITIVA (STAGE 16:9)
+           Fondo neutro pulido de estudio sin cuadrículas ni puntos
+           ========================================================= */
+        #stage-outer-viewport {
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: #f1f5f9;
+            background-image: none !important;
+            border-radius: 28px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        [data-theme="dark"] #stage-outer-viewport {
+            background-color: #0b1120 !important;
+            background-image: none !important;
+            border-color: rgba(255, 255, 255, 0.06);
+            box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #diapo-main-workspace {
+            transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        body.ribbon-shelf-collapsed #diapo-main-workspace {
+            top: 188px !important;
+        }
+
+        #slide-canvas-scaler {
+            position: relative;
+            transform-origin: center center;
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 
+                0 25px 60px -15px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 0 40px -5px rgba(245, 158, 11, 0.18);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] #slide-canvas-scaler {
+            box-shadow: 
+                0 30px 80px -15px rgba(0, 0, 0, 0.85),
+                0 0 0 1.5px rgba(255, 255, 255, 0.15),
+                0 0 50px -5px rgba(245, 158, 11, 0.22);
+        }
+
+        /* 16:9 Base: 960x540 */
+        #slide-artboard {
+            width: 960px;
+            height: 540px;
+            position: relative;
+            background-color: #ffffff;
+            overflow: hidden;
+            user-select: none;
+            border-radius: 14px;
+        }
+
+        /* ELEMENTOS DENTRO DE LA DIAPOSITIVA */
+        .slide-element {
+            position: absolute;
+            cursor: move;
+            box-sizing: border-box;
+            outline: none;
+            user-select: none;
+            transition: box-shadow 0.12s ease;
+        }
+
+        .slide-element.selected {
+            box-shadow: 0 0 0 2px #f59e0b, 0 8px 24px -4px rgba(245, 158, 11, 0.3) !important;
+            z-index: 900 !important;
+        }
+
+        .slide-element.editing {
+            cursor: text;
+            user-select: text;
+        }
+
+        /* TIRADORES DE REDIMENSIONAMIENTO (8 PUNTOS + ROTACIÓN) */
+        .resize-handle {
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            background: #ffffff;
+            border: 2px solid #f59e0b;
+            border-radius: 50%;
+            display: none;
+            z-index: 1001;
+            pointer-events: auto;
+        }
+
+        .slide-element.selected .resize-handle {
+            display: block;
+        }
+
+        .handle-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+        .handle-n  { top: -5px; left: calc(50% - 4.5px); cursor: ns-resize; }
+        .handle-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+        .handle-e  { top: calc(50% - 4.5px); right: -5px; cursor: ew-resize; }
+        .handle-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+        .handle-s  { bottom: -5px; left: calc(50% - 4.5px); cursor: ns-resize; }
+        .handle-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+        .handle-w  { top: calc(50% - 4.5px); left: -5px; cursor: ew-resize; }
+
+        .rotation-handle {
+            position: absolute;
+            top: -24px;
+            left: calc(50% - 6px);
+            width: 12px;
+            height: 12px;
+            background: #f59e0b;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            cursor: grab;
+            display: none;
+            z-index: 1001;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .rotation-stem {
+            position: absolute;
+            top: -14px;
+            left: calc(50% - 0.5px);
+            width: 1px;
+            height: 14px;
+            background: #f59e0b;
+            display: none;
+            z-index: 1000;
+        }
+
+        .slide-element.selected .rotation-handle,
+        .slide-element.selected .rotation-stem {
+            display: block;
+        }
+
+        /* LÍNEAS DE GUÍA Y ALINEACIÓN (SMART SNAPPING) */
+        .snap-guide-line {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1500;
+            display: none;
+        }
+
+        .snap-guide-line.vertical {
+            width: 1px;
+            top: 0;
+            bottom: 0;
+            background: #f59e0b;
+            border-left: 1px dashed #f59e0b;
+        }
+
+        .snap-guide-line.horizontal {
+            height: 1px;
+            left: 0;
+            right: 0;
+            background: #f59e0b;
+            border-top: 1px dashed #f59e0b;
+        }
+
+        /* GUÍAS DE EQUIDISTANCIA (EQUAL SPACING GUIDES) */
+        .equal-spacing-guide {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1510;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px dashed #f59e0b;
+            font-size: 9px;
+            font-weight: 800;
+            color: #b45309;
+            border-radius: 4px;
+        }
+
+        /* CUADRÍCULA CONFIGURABLE */
+        #grid-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+            background-size: 30px 30px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+        }
+
+        [data-theme="dark"] #grid-overlay {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+        }
+
+        /* LAZO ELÁSTICO DE SELECCIÓN (MARQUEE) */
+        #marquee-selection-box {
+            position: absolute;
+            border: 1.5px dashed #f59e0b;
+            background: rgba(245, 158, 11, 0.12);
+            pointer-events: none;
+            z-index: 1600;
+            display: none;
+            border-radius: 4px;
+        }
+
+        /* PUERTOS DE CONECTOR MAGNÉTICO (NORTH, SOUTH, EAST, WEST) */
+        .connector-port {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+            border: 1.5px solid #ffffff;
+            transform: translate(-50%, -50%);
+            cursor: crosshair;
+            z-index: 1005;
+            opacity: 0;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        .slide-element:hover .connector-port {
+            opacity: 0.85;
+        }
+
+        .connector-port:hover {
+            transform: translate(-50%, -50%) scale(1.35);
+            opacity: 1 !important;
+            background: #0ea5e9;
+        }
+
+        .port-n { top: 0%; left: 50%; }
+        .port-s { top: 100%; left: 50%; }
+        .port-e { top: 50%; left: 100%; }
+        .port-w { top: 50%; left: 0%; }
+
+        /* LIENZO DE ANOTACIÓN Y DIBUJO EN VIVO (THEATER INK) */
+        #theater-ink-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100015;
+            cursor: default;
+        }
+
+        #theater-ink-canvas.active-ink {
+            pointer-events: auto !important;
+            cursor: crosshair !important;
+        }
+
+        /* EFECTOS Y KEYFRAMES DE ANIMACIÓN */
+        @keyframes animPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes animGlowAmber {
+            0%, 100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+            50% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.9); }
+        }
+
+        @keyframes animShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        @keyframes animBounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 0.9; transform: scale(1.08); }
+            70% { transform: scale(0.92); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .anim-effect-pulse { animation: animPulse 1s ease-in-out infinite; }
+        .anim-effect-glowAmber { animation: animGlowAmber 1.2s ease-in-out infinite; }
+        .anim-effect-shake { animation: animShake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+        .anim-effect-bounceIn { animation: animBounceIn 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+        .element-spotlight-dimmed {
+            opacity: 0.22 !important;
+            transition: opacity 0.4s ease;
+        }
+
+        .element-spotlight-active {
+            opacity: 1 !important;
+            transform: scale(1.05) !important;
+            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1) !important;
+            z-index: 1000 !important;
+        }
+
+        /* NAVEGADOR DE MINIATURAS (SIDEBAR IZQUIERDA) */
+        .slide-thumb-card {
+            position: relative;
+            border-radius: 14px;
+            border: 2px solid transparent;
+            background: #ffffff;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        [data-theme="dark"] .slide-thumb-card {
+            background: #1a2333;
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .slide-thumb-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #fde68a;
+        }
+
+        [data-theme="dark"] .slide-thumb-card:hover {
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .slide-thumb-card.active {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3), 0 0 18px rgba(245, 158, 11, 0.25) !important;
+        }
+
+        .slide-thumb-preview {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            pointer-events: none;
+            border-radius: 8px;
+        }
+
+        [data-theme="dark"] .slide-thumb-preview {
+            background: #0f172a;
+        }
+
+        /* MODAL DE PRESENTACIÓN COMPLETA (THEATER FULLSCREEN) */
+        #presentation-theater {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            background: #000000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        #presentation-theater.is-active {
+            display: flex;
+        }
+
+        #presentation-theater.laser-mode {
+            cursor: none;
+        }
+
+        #laser-pointer-dot {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 16px 4px #ef4444, 0 0 32px 8px rgba(239, 68, 68, 0.6);
+            pointer-events: none;
+            z-index: 100010;
+            transform: translate(-50%, -50%);
+            display: none;
+            transition: transform 0.04s ease-out;
+        }
+
+        /* TRANSICIONES ENTRE DIAPOSITIVAS */
+        .slide-transition-container {
+            width: 960px;
+            height: 540px;
+            transform-origin: center center;
+            position: relative;
+        }
+
+        .transition-fade {
+            animation: slideFadeIn 0.35s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        .transition-slide {
+            animation: slideInRight 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        .transition-push {
+            animation: slideInUp 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        .transition-zoom {
+            animation: slideZoomIn 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        .transition-flip {
+            animation: slideFlipIn 0.5s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        .transition-morph {
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes slideFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideZoomIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideFlipIn {
+            from { transform: rotateY(90deg); opacity: 0; }
+            to { transform: rotateY(0deg); opacity: 1; }
+        }
+
+        /* IMPRESIÓN Y EXPORTACIÓN */
+        @media print {
+            .no-print, header, nav, #global-preloader, #shared-components-root, #editor-sticky-controls, #bottom-hud-bar {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            #slide-artboard {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/core/theme.js"></script>
+</head>
+
+<body class="h-screen w-screen text-slate-800 dark:text-slate-100 bg-[#f8fafc] dark:bg-[#0b1120] antialiased font-sans overflow-hidden flex flex-col">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-amber" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
+        </div>
+        <div class="loader-container">
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
+
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="loading-text">Cargando diapositivas
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/core/preloader.js"></script>
+
+    <!-- ANCLAJE DE COMPONENTES COMPARTIDOS (NAVBAR GLOBAL Y MODALES) -->
+    <div id="shared-components-root"></div>
+
+    <!-- =========================================================
+         CABECERA MAESTRA FLOTANTE (.header-master-bar.glowinglass)
+         ========================================================= -->
+    <header id="editor-sticky-controls" class="fixed top-[82px] left-3 right-3 md:left-6 md:right-6 z-[900] pointer-events-none no-print">
+        <div class="flex flex-col gap-0 w-full mx-auto pointer-events-auto">
+
+            <!-- FILA 1: IDENTIFICACIÓN DEL PROYECTO, PESTAÑAS RIBBON Y ACCIONES MAESTRAS -->
+            <div id="editor-master-row1" class="header-master-bar glowinglass px-3.5 py-1.5 flex items-center justify-between gap-2 h-[52px] min-h-[52px] relative rounded-[28px] shadow-xl">
+                <!-- Lado Izquierdo: Toggle Sidebar + Tarjeta Proyecto + Indicadores + Guardar Rápido -->
+                <div id="editor-master-left-group" class="flex items-center gap-2 shrink-0 min-w-0 max-w-[calc(50%-180px)] overflow-hidden">
+                    <!-- Botón Toggle Diapos -->
+                    <button id="btn-toggle-sidebar" onclick="window.toggleDocSidebarDrawer()" type="button" class="btn-nav-glass" title="Alternar panel de diapositivas">
+                        <i class="fas fa-th-large text-amber-500 text-xs"></i>
+                        <span class="hidden sm:inline font-bold text-xs">Diapos</span>
+                    </button>
+
+                    <div class="h-5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block shrink-0"></div>
+
+                    <!-- Tarjeta del Documento / Presentación con Icono Ámbar y Nombre Editable -->
+                    <div class="flex items-center gap-2 px-2.5 h-9 rounded-full bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/60 dark:border-white/10 shrink-0 group">
+                        <div class="w-7 h-7 rounded-full bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                            <i class="fas fa-desktop text-xs"></i>
+                        </div>
+                        <div class="flex items-center gap-1.5 min-w-0 max-w-[130px] xl:max-w-[180px]">
+                            <input type="text" id="presentation-name-input" onchange="window.updatePresentationName(this.value)" class="bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50 focus:bg-white dark:focus:bg-slate-800 border border-transparent focus:border-amber-400 rounded-md px-1.5 py-0.5 text-xs font-bold text-slate-800 dark:text-white outline-none truncate leading-tight w-full cursor-pointer focus:cursor-text" value="Presentación Ejecutiva" title="Clic para renombrar presentación">
+                        </div>
+                        <span id="aspect-ratio-pill" class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 shrink-0">16:9</span>
+                    </div>
+
+                    <div class="h-5 w-px bg-slate-200 dark:bg-slate-800 hidden xl:block shrink-0"></div>
+
+                    <!-- Indicadores de Guardado y Nube (Anti-Desplazamiento) -->
+                    <div id="main-sync-pill" class="flex items-center gap-1.5 shrink-0" title="Estado de Guardado">
+                        <span id="save-indicator" class="flex items-center justify-center gap-1 px-2 h-7 w-[64px] min-w-[64px] max-w-[64px] rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 select-none" title="Guardado localmente en este navegador">
+                            <i class="fas fa-check-circle text-[9px]"></i> <span>LOCAL</span>
+                        </span>
+                        <span id="cloud-indicator" class="flex items-center justify-center gap-1 px-2 h-7 w-[114px] min-w-[114px] max-w-[114px] rounded-full text-[9px] font-bold bg-slate-500/10 text-slate-500 dark:text-slate-400 border border-slate-500/20 shrink-0 select-none" title="Estado en la nube de EduConta">
+                            <i class="fas fa-cloud-check text-[9px]"></i> <span id="cloud-status-text">SINCRONIZADO</span>
+                        </span>
+                    </div>
+
+                    <div class="h-5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block shrink-0"></div>
+
+                    <!-- Guardar Manual -->
+                    <button onclick="window.savePresentationManual()" id="btn-save" type="button" class="btn-hero-save" title="Guardar Presentación (Ctrl+S)">
+                        <i class="fas fa-cloud text-xs" id="btn-save-toolbar-icon"></i>
+                        <span>Guardar</span>
+                    </button>
+                </div>
+
+                <!-- Centro: Pestañas Ribbon Segmentadas (Centrado e Inmovilizado) -->
+                <div id="toolbar-center-ribbon-group" class="toolbar-center-fixed flex items-center justify-center relative shrink-0">
+                    <nav class="flex items-center gap-1 p-1 rounded-full relative bg-slate-100/70 dark:bg-slate-850/70 border border-slate-200/60 dark:border-slate-800" id="ribbon-tabs-container">
+                        <div id="ribbon-bubble-indicator" class="absolute top-1 bottom-1 rounded-full pointer-events-none" style="left: 0; width: 0; opacity: 0; transform-origin: center;"></div>
+
+                        <button type="button" id="ribbon-tab-btn-inicio" onclick="window.switchRibbonTab('inicio')" data-idx="0" class="ribbon-tab-btn active active:scale-95" aria-selected="true">
+                            <i class="fas fa-pen-nib text-[10px]"></i>
+                            <span>Inicio</span>
+                        </button>
+                        <button type="button" id="ribbon-tab-btn-insertar" onclick="window.switchRibbonTab('insertar')" data-idx="1" class="ribbon-tab-btn active:scale-95" aria-selected="false">
+                            <i class="fas fa-plus text-[10px]"></i>
+                            <span>Insertar</span>
+                        </button>
+                        <button type="button" id="ribbon-tab-btn-animacion" onclick="window.switchRibbonTab('animacion')" data-idx="2" class="ribbon-tab-btn active:scale-95" aria-selected="false">
+                            <i class="fas fa-wand-magic-sparkles text-[10px]"></i>
+                            <span>Animación</span>
+                        </button>
+                        <button type="button" id="ribbon-tab-btn-disposicion" onclick="window.switchRibbonTab('disposicion')" data-idx="3" class="ribbon-tab-btn active:scale-95" aria-selected="false">
+                            <i class="fas fa-table-cells text-[10px]"></i>
+                            <span>Disposición</span>
+                        </button>
+                    </nav>
+
+                    <!-- Botón Alternar Visibilidad del Estante de Herramientas -->
+                    <button onclick="window.toggleRibbonShelf()" type="button" id="btn-toggle-ribbon-shelf" class="w-9 h-9 rounded-full text-slate-500 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-400 flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0 ml-1.5" title="Alternar visibilidad de herramientas (Minimizar/Expandir cinta)">
+                        <i class="fas fa-chevron-up text-[10px] transition-transform duration-200" id="icon-toggle-ribbon"></i>
+                    </button>
+                </div>
+
+                <!-- Derecha: Presentar + Exportar + Compartir + Salir -->
+                <div id="editor-master-right-group" class="flex items-center gap-2 shrink-0 ml-auto">
+                    <!-- BOTÓN PRESENTAR (AMBER HERO ACCION) -->
+                    <button onclick="window.startPresentationMode()" id="btn-master-presentar" type="button" class="btn-hero-presentar" title="Iniciar Modo Presentación Pantalla Completa (F5)">
+                        <i class="fas fa-play text-xs"></i>
+                        <span class="hidden sm:inline">Presentar</span>
+                    </button>
+
+                    <!-- Menú Exportar Desplegable (Click y Hover) -->
+                    <div class="relative" id="export-dropdown-wrapper">
+                        <button type="button" id="btn-export-dropdown" onclick="window.toggleExportDropdown(event)" class="btn-nav-glass" title="Exportar Diapositivas">
+                            <i class="fas fa-arrow-up-from-bracket text-amber-500 text-xs"></i>
+                            <span class="hidden xl:inline">Exportar</span>
+                            <i class="fas fa-chevron-down text-[8px] opacity-60"></i>
+                        </button>
+                        <div id="export-dropdown-menu" class="hidden absolute right-0 top-full pt-1.5 z-[1050]">
+                            <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-2xl w-56 space-y-1 backdrop-blur-2xl">
+                                <button onclick="window.exportToPDF(); window.closeExportDropdown();" class="w-full px-3 py-2 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2 transition-colors"><i class="fas fa-file-pdf text-rose-500 text-sm"></i> Descargar como PDF</button>
+                                <button onclick="window.exportSlideAsImage('png'); window.closeExportDropdown();" class="w-full px-3 py-2 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2 transition-colors"><i class="fas fa-file-image text-emerald-500 text-sm"></i> Imagen Diapositiva (PNG)</button>
+                                <button onclick="window.exportPresentationJSON(); window.closeExportDropdown();" class="w-full px-3 py-2 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2 transition-colors"><i class="fas fa-code text-sky-500 text-sm"></i> Archivo EduConta (.edcp)</button>
+                                <div class="h-[1px] bg-slate-200 dark:bg-slate-800 my-1"></div>
+                                <button onclick="window.print(); window.closeExportDropdown();" class="w-full px-3 py-2 text-left text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2 transition-colors"><i class="fas fa-print text-slate-500 text-sm"></i> Imprimir Diapositivas</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compartir -->
+                    <button onclick="window.openShareModal()" id="btn-master-share" type="button" class="btn-hero-share" title="Compartir con Colaboradores">
+                        <i class="fas fa-user-plus text-xs"></i>
+                        <span class="hidden 2xl:inline">Compartir</span>
+                    </button>
+
+                    <div class="h-5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block shrink-0"></div>
+
+                    <!-- Salir a Documentos -->
+                    <button onclick="window.closeProject()" id="btn-master-exit" type="button" class="btn-nav-exit" title="Cerrar y Salir a Documentos">
+                        <i class="fas fa-arrow-left text-xs"></i>
+                        <span class="hidden sm:inline">Salir</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILA 2: ESTANTE RIBBON SECUNDARIO DINÁMICO POR PESTAÑAS -->
+            <div id="ribbon-shelf-card" class="toolbar-secondary revealed header-master-bar glowinglass px-3.5 flex items-center overflow-x-auto no-scrollbar pointer-events-auto rounded-[24px] shadow-lg mt-1.5">
+                <div id="ribbon-shelf-content" class="w-full min-w-max h-full flex items-center">
+                    <!-- Pestaña 1: INICIO -->
+                    <div id="shelf-tab-inicio" class="flex items-center gap-1.5 w-full min-w-max h-full">
+                        <!-- Historial -->
+                        <button onclick="undo()" class="tool-icon-btn" title="Deshacer (Ctrl+Z)"><i class="fas fa-undo text-xs"></i></button>
+                        <button onclick="redo()" class="tool-icon-btn" title="Rehacer (Ctrl+Y)"><i class="fas fa-redo text-xs"></i></button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Portapapeles & Formato -->
+                        <button onclick="toggleFormatPainter()" id="btn-format-painter" class="tool-icon-btn" title="Copiar Formato (Brocha)"><i class="fas fa-paint-roller text-xs text-amber-600 dark:text-amber-400"></i></button>
+                        <button onclick="deleteSelectedElements()" class="tool-icon-btn hover:!text-rose-500" title="Eliminar Selección (Supr)"><i class="far fa-trash-alt text-xs"></i></button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Alineación Multi-Objeto -->
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 ml-1">Alinear:</span>
+                        <button onclick="alignSelectedElements('left')" class="tool-icon-btn" title="Alinear a la Izquierda"><i class="fas fa-align-left text-xs"></i></button>
+                        <button onclick="alignSelectedElements('center')" class="tool-icon-btn" title="Alinear al Centro Horizontal"><i class="fas fa-align-center text-xs"></i></button>
+                        <button onclick="alignSelectedElements('right')" class="tool-icon-btn" title="Alinear a la Derecha"><i class="fas fa-align-right text-xs"></i></button>
+                        <button onclick="alignSelectedElements('top')" class="tool-icon-btn" title="Alinear Arriba"><i class="fas fa-arrow-up text-xs"></i></button>
+                        <button onclick="alignSelectedElements('middle')" class="tool-icon-btn" title="Alinear al Centro Vertical"><i class="fas fa-arrows-alt-v text-xs"></i></button>
+                        <button onclick="alignSelectedElements('bottom')" class="tool-icon-btn" title="Alinear Abajo"><i class="fas fa-arrow-down text-xs"></i></button>
+                        <button onclick="distributeSelectedElements('horizontal')" class="tool-icon-btn" title="Distribuir Horizontalmente"><i class="fas fa-arrows-alt-h text-xs"></i></button>
+                        <button onclick="distributeSelectedElements('vertical')" class="tool-icon-btn" title="Distribuir Verticalmente"><i class="fas fa-arrows-alt-v text-xs"></i></button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Agrupar / Desagrupar -->
+                        <button onclick="groupSelectedElements()" class="tool-btn" title="Agrupar Selección (Ctrl+G)"><i class="fas fa-object-group text-amber-500"></i> Agrupar</button>
+                        <button onclick="ungroupSelectedElements()" class="tool-btn" title="Desagrupar Selección (Ctrl+Shift+G)"><i class="fas fa-object-ungroup text-slate-500"></i> Desagrupar</button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Capas Rápidas -->
+                        <button onclick="bringElementToFront()" class="tool-icon-btn" title="Traer al Frente"><i class="fas fa-layer-group text-xs text-amber-500"></i></button>
+                        <button onclick="sendElementToBack()" class="tool-icon-btn" title="Enviar al Fondo"><i class="fas fa-layer-group text-xs text-slate-400 rotate-180"></i></button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Cuadrícula -->
+                        <button onclick="toggleGridOverlay()" id="btn-toggle-grid" class="tool-btn" title="Alternar Cuadrícula en Lienzo"><i class="fas fa-border-all text-amber-500"></i> Cuadrícula</button>
+                    </div>
+
+                    <!-- Pestaña 2: INSERTAR -->
+                    <div id="shelf-tab-insertar" class="hidden flex items-center gap-1.5 w-full min-w-max h-full">
+                        <!-- Texto -->
+                        <button onclick="addSlideElement('text')" class="tool-btn"><i class="fas fa-font text-amber-500"></i> Texto</button>
+
+                        <!-- Formas Dropdown -->
+                        <div class="relative group">
+                            <button class="tool-btn"><i class="fas fa-shapes text-amber-500"></i> Formas <i class="fas fa-chevron-down text-[9px] opacity-60"></i></button>
+                            <div class="hidden group-hover:block absolute left-0 top-full pt-1.5 z-50">
+                                <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-2xl w-48 space-y-1 backdrop-blur-2xl">
+                                    <button onclick="addSlideShape('rectangle')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="far fa-square text-amber-500"></i> Rectángulo</button>
+                                    <button onclick="addSlideShape('rounded')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-square-full text-amber-500 rounded-sm"></i> Tarjeta Curva</button>
+                                    <button onclick="addSlideShape('circle')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="far fa-circle text-amber-500"></i> Círculo</button>
+                                    <button onclick="addSlideShape('arrow-right')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-arrow-right text-amber-500"></i> Flecha</button>
+                                    <button onclick="addSlideShape('diamond')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-diamond text-amber-500"></i> Rombo / Decisión</button>
+                                    <button onclick="addSlideShape('callout')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="far fa-comment text-amber-500"></i> Bocadillo</button>
+                                    <button onclick="addSlideShape('line')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-minus text-amber-500"></i> Línea Divisoria</button>
+                                    <div class="h-[1px] bg-slate-100 dark:bg-slate-800 my-1"></div>
+                                    <span class="text-[9px] font-black uppercase text-slate-400 px-3 block">Conectores Magnéticos</span>
+                                    <button onclick="addSlideConnector('straight')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-sky-50 dark:hover:bg-sky-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-arrows-alt-h text-sky-500"></i> Conector Recto</button>
+                                    <button onclick="addSlideConnector('elbow')" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-sky-50 dark:hover:bg-sky-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-bezier-curve text-sky-500"></i> Conector Ortogonal</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Finanzas & Contabilidad Dropdown -->
+                        <div class="relative group">
+                            <button class="tool-btn"><i class="fas fa-chart-line text-amber-500"></i> Finanzas &amp; Contable <i class="fas fa-chevron-down text-[9px] opacity-60"></i></button>
+                            <div class="hidden group-hover:block absolute left-0 top-full pt-1.5 z-50">
+                                <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-2xl w-60 space-y-1 backdrop-blur-2xl">
+                                    <button onclick="addSlideTable()" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-table text-amber-500"></i> Tabla Contable NIIF</button>
+                                    <button onclick="addSlideKPI()" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-chart-pie text-emerald-500"></i> Tarjeta Métrica / KPI</button>
+                                    <button onclick="openChartModal()" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-2"><i class="fas fa-chart-column text-sky-500"></i> Gráfico Estadístico SVG</button>
+                                    <div class="h-[1px] bg-slate-100 dark:bg-slate-800 my-1"></div>
+                                    <button onclick="openImportAccountingModal()" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-amber-600 dark:text-amber-400 rounded-xl flex items-center gap-2"><i class="fas fa-file-import text-amber-500"></i> Importar Proyecto Contable</button>
+                                    <button onclick="openAuditBadgesModal()" class="w-full px-3 py-1.5 text-left text-xs font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center gap-2"><i class="fas fa-stamp text-emerald-500"></i> Sellos de Auditoría Fiscal</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Medios -->
+                        <button onclick="openImageModal()" class="tool-btn"><i class="fas fa-image text-amber-500"></i> Imagen</button>
+                        <button onclick="openIconModal()" class="tool-btn"><i class="fas fa-icons text-amber-500"></i> Iconos</button>
+                        <button onclick="addSlideSticky()" class="tool-btn"><i class="fas fa-note-sticky text-amber-500"></i> Nota</button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Plantillas -->
+                        <button onclick="openTemplatesModal()" class="tool-btn text-amber-600 dark:text-amber-400"><i class="fas fa-layer-group text-amber-500"></i> Plantillas</button>
+                    </div>
+
+                    <!-- Pestaña 3: ANIMACIÓN -->
+                    <div id="shelf-tab-animacion" class="hidden flex items-center gap-1.5 w-full min-w-max h-full">
+                        <!-- Abrir Línea de Tiempo -->
+                        <button onclick="toggleAnimationTimelineDrawer()" id="btn-open-anim-timeline" class="tool-btn text-amber-600 dark:text-amber-400 bg-amber-50/70 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/40 relative font-bold" title="Abrir Línea de Tiempo de Animaciones">
+                            <i class="fas fa-wand-magic-sparkles"></i> Secuenciador
+                            <span id="dock-anim-badge" class="ml-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-black hidden">0</span>
+                        </button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Entradas Rápidas -->
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 ml-1">Entrada:</span>
+                        <button onclick="addQuickAnimation('fadeIn')" class="tool-btn !px-2"><i class="fas fa-arrow-right-to-bracket text-emerald-500 text-[10px]"></i> Fade</button>
+                        <button onclick="addQuickAnimation('flyIn')" class="tool-btn !px-2"><i class="fas fa-plane-arrival text-emerald-500 text-[10px]"></i> Fly In</button>
+                        <button onclick="addQuickAnimation('zoomIn')" class="tool-btn !px-2"><i class="fas fa-expand text-emerald-500 text-[10px]"></i> Zoom</button>
+                        <button onclick="addQuickAnimation('bounceIn')" class="tool-btn !px-2"><i class="fas fa-volleyball text-emerald-500 text-[10px]"></i> Rebote</button>
+                        <button onclick="addQuickAnimation('typewriter')" class="tool-btn !px-2"><i class="fas fa-i-cursor text-emerald-500 text-[10px]"></i> Typewriter</button>
+                        <button onclick="addQuickAnimation('countUp')" class="tool-btn !px-2"><i class="fas fa-arrow-up-1-9 text-emerald-500 text-[10px]"></i> CountUp $</button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Énfasis Rápido -->
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 ml-1">Énfasis:</span>
+                        <button onclick="addQuickAnimation('pulse')" class="tool-btn !px-2"><i class="fas fa-heart-pulse text-amber-500 text-[10px]"></i> Latido</button>
+                        <button onclick="addQuickAnimation('glowAmber')" class="tool-btn !px-2"><i class="fas fa-sun text-amber-500 text-[10px]"></i> Resplandor</button>
+                        <button onclick="addQuickAnimation('spotlight')" class="tool-btn !px-2"><i class="fas fa-lightbulb text-amber-500 text-[10px]"></i> Spotlight</button>
+                        <button onclick="addQuickAnimation('shake')" class="tool-btn !px-2"><i class="fas fa-bell text-rose-500 text-[10px]"></i> Vibrar</button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Vista Previa -->
+                        <button onclick="playSlideAnimationPreview()" class="tool-btn !bg-amber-500 hover:!bg-amber-600 !text-white !font-black !px-3 shadow-md" title="Previsualizar animaciones"><i class="fas fa-play text-[10px]"></i> ▶ Probar</button>
+                    </div>
+
+                    <!-- Pestaña 4: DISPOSICIÓN & VISTA -->
+                    <div id="shelf-tab-disposicion" class="hidden flex items-center gap-1.5 w-full min-w-max h-full">
+                        <!-- Nueva Diapositiva -->
+                        <button onclick="openLayoutPickerModal()" class="tool-btn !bg-amber-500 hover:!bg-amber-600 !text-white !font-bold !px-3 shadow-md"><i class="fas fa-plus"></i> Nueva Diapositiva</button>
+                        <button onclick="duplicateActiveSlide()" class="tool-btn"><i class="far fa-copy text-amber-500"></i> Duplicar</button>
+                        <button onclick="deleteActiveSlide()" class="tool-btn hover:!text-rose-500"><i class="far fa-trash-alt text-rose-500"></i> Eliminar</button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Aspect Ratio -->
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 ml-1">Formato:</span>
+                        <button onclick="setAspectRatio('16:9')" class="tool-btn active">16:9 Panorámica</button>
+                        <button onclick="setAspectRatio('4:3')" class="tool-btn">4:3 Clásica</button>
+
+                        <div class="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                        <!-- Zoom Viewport -->
+                        <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 ml-1">Zoom:</span>
+                        <button onclick="setZoomLevel('fit')" class="tool-btn">Ajustar</button>
+                        <button onclick="setZoomLevel('0.75')" class="tool-btn">75%</button>
+                        <button onclick="setZoomLevel('1')" class="tool-btn">100%</button>
+                        <button onclick="setZoomLevel('1.25')" class="tool-btn">125%</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILA 3: BARRA DINÁMICA DE PROPIEDADES CONTEXTUALES -->
+            <div id="context-property-bar" class="header-master-bar glowinglass px-4 flex items-center justify-between text-xs pointer-events-auto mt-1.5 h-[40px] min-h-[40px] rounded-[20px] shadow-md transition-all">
+                <div id="prop-controls-container" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                    <!-- Poblado dinámicamente con las herramientas de la selección -->
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span id="selection-status-badge" class="text-[10px] font-black text-amber-500 uppercase tracking-wider">Diapositiva Activa</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         ÁREA PRINCIPAL DE TRABAJO (SIDEBAR + STAGE CANVAS)
+         ========================================================= -->
+    <main id="diapo-main-workspace" class="fixed top-[242px] left-3 right-3 bottom-3 md:left-6 md:right-6 md:bottom-4 flex gap-4 overflow-hidden z-10 transition-all">
+
+        <!-- PANEL IZQUIERDO: NAVEGADOR DE DIAPOSITIVAS & ÁRBOL DE CAPAS -->
+        <aside id="slide-thumbnails-sidebar" class="w-60 md:w-64 h-full drawer-glass tempered-glass rounded-3xl flex flex-col shrink-0 select-none overflow-hidden shadow-2xl transition-all border border-white/60 dark:border-slate-800/60 no-print">
+            <!-- Pestañas del sidebar: Diapositivas vs Capas -->
+            <div class="p-2 border-b border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between gap-1 bg-slate-50/50 dark:bg-slate-950/30">
+                <div class="flex items-center gap-1 bg-slate-200/60 dark:bg-slate-800/60 p-0.5 rounded-full flex-1">
+                    <button id="tab-btn-thumbs" onclick="switchSidebarTab('thumbs')" class="flex-1 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-white dark:bg-slate-900 shadow-sm transition-all flex items-center justify-center gap-1">
+                        <i class="fas fa-th-large text-[10px]"></i> Diapos
+                    </button>
+                    <button id="tab-btn-layers" onclick="switchSidebarTab('layers')" class="flex-1 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-all flex items-center justify-center gap-1">
+                        <i class="fas fa-layer-group text-[10px]"></i> Capas
+                    </button>
+                </div>
+                <button onclick="openLayoutPickerModal()" id="btn-quick-new-slide" class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold flex items-center justify-center shadow-md transition-all shrink-0 active:scale-95 ml-1" title="Añadir Diapositiva">
+                    <i class="fas fa-plus text-[10px]"></i>
+                </button>
+            </div>
+
+            <!-- Contenedor 1: Lista scrolleable de diapositivas -->
+            <div id="slide-thumbnails-list" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+                <!-- Se inyectan dinámicamente -->
+            </div>
+
+            <!-- Contenedor 2: Árbol de capas de la diapositiva activa -->
+            <div id="slide-layers-list" class="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar hidden">
+                <!-- Se inyectan dinámicamente -->
+            </div>
+
+            <!-- Pie de miniaturas -->
+            <div id="sidebar-footer-controls" class="p-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px] font-bold text-slate-400 bg-slate-50/30 dark:bg-slate-950/20">
+                <span id="slide-counter-badge" class="font-black text-slate-500 dark:text-slate-400">1 Diapositiva</span>
+                <button onclick="duplicateActiveSlide()" class="hover:text-amber-500 transition-colors flex items-center gap-1" title="Duplicar Diapositiva (Ctrl+D)"><i class="far fa-copy text-[10px]"></i> Duplicar</button>
+            </div>
+        </aside>
+
+        <!-- ÁREA CENTRAL: ESCENARIO 16:9 CON ZOOM Y TIRADORES -->
+        <section id="stage-outer-viewport" onclick="handleViewportClick(event)" onmousemove="handleStageMouseMove(event)" onmouseup="handleStageMouseUp(event)">
+            
+            <!-- CONTENEDOR ESCALABLE (TRANSFORM: SCALE) -->
+            <div id="slide-canvas-scaler">
+                <div id="slide-artboard" onmousedown="handleStageMouseDown(event)">
+                    <!-- Cuadrícula superpuesta configurable -->
+                    <div id="grid-overlay"></div>
+
+                    <!-- Lazo elástico de selección múltiple (Marquee) -->
+                    <div id="marquee-selection-box"></div>
+
+                    <!-- Líneas de guía de alineación magnética -->
+                    <div id="snap-guide-v" class="snap-guide-line vertical"></div>
+                    <div id="snap-guide-h" class="snap-guide-line horizontal"></div>
+
+                    <!-- Contenedor de guías de equidistancia -->
+                    <div id="snap-equal-guides-container"></div>
+
+                    <!-- Capa de Elementos de la Diapositiva -->
+                    <div id="slide-elements-layer" class="w-full h-full relative"></div>
+                </div>
+            </div>
+
+            <!-- CONTROLES FLOTANTES EN LA PARTE INFERIOR DEL LIENZO -->
+            <div id="bottom-hud-bar" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl px-4 py-1.5 rounded-full border border-white/70 dark:border-slate-800/70 shadow-2xl z-20 no-print select-none">
+                <!-- Navegación rápida entre diapositivas -->
+                <button onclick="goToPrevSlide()" class="tool-icon-btn !w-7 !h-7" title="Diapositiva Anterior"><i class="fas fa-chevron-left text-[11px]"></i></button>
+                <span id="hud-slide-indicator" class="text-xs font-black text-slate-700 dark:text-slate-300 px-2 min-w-[70px] text-center">1 / 1</span>
+                <button onclick="goToNextSlide()" class="tool-icon-btn !w-7 !h-7" title="Diapositiva Siguiente"><i class="fas fa-chevron-right text-[11px]"></i></button>
+
+                <div class="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                <!-- Zoom Controls -->
+                <button onclick="zoomOut()" class="tool-icon-btn !w-7 !h-7" title="Reducir Zoom"><i class="fas fa-magnifying-glass-minus text-[11px]"></i></button>
+                <select id="zoom-select" onchange="setZoomLevel(this.value)" class="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none cursor-pointer">
+                    <option value="fit">Ajustar</option>
+                    <option value="0.5">50%</option>
+                    <option value="0.75">75%</option>
+                    <option value="1" selected>100%</option>
+                    <option value="1.25">125%</option>
+                    <option value="1.5">150%</option>
+                </select>
+                <button onclick="zoomIn()" class="tool-icon-btn !w-7 !h-7" title="Aumentar Zoom"><i class="fas fa-magnifying-glass-plus text-[11px]"></i></button>
+
+                <div class="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                <!-- Toggle Notas del Orador -->
+                <button onclick="toggleSpeakerNotesDrawer()" id="btn-toggle-notes" class="px-2.5 py-1 rounded-full text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center gap-1.5 transition-colors" title="Notas del Orador">
+                    <i class="fas fa-clipboard text-amber-500 text-[11px]"></i> <span class="hidden sm:inline">Notas</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========================================================
+         GAVETA INFERIOR: NOTAS DEL ORADOR (SPEAKER NOTES)
+         ========================================================= -->
+    <div id="speaker-notes-drawer" class="hidden fixed bottom-0 left-0 right-0 h-44 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-amber-500/30 p-4 z-[990] no-print flex flex-col shrink-0 shadow-2xl rounded-t-3xl">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800/60">
+            <span class="text-[11px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                <i class="fas fa-clipboard"></i> Notas del Orador para esta diapositiva
+            </span>
+            <button onclick="toggleSpeakerNotesDrawer()" class="w-7 h-7 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs"><i class="fas fa-times"></i></button>
+        </div>
+        <textarea id="slide-notes-textarea" oninput="saveCurrentSlideNotes(this.value)" placeholder="Escribe aquí tus apuntes, guion o puntos clave para la presentación..." class="w-full flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 text-xs text-slate-700 dark:text-slate-200 outline-none resize-none focus:border-amber-400 font-sans mt-2"></textarea>
+    </div>
+
+    <!-- =========================================================
+         GAVETA INFERIOR: LÍNEA DE TIEMPO & SECUENCIADOR DE ANIMACIONES
+         ========================================================= -->
+    <div id="animation-timeline-drawer" class="hidden fixed bottom-0 left-0 right-0 h-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-amber-500/30 p-4 z-[990] no-print flex flex-col shrink-0 shadow-2xl rounded-t-3xl">
+        <div class="flex items-center justify-between pb-2.5 border-b border-slate-200/60 dark:border-slate-800/60">
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-wand-magic-sparkles"></i> Secuenciador de Animaciones de la Diapositiva
+                </span>
+                <span id="anim-step-count-badge" class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-[10px] font-black">0 Efectos</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="playSlideAnimationPreview()" class="px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95" title="Previsualizar secuencia completa de animaciones en el lienzo">
+                    <i class="fas fa-play text-[10px]"></i> <span>▶ Vista Previa</span>
+                </button>
+                <button onclick="openAddAnimationModal()" class="px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-all">
+                    <i class="fas fa-plus text-[10px]"></i> <span>+ Añadir Animación</span>
+                </button>
+                <button onclick="toggleAnimationTimelineDrawer()" class="w-7 h-7 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center p-1"><i class="fas fa-times text-xs"></i></button>
+            </div>
+        </div>
+        <div id="animation-steps-list" class="flex-1 overflow-x-auto py-2.5 flex items-center gap-3 custom-scrollbar">
+            <!-- Se inyectan dinámicamente las tarjetas de pasos de animación -->
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODO PRESENTACIÓN PANTALLA COMPLETA (THEATER HUD)
+         ========================================================= -->
+    <div id="presentation-theater">
+        <!-- Punto Láser Virtual -->
+        <div id="laser-pointer-dot"></div>
+
+        <!-- Pantalla Negra (Blackout) -->
+        <div id="theater-blackout-overlay" class="fixed inset-0 bg-black z-[100005] hidden"></div>
+
+        <!-- Contenedor Centrado de la Diapositiva -->
+        <div id="theater-slide-frame" class="slide-transition-container">
+            <div id="theater-slide-content" class="w-full h-full relative overflow-hidden bg-white"></div>
+            <!-- Lienzo de Anotación y Dibujo en Vivo -->
+            <canvas id="theater-ink-canvas"></canvas>
+        </div>
+
+        <!-- BARRA FLOTANTE DE CONTROL DEL PRESENTADOR (AUTO-HIDE) -->
+        <div id="theater-hud-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-950/85 backdrop-blur-2xl border border-white/20 text-white px-5 py-2.5 rounded-full flex items-center gap-2.5 z-[100020] shadow-2xl transition-opacity duration-300 opacity-90 hover:opacity-100">
+            <button onclick="theaterPrev()" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Anterior (Flecha Izq)"><i class="fas fa-chevron-left text-sm"></i></button>
+            <span id="theater-counter-badge" class="font-black text-xs px-2 text-amber-400">1 / 1</span>
+            <button onclick="theaterNext()" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Siguiente (Espacio / Flecha Der)"><i class="fas fa-chevron-right text-sm"></i></button>
+
+            <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
+
+            <!-- Cronómetro de Defensa Oral -->
+            <div id="theater-timer-badge" class="font-mono font-bold text-xs px-2 text-slate-300 flex items-center gap-1.5 cursor-pointer hover:text-amber-400 transition-colors" onclick="resetTheaterTimer()" title="Cronómetro de Exposición (Clic para reiniciar)">
+                <i class="fas fa-stopwatch text-amber-400"></i> <span id="theater-timer-text">00:00</span>
+            </div>
+
+            <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
+
+            <!-- Herramientas de Dibujo y Láser -->
+            <button onclick="toggleTheaterLaser()" id="btn-theater-laser" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Puntero Láser (L)"><i class="fas fa-crosshairs text-sm text-red-500"></i></button>
+            <button onclick="setTheaterInkTool('pen')" id="btn-theater-pen" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Pluma Ámbar (P)"><i class="fas fa-pen text-sm text-amber-400"></i></button>
+            <button onclick="setTheaterInkTool('marker')" id="btn-theater-marker" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Resaltador Amarillo (M)"><i class="fas fa-highlighter text-sm text-yellow-300"></i></button>
+            <button onclick="clearTheaterInk()" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Borrar Trazos (E)"><i class="fas fa-eraser text-sm text-slate-400"></i></button>
+
+            <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
+
+            <button onclick="toggleTheaterSlideSorter()" id="btn-theater-sorter" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Clasificador de Diapositivas (G)"><i class="fas fa-th-large text-sm text-slate-300"></i></button>
+            <button onclick="toggleTheaterZoom()" id="btn-theater-zoom" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Lupa de Zoom 2x (Z)"><i class="fas fa-magnifying-glass-plus text-sm text-slate-300"></i></button>
+            <button onclick="toggleTheaterNotesPopup()" id="btn-theater-notes" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Notas (N)"><i class="far fa-clipboard text-sm text-amber-400"></i></button>
+            <button onclick="toggleTheaterBlackout()" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Pantalla Negra (B)"><i class="fas fa-circle-half-stroke text-sm"></i></button>
+            <button onclick="toggleAutoPlay()" id="btn-theater-autoplay" class="p-2 hover:bg-white/10 rounded-full transition-colors" title="Auto-reproducción"><i class="fas fa-play text-xs text-emerald-400"></i></button>
+
+            <div class="w-[1px] h-4 bg-white/20 mx-1"></div>
+
+            <button onclick="exitPresentationMode()" class="p-2 hover:bg-rose-500/20 text-rose-400 rounded-full transition-colors" title="Salir (Esc)"><i class="fas fa-times text-sm"></i></button>
+        </div>
+
+        <!-- POPUP FLOTANTE DE NOTAS EN PRESENTACIÓN -->
+        <div id="theater-notes-popup" class="fixed top-8 right-8 w-80 bg-slate-900/90 backdrop-blur-xl border border-white/20 text-white rounded-3xl p-4 z-[100030] shadow-2xl hidden">
+            <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
+                <span class="text-[10px] font-black uppercase text-amber-400 tracking-wider">Notas del Orador</span>
+                <button onclick="toggleTheaterNotesPopup()" class="text-slate-400 hover:text-white text-xs"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="theater-notes-content" class="text-xs text-slate-200 leading-relaxed max-h-60 overflow-y-auto custom-scrollbar"></div>
+        </div>
+
+        <!-- CLASIFICADOR DE DIAPOSITIVAS EN VIVO (THEATER SLIDE SORTER) -->
+        <div id="theater-slide-sorter" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[100040] hidden p-8 flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                <h3 class="text-lg font-black text-white flex items-center gap-2"><i class="fas fa-th-large text-amber-400"></i> Clasificador de Diapositivas</h3>
+                <button onclick="toggleTheaterSlideSorter()" class="text-slate-400 hover:text-white text-lg"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="theater-sorter-grid" class="flex-1 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 overflow-y-auto custom-scrollbar p-2">
+                <!-- Se inyectan dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODALES Y ASISTENTES GLASSMORPHIC
+         ========================================================= -->
+
+    <!-- MODAL: SELECTOR DE DISEÑOS DE DIAPOSITIVA (LAYOUT PICKER) -->
+    <div id="layout-picker-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white">Añadir Nueva Diapositiva</h3>
+                    <p class="text-xs text-slate-400">Selecciona una estructura prediseñada para tu contenido</p>
+                </div>
+                <button onclick="closeLayoutPickerModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Portada -->
+                <div onclick="insertSlideWithLayout('title')" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer transition-all group bg-slate-50 dark:bg-slate-950">
+                    <div class="aspect-video bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col items-center justify-center text-center mb-2">
+                        <div class="w-3/4 h-2.5 bg-amber-500 rounded-full mb-1"></div>
+                        <div class="w-1/2 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-800 dark:text-white group-hover:text-amber-500">Portada Principal</span>
+                </div>
+
+                <!-- Título y Viñetas -->
+                <div onclick="insertSlideWithLayout('bullets')" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer transition-all group bg-slate-50 dark:bg-slate-950">
+                    <div class="aspect-video bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col justify-center mb-2 space-y-1">
+                        <div class="w-1/2 h-2 bg-slate-800 dark:bg-white rounded-full mb-1"></div>
+                        <div class="w-3/4 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                        <div class="w-2/3 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                        <div class="w-4/5 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-800 dark:text-white group-hover:text-amber-500">Título y Viñetas</span>
+                </div>
+
+                <!-- 2 Columnas -->
+                <div onclick="insertSlideWithLayout('two-columns')" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer transition-all group bg-slate-50 dark:bg-slate-950">
+                    <div class="aspect-video bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col justify-between mb-2">
+                        <div class="w-1/3 h-2 bg-slate-800 dark:bg-white rounded-full"></div>
+                        <div class="grid grid-cols-2 gap-1.5 flex-1 pt-1.5">
+                            <div class="bg-amber-50 dark:bg-amber-950/20 rounded p-1"></div>
+                            <div class="bg-slate-100 dark:bg-slate-800 rounded p-1"></div>
+                        </div>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-800 dark:text-white group-hover:text-amber-500">Dos Columnas</span>
+                </div>
+
+                <!-- Resumen de KPIs Contables -->
+                <div onclick="insertSlideWithLayout('kpis')" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer transition-all group bg-slate-50 dark:bg-slate-950">
+                    <div class="aspect-video bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col justify-between mb-2">
+                        <div class="w-1/3 h-2 bg-slate-800 dark:bg-white rounded-full"></div>
+                        <div class="grid grid-cols-3 gap-1 flex-1 pt-1">
+                            <div class="bg-emerald-50 dark:bg-emerald-950/30 rounded border border-emerald-200 dark:border-emerald-800"></div>
+                            <div class="bg-amber-50 dark:bg-amber-950/30 rounded border border-amber-200 dark:border-amber-800"></div>
+                            <div class="bg-sky-50 dark:bg-sky-950/30 rounded border border-sky-200 dark:border-sky-800"></div>
+                        </div>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-800 dark:text-white group-hover:text-amber-500">Métricas &amp; KPIs</span>
+                </div>
+
+                <!-- Estados Financieros / Tabla -->
+                <div onclick="insertSlideWithLayout('table')" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer transition-all group bg-slate-50 dark:bg-slate-950">
+                    <div class="aspect-video bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col justify-between mb-2">
+                        <div class="w-2/5 h-2 bg-slate-800 dark:bg-white rounded-full mb-1"></div>
+                        <div class="border border-slate-200 dark:border-slate-700 rounded flex-1 flex flex-col justify-around p-0.5">
+                            <div class="h-1 bg-amber-500/30 rounded-sm"></div>
+                            <div class="h-1 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
+                            <div class="h-1 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
+                        </div>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-800 dark:text-white group-hover:text-amber-500">Tabla Financiera</span>
+                </div>
+
+                <!-- En Blanco -->
+                <div onclick="insertSlideWithLayout('blank')" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer transition-all group bg-slate-50 dark:bg-slate-950">
+                    <div class="aspect-video bg-white dark:bg-slate-900 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 p-2 flex items-center justify-center mb-2">
+                        <i class="fas fa-plus text-slate-400 group-hover:text-amber-500"></i>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-800 dark:text-white group-hover:text-amber-500">En Blanco</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PLANTILLAS COMPLETAS DE PRESENTACIONES -->
+    <div id="templates-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-3xl shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fas fa-wand-magic-sparkles text-amber-500"></i> Plantillas Profesionales
+                    </h3>
+                    <p class="text-xs text-slate-400">Aplica un conjunto completo de diapositivas prediseñadas para tu caso de uso</p>
+                </div>
+                <button onclick="closeTemplatesModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Plantilla 1: Estados Financieros -->
+                <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-amber-500 transition-all bg-slate-50 dark:bg-slate-950 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase">Contable</span>
+                            <span class="text-[10px] text-slate-400 font-bold">4 Diapositivas</span>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-800 dark:text-white mb-1">Estados Financieros y Rendimiento</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Portada ejecutiva, resumen de balance general, estado de resultados y KPIs de liquidez.</p>
+                    </div>
+                    <button onclick="applyPresentationTemplate('financiero')" class="w-full py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase shadow-md transition-all">Cargar Plantilla</button>
+                </div>
+
+                <!-- Plantilla 2: Pitch Deck Empresarial -->
+                <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-amber-500 transition-all bg-slate-50 dark:bg-slate-950 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 text-[10px] font-black uppercase">Negocios</span>
+                            <span class="text-[10px] text-slate-400 font-bold">5 Diapositivas</span>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-800 dark:text-white mb-1">Pitch Deck para Emprendimientos</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Portada de propuesta de valor, problema de mercado, solución innovadora y proyecciones a 3 años.</p>
+                    </div>
+                    <button onclick="applyPresentationTemplate('pitch')" class="w-full py-2 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs uppercase shadow-md transition-all">Cargar Plantilla</button>
+                </div>
+
+                <!-- Plantilla 3: Auditoría y Dictamen Fiscal -->
+                <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-amber-500 transition-all bg-slate-50 dark:bg-slate-950 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase">Auditoría</span>
+                            <span class="text-[10px] text-slate-400 font-bold">4 Diapositivas</span>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-800 dark:text-white mb-1">Informe de Auditoría Fiscal SV</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Carátula de dictamen independiente, alcance del trabajo (MH/SAFI), matriz de hallazgos y conclusiones.</p>
+                    </div>
+                    <button onclick="applyPresentationTemplate('auditoria')" class="w-full py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase shadow-md transition-all">Cargar Plantilla</button>
+                </div>
+
+                <!-- Plantilla 4: Capacitación NIIF -->
+                <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-amber-500 transition-all bg-slate-50 dark:bg-slate-950 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase">Académico</span>
+                            <span class="text-[10px] text-slate-400 font-bold">4 Diapositivas</span>
+                        </div>
+                        <h4 class="font-black text-sm text-slate-800 dark:text-white mb-1">Capacitación en NIIF y NIC 2</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Marco regulatorio salvadoreño, criterios de reconocimiento de inventarios, casos prácticos y resumen.</p>
+                    </div>
+                    <button onclick="applyPresentationTemplate('niif')" class="w-full py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs uppercase shadow-md transition-all">Cargar Plantilla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITOR DE DATOS DEL GRÁFICO -->
+    <div id="chart-data-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-chart-column text-amber-500"></i> Editar Datos del Gráfico
+                </h3>
+                <button onclick="closeChartModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Título del Gráfico</label>
+                    <input type="text" id="chart-input-title" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Tipo de Gráfica</label>
+                    <select id="chart-input-type" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                        <option value="bar">Gráfico de Barras</option>
+                        <option value="line">Gráfico de Líneas (Tendencia)</option>
+                        <option value="pie">Gráfico de Pastel / Dona</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Datos (Etiqueta, Valor)</label>
+                    <div id="chart-data-rows" class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar"></div>
+                    <button onclick="addChartDataRow()" class="mt-2 text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1"><i class="fas fa-plus"></i> Añadir Serie</button>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="closeChartModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="saveChartData()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase shadow-md">Aplicar Gráfica</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: INSERTAR IMAGEN -->
+    <div id="image-insert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-image text-amber-500"></i> Insertar Imagen
+                </h3>
+                <button onclick="closeImageModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Subir desde tu equipo</label>
+                    <input type="file" id="image-file-input" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-50 file:text-amber-600 hover:file:bg-amber-100 cursor-pointer">
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="h-[1px] flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">O mediante enlace</span>
+                    <div class="h-[1px] flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">URL de la Imagen</label>
+                    <input type="url" id="image-url-input" placeholder="https://ejemplo.com/imagen.png" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="closeImageModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="insertImageToSlide()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase shadow-md">Insertar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GALERÍA DE ICONOS -->
+    <div id="icon-picker-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-icons text-amber-500"></i> Galería de Iconos Corporativos
+                </h3>
+                <button onclick="closeIconModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="grid grid-cols-6 gap-2.5 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                <button onclick="insertIconToSlide('fa-chart-pie')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-chart-pie"></i></button>
+                <button onclick="insertIconToSlide('fa-chart-line')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-chart-line"></i></button>
+                <button onclick="insertIconToSlide('fa-chart-column')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-chart-column"></i></button>
+                <button onclick="insertIconToSlide('fa-coins')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-coins"></i></button>
+                <button onclick="insertIconToSlide('fa-file-invoice-dollar')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-file-invoice-dollar"></i></button>
+                <button onclick="insertIconToSlide('fa-scale-balanced')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-scale-balanced"></i></button>
+                <button onclick="insertIconToSlide('fa-building')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-building"></i></button>
+                <button onclick="insertIconToSlide('fa-calculator')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-calculator"></i></button>
+                <button onclick="insertIconToSlide('fa-shield-halved')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-shield-halved"></i></button>
+                <button onclick="insertIconToSlide('fa-bullseye')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-bullseye"></i></button>
+                <button onclick="insertIconToSlide('fa-award')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-award"></i></button>
+                <button onclick="insertIconToSlide('fa-briefcase')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-briefcase"></i></button>
+                <button onclick="insertIconToSlide('fa-lightbulb')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-lightbulb"></i></button>
+                <button onclick="insertIconToSlide('fa-users')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-users"></i></button>
+                <button onclick="insertIconToSlide('fa-handshake')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-handshake"></i></button>
+                <button onclick="insertIconToSlide('fa-landmark')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-landmark"></i></button>
+                <button onclick="insertIconToSlide('fa-circle-check')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-circle-check"></i></button>
+                <button onclick="insertIconToSlide('fa-arrow-trend-up')" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-amber-600 text-lg flex items-center justify-center transition-all"><i class="fas fa-arrow-trend-up"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE COMPARTIR Y COLABORACIÓN -->
+    <div id="share-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-user-plus text-sky-500"></i> Compartir Presentación
+                </h3>
+                <button onclick="closeShareModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Añadir Colaborador por su ID de Usuario</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-uid-input" class="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none" placeholder="Pegar ID único de Supabase...">
+                        <button onclick="addCollaborator()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs uppercase shadow-md">Añadir</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Personas con acceso</label>
+                    <div id="collaborators-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1 custom-scrollbar"></div>
+                </div>
+            </div>
+            <div class="flex justify-end mt-5">
+                <button onclick="closeShareModal()" class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AÑADIR / EDITAR ANIMACIÓN -->
+    <div id="add-animation-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-wand-magic-sparkles text-amber-500"></i> Configurar Animación de Objeto
+                </h3>
+                <button onclick="closeAddAnimationModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="space-y-3.5">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Categoría de Animación</label>
+                    <select id="anim-category-select" onchange="updateEffectOptionsByCategory(this.value)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                        <option value="entrance">Entrada (Aparición en escena)</option>
+                        <option value="emphasis">Énfasis (Llamar la atención)</option>
+                        <option value="exit">Salida (Desaparición)</option>
+                        <option value="motion">Trayectoria de Movimiento</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Efecto Visual</label>
+                    <select id="anim-effect-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                        <option value="fadeIn">Desvanecer Suave (Fade In)</option>
+                        <option value="flyIn">Volar desde Dirección (Fly In)</option>
+                        <option value="zoomIn">Zoom Elástico (Zoom In)</option>
+                        <option value="bounceIn">Rebote Físico (Bounce In)</option>
+                        <option value="wipe">Barrido Direccional (Wipe)</option>
+                        <option value="typewriter">Máquina de Escribir (Texto)</option>
+                        <option value="countUp">Conteo Progresivo $ (KPIs/Tablas)</option>
+                        <option value="chartGrow">Crecimiento Vectorial SVG (Gráficos)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Disparador (Trigger)</label>
+                        <select id="anim-trigger-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                            <option value="onClick">Al Hacer Clic (Paso Manual)</option>
+                            <option value="withPrevious">Con el Anterior (Simultáneo)</option>
+                            <option value="afterPrevious">Después del Anterior (Secuencia)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Dirección</label>
+                        <select id="anim-direction-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                            <option value="bottom">Desde Abajo</option>
+                            <option value="top">Desde Arriba</option>
+                            <option value="left">Desde la Izquierda</option>
+                            <option value="right">Desde la Derecha</option>
+                            <option value="center">Desde el Centro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Duración (ms)</label>
+                        <input type="number" id="anim-duration-input" value="600" min="100" max="4000" step="50" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Retardo / Delay (ms)</label>
+                        <input type="number" id="anim-delay-input" value="0" min="0" max="5000" step="50" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="closeAddAnimationModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="saveAnimationFromModal()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase shadow-md">Aplicar Animación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: IMPORTAR DE PROYECTO CONTABLE EDUCONTA SV -->
+    <div id="import-accounting-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-xl shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <div>
+                    <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fas fa-file-import text-amber-500"></i> Importar desde Proyectos Contables
+                    </h3>
+                    <p class="text-xs text-slate-400">Vincula estados financieros y métricas de tus libros en EduConta SV</p>
+                </div>
+                <button onclick="closeImportAccountingModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Seleccionar Origen Contable</label>
+                    <select id="accounting-source-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer">
+                        <option value="balance_general">Balance General Condensado (Activo, Pasivo, Patrimonio)</option>
+                        <option value="estado_resultados">Estado de Resultados Integral (Ventas, Costos, Utilidad Neta)</option>
+                        <option value="kpis_financieros">Tarjetas KPI (Razón Circulante, Prueba Ácida, Solvencia, ROE)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Formato de Inserción en la Diapositiva</label>
+                    <div class="grid grid-cols-3 gap-2.5">
+                        <label class="p-3 rounded-2xl border-2 border-amber-500 bg-amber-50/50 dark:bg-amber-950/20 cursor-pointer flex flex-col items-center text-center gap-1">
+                            <input type="radio" name="accounting-import-format" value="table" checked class="hidden">
+                            <i class="fas fa-table text-amber-500 text-base"></i>
+                            <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200">Tabla Contable</span>
+                        </label>
+                        <label class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer flex flex-col items-center text-center gap-1">
+                            <input type="radio" name="accounting-import-format" value="waterfall" class="hidden">
+                            <i class="fas fa-chart-waterfall text-amber-500 text-base"></i>
+                            <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200">Gráfico Cascada</span>
+                        </label>
+                        <label class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-amber-500 cursor-pointer flex flex-col items-center text-center gap-1">
+                            <input type="radio" name="accounting-import-format" value="kpi" class="hidden">
+                            <i class="fas fa-chart-pie text-emerald-500 text-base"></i>
+                            <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200">Tarjetas KPI</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 flex items-start gap-2.5">
+                    <i class="fas fa-info-circle text-amber-500 text-sm mt-0.5"></i>
+                    <span>Los datos contables se formatearán automáticamente bajo las normas salvadoreñas y NIIF con cifras expresadas en Dólares de los Estados Unidos (USD $).</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="closeImportAccountingModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
+                <button onclick="executeAccountingImport()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase shadow-md flex items-center gap-1.5">
+                    <i class="fas fa-check text-xs"></i> <span>Insertar en Diapositiva</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SELLOS Y DICTÁMENES DE AUDITORÍA NIIF -->
+    <div id="audit-badges-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4">
+        <div class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl backdrop-blur-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+                <div>
+                    <h3 class="text-base font-black text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fas fa-stamp text-amber-500"></i> Sellos y Dictámenes de Auditoría
+                    </h3>
+                    <p class="text-xs text-slate-400">Insignias vectoriales oficiales para dictámenes y notas fiscales</p>
+                </div>
+                <button onclick="closeAuditBadgesModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                <button onclick="insertAuditBadge('DICTAMEN LIMPIO', '#059669', '#ecfdf5', '#a7f3d0')" class="p-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 text-left transition-all group">
+                    <span class="block text-xs font-black text-emerald-700 dark:text-emerald-300 uppercase tracking-widest mb-1 flex items-center gap-1.5"><i class="fas fa-shield-check"></i> Dictamen Limpio</span>
+                    <span class="text-[10px] text-emerald-600/80 font-bold">Opinión favorable sin salvedades</span>
+                </button>
+
+                <button onclick="insertAuditBadge('CON SALVEDADES', '#d97706', '#fffbeb', '#fde68a')" class="p-3 rounded-2xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/30 text-left transition-all group">
+                    <span class="block text-xs font-black text-amber-700 dark:text-amber-300 uppercase tracking-widest mb-1 flex items-center gap-1.5"><i class="fas fa-triangle-exclamation"></i> Con Salvedades</span>
+                    <span class="text-[10px] text-amber-600/80 font-bold">Desviaciones no generalizadas</span>
+                </button>
+
+                <button onclick="insertAuditBadge('AUDITADO - NIIF PYMES', '#0284c7', '#f0f9ff', '#bae6fd')" class="p-3 rounded-2xl border-2 border-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/30 text-left transition-all group">
+                    <span class="block text-xs font-black text-sky-700 dark:text-sky-300 uppercase tracking-widest mb-1 flex items-center gap-1.5"><i class="fas fa-certificate"></i> Auditado NIIF</span>
+                    <span class="text-[10px] text-sky-600/80 font-bold">Conforme a NIIF para las PYMES</span>
+                </button>
+
+                <button onclick="insertAuditBadge('CONFIDENCIAL', '#e11d48', '#fff1f2', '#fecdd3')" class="p-3 rounded-2xl border-2 border-rose-300 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 text-left transition-all group">
+                    <span class="block text-xs font-black text-rose-700 dark:text-rose-300 uppercase tracking-widest mb-1 flex items-center gap-1.5"><i class="fas fa-lock"></i> Confidencial</span>
+                    <span class="text-[10px] text-rose-600/80 font-bold">Uso interno y reservado</span>
+                </button>
+
+                <button onclick="insertAuditBadge('EN REVISIÓN FISCAL', '#64748b', '#f8fafc', '#cbd5e1')" class="col-span-2 p-3 rounded-2xl border-2 border-slate-300 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-left transition-all group">
+                    <span class="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-1.5"><i class="fas fa-scale-balanced"></i> En Revisión Fiscal - SAFI / MH</span>
+                    <span class="text-[10px] text-slate-500 font-bold">Bajo proceso de verificación tributaria</span>
+                </button>
+            </div>
+
+            <div class="flex justify-end mt-5">
+                <button onclick="closeAuditBadgesModal()" class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs uppercase">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
+    <div id="sync-toast" class="fixed bottom-6 right-6 transform translate-y-32 opacity-0 transition-all duration-500 z-[10000] flex items-center gap-3 bg-emerald-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-none no-print">
+        <i class="fas fa-check-circle text-xl"></i>
+        <div>
+            <h4 class="font-black text-xs">Guardado con Éxito</h4>
+            <p id="toast-message-text" class="text-[10px] text-emerald-100">Cambios guardados en tu espacio</p>
+        </div>
+    </div>
+
+    <!-- Controladores de Cinta Ribbon y Navegación de Pestañas -->
+    <script>
+        window.currentActiveRibbonTab = 'inicio';
+        let currentRibbonTabIndex = 0;
+        let ribbonTabSnapTimeout = null;
+
+        window.updateRibbonBubble = function(tabName, instant = false) {
+            const tabs = ['inicio', 'insertar', 'animacion', 'disposicion'];
+            const pill = document.getElementById('ribbon-bubble-indicator');
+            const container = document.getElementById('ribbon-tabs-container');
+            const btn = document.getElementById(`ribbon-tab-btn-${tabName}`);
+            if (!pill || !container || !btn) return;
+
+            if (btn.offsetWidth === 0) {
+                requestAnimationFrame(() => window.updateRibbonBubble(tabName, instant));
+                return;
+            }
+
+            if (ribbonTabSnapTimeout) {
+                clearTimeout(ribbonTabSnapTimeout);
+                ribbonTabSnapTimeout = null;
+            }
+
+            const targetIndex = tabs.indexOf(tabName);
+            const distance = (targetIndex >= 0 && currentRibbonTabIndex >= 0) ? Math.abs(targetIndex - currentRibbonTabIndex) : 0;
+            const stretch = (!instant && distance > 0) ? (1 + Math.min(distance * 0.15, 0.35)) : 1;
+            const isInstant = instant || distance === 0;
+
+            if (isInstant) pill.style.transition = 'none';
+
+            pill.style.width = `${btn.offsetWidth}px`;
+            pill.style.opacity = '1';
+
+            if (!isInstant && distance > 0) {
+                pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(${stretch}) scaleY(0.9)`;
+                ribbonTabSnapTimeout = setTimeout(() => {
+                    pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(1) scaleY(1)`;
+                    ribbonTabSnapTimeout = null;
+                }, 180);
+            } else {
+                pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(1) scaleY(1)`;
+            }
+
+            if (isInstant) {
+                void pill.offsetWidth;
+                requestAnimationFrame(() => { pill.style.transition = ''; });
+            }
+
+            if (targetIndex >= 0) currentRibbonTabIndex = targetIndex;
+            window.currentActiveRibbonTab = tabName;
+        };
+
+        window.switchRibbonTab = function(tabName) {
+            const tabs = ['inicio', 'insertar', 'animacion', 'disposicion'];
+            if (!tabs.includes(tabName)) return;
+
+            tabs.forEach(t => {
+                const btn = document.getElementById(`ribbon-tab-btn-${t}`);
+                const pane = document.getElementById(`shelf-tab-${t}`);
+                const isActive = (t === tabName);
+                if (btn) {
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                }
+                if (pane) {
+                    if (isActive) {
+                        pane.classList.remove('hidden');
+                    } else {
+                        pane.classList.add('hidden');
+                    }
+                }
+            });
+
+            window.updateRibbonBubble(tabName, false);
+
+            if (document.body.classList.contains('ribbon-shelf-collapsed')) {
+                window.toggleRibbonShelf(true);
+            }
+        };
+
+        window.toggleRibbonShelf = function(force) {
+            const isCollapsed = document.body.classList.contains('ribbon-shelf-collapsed');
+            const shouldExpand = typeof force === 'boolean' ? force : isCollapsed;
+            const shelf = document.getElementById('ribbon-shelf-card');
+            const icon = document.getElementById('icon-toggle-ribbon');
+
+            if (shouldExpand) {
+                document.body.classList.remove('ribbon-shelf-collapsed');
+                if (shelf) {
+                    shelf.classList.remove('collapsed', 'anim-shelf-exit');
+                    shelf.classList.add('revealed', 'anim-shelf-enter');
+                }
+                if (icon) icon.className = 'fas fa-chevron-up text-[10px] transition-transform duration-200';
+            } else {
+                document.body.classList.add('ribbon-shelf-collapsed');
+                if (shelf) {
+                    shelf.classList.remove('revealed', 'anim-shelf-enter');
+                    shelf.classList.add('collapsed', 'anim-shelf-exit');
+                }
+                if (icon) icon.className = 'fas fa-chevron-down text-[10px] transition-transform duration-200';
+            }
+
+            setTimeout(() => {
+                if (typeof window.calculateFitZoom === 'function') {
+                    window.calculateFitZoom();
+                }
+            }, 250);
+        };
+
+        window.toggleDocSidebarDrawer = function(force) {
+            const sidebar = document.getElementById('slide-thumbnails-sidebar');
+            if (!sidebar) return;
+            const isHidden = sidebar.classList.contains('hidden');
+            const shouldShow = typeof force === 'boolean' ? force : isHidden;
+            if (shouldShow) {
+                sidebar.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('hidden');
+            }
+            setTimeout(() => {
+                if (typeof window.calculateFitZoom === 'function') {
+                    window.calculateFitZoom();
+                }
+            }, 150);
+        };
+
+        window.toggleExportDropdown = function(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('export-dropdown-menu');
+            if (!menu) return;
+            menu.classList.toggle('hidden');
+        };
+
+        window.closeExportDropdown = function() {
+            const menu = document.getElementById('export-dropdown-menu');
+            if (menu) menu.classList.add('hidden');
+        };
+
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('export-dropdown-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                window.closeExportDropdown();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                window.updateRibbonBubble('inicio', true);
+            }, 150);
+        });
+    </script>
+
+    <!-- Core Scripts -->
+    <script src="js/core/security.js"></script>
+    <script defer src="js/core/supabase.js"></script>
+    <script defer src="js/core/db.js"></script>
+    <script defer src="js/core/auth.js"></script>
+    <script defer src="js/core/components.js"></script>
+    <script defer src="js/core/custom-select-date.js"></script>
+    <script defer src="js/pages/editor-diapositivas.js"></script>
+
+    <!-- Inyección Garantizada del Header Global de EduContaSV -->
+    <script>
+        function tryInjectEducontaHeader() {
+            const root = document.getElementById('shared-components-root');
+            if (root && root.children.length === 0 && typeof window.injectSharedUI === 'function') {
+                window.injectSharedUI('shared-components-root');
+                return true;
+            }
+            return false;
+        }
+        if (!tryInjectEducontaHeader()) {
+            document.addEventListener('DOMContentLoaded', tryInjectEducontaHeader);
+            window.addEventListener('load', tryInjectEducontaHeader);
+        }
+    </script>
+</body>
+
+</html>

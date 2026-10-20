@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-env="proyectos">
 
 <head>
     <meta charset="UTF-8">
@@ -9,144 +9,44 @@
 
     <meta name="robots" content="noindex, nofollow">
 
+    <!-- Tailwind CSS Local -->
+    <script src="js/core/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            650: '#3e4b5c',
+                            750: '#293548',
+                            850: '#172033',
+                            950: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
     <link href="css/output.css" rel="stylesheet">
+
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="css/styles.css">
-    
+
+    <link rel="stylesheet" href="css/styles.css?v=1.1.5">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1.0.5">
+    <link rel="stylesheet" href="css/modales.css?v=1.3.1">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* =========================================================
-           PRELOADER PREMIUM (INSTANT)
-           ========================================================= */
-        #global-preloader {
-            --loader-azul: #1e293b;
-            --loader-celeste: #38bdf8;
-            --loader-bg: #ffffff;
-            position: fixed;
-            inset: 0;
-            z-index: 999999;
-            background-color: var(--loader-bg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        #global-preloader.loaded {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        #global-preloader .bg-volumetrico {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 0;
-            overflow: hidden;
-            filter: blur(40px); 
-        }
-
-        #global-preloader .vol-celeste {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0) 70%);
-            transform-origin: top left;
-            animation: waveCeleste 3.5s ease-in-out infinite alternate;
-        }
-
-        #global-preloader .vol-otro {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.02) 0%, rgba(236, 72, 153, 0) 70%);
-            transform-origin: bottom right;
-            animation: waveOtro 3.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes waveCeleste { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 1; } }
-        @keyframes waveOtro { 0% { transform: scale(1.6); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
-
-        #global-preloader .loader-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        #global-preloader .icon-svg { 
-            overflow: visible; 
-            flex-shrink: 0;
-            filter: drop-shadow(0 4px 8px rgba(30, 41, 59, 0.05));
-        }
-
-        #global-preloader .bar {
-            animation-duration: 0.8s;
-            animation-iteration-count: infinite;
-            animation-direction: alternate;
-            animation-timing-function: ease-in-out;
-            transform-origin: bottom;
-            transform-box: fill-box;
-            will-change: transform, opacity;
-        }
-
-        #global-preloader .bar-1 { animation-name: barPulse1; animation-delay: 0s; }
-        #global-preloader .bar-2 { animation-name: barPulse2; animation-delay: 0.15s; }
-        #global-preloader .bar-3 { animation-name: barPulse3; animation-delay: 0.3s; }
-
-        @keyframes barPulse1 {
-            0% { transform: scaleY(0.5); opacity: 0.8; fill: #1e293b; filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0)); }
-            100% { transform: scaleY(1); opacity: 1; fill: #334155; filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.2)); }
-        }
-        @keyframes barPulse2 {
-            0% { transform: scaleY(0.5); opacity: 0.8; fill: #334155; filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0)); }
-            100% { transform: scaleY(1); opacity: 1; fill: #475569; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4)); }
-        }
-        @keyframes barPulse3 {
-            0% { transform: scaleY(0.5); opacity: 0.8; fill: #475569; filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0)); }
-            100% { transform: scaleY(1); opacity: 1; fill: #38bdf8; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.8)); }
-        }
-
-        #global-preloader .base-line { fill: #0f172a; }
-
-        #global-preloader .text-svg {
-            height: 24px;
-            width: auto;
-            margin-top: 6px;
-            overflow: visible;
-            animation: textBreathe 2.5s infinite ease-in-out;
-        }
-
-        @keyframes textBreathe { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
-
-        #global-preloader .loading-text {
-            margin-top: 6px;
-            font-size: 10px;
-            font-weight: 600;
-            color: #64748b;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-        }
-
-        #global-preloader .dots span {
-            font-size: 16px;
-            line-height: 10px;
-            margin: 0 1px;
-            animation: dotBlink 1.2s infinite both;
-        }
-        #global-preloader .dots span:nth-child(2) { animation-delay: 0.2s; }
-        #global-preloader .dots span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes dotBlink {
-            0%, 100% { opacity: 0.2; transform: translateY(0); }
-            20% { opacity: 1; transform: translateY(-3px); color: #38bdf8; }
-        }
+        /* Preloader unificado via styles.css */
         /* =========================================================
            SELECTOR DE CATÁLOGO CUSTOM
            ========================================================= */
@@ -166,41 +66,46 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             user-select: none;
         }
+
         .catalog-current:hover {
             border-color: #38bdf8;
-            box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
         }
+
         .catalog-current.open {
             border-color: #38bdf8;
             border-radius: 18px 18px 0 0;
-            box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
         }
+
         .catalog-current-label {
             font-size: 0.875rem;
             font-weight: 700;
             color: #334155;
         }
+
         .catalog-current-arrow {
             color: #94a3b8;
             font-size: 0.75rem;
             transition: transform 0.3s ease;
         }
+
         .catalog-current.open .catalog-current-arrow {
             transform: rotate(180deg);
         }
 
         .catalog-options-panel {
-            max-height: 0;
+            height: 0;
             overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+            transition: height var(--modal-accordion-duration) var(--modal-spring-timing), opacity var(--modal-accordion-duration) var(--modal-spring-timing) !important;
             opacity: 0;
             background: #f8fafc;
             border: 1.5px solid #38bdf8;
             border-top: none;
             border-radius: 0 0 18px 18px;
         }
+
         .catalog-options-panel.open {
-            max-height: 400px;
             opacity: 1;
         }
 
@@ -213,9 +118,18 @@
             transition: background 0.15s;
             border-bottom: 1px solid #e2e8f0;
         }
-        .catalog-option:last-child { border-bottom: none; }
-        .catalog-option:hover { background: #f0f9ff; }
-        .catalog-option.selected { background: #e0f2fe; }
+
+        .catalog-option:last-child {
+            border-bottom: none;
+        }
+
+        .catalog-option:hover {
+            background: #f0f9ff;
+        }
+
+        .catalog-option.selected {
+            background: #e0f2fe;
+        }
 
         .catalog-option-icon {
             width: 32px;
@@ -229,6 +143,7 @@
             color: #0ea5e9;
             font-size: 0.875rem;
         }
+
         .catalog-option.selected .catalog-option-icon {
             background: #0ea5e9;
             color: #fff;
@@ -238,12 +153,14 @@
             flex: 1;
             min-width: 0;
         }
+
         .catalog-option-name {
             font-size: 0.75rem;
             font-weight: 700;
             color: #334155;
             display: block;
         }
+
         .catalog-option-desc {
             font-size: 0.65rem;
             color: #94a3b8;
@@ -254,6 +171,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
         .catalog-option-badge {
             font-size: 0.6rem;
             font-weight: 800;
@@ -266,6 +184,7 @@
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
+
         .catalog-option.selected .catalog-option-badge {
             background: #0ea5e9;
             color: #fff;
@@ -288,41 +207,53 @@
             overflow: hidden;
             background: #f8fafc;
         }
+
         #edc-dropzone.drag-over {
             border-color: #38bdf8;
             background: #f0f9ff;
-            box-shadow: 0 0 0 6px rgba(56,189,248,0.18),
-                        0 0 40px 10px rgba(56,189,248,0.12);
+            box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.18),
+                0 0 40px 10px rgba(56, 189, 248, 0.12);
         }
+
         /* Bloom animado al hacer drag-over */
         #edc-dropzone::before {
             content: '';
             position: absolute;
             inset: -40px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(56,189,248,0.22) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.4s ease;
             pointer-events: none;
             animation: none;
         }
+
         #edc-dropzone.drag-over::before {
             opacity: 1;
             animation: bloomPulse 1.4s ease-in-out infinite alternate;
         }
+
         @keyframes bloomPulse {
-            from { transform: scale(0.85); opacity: 0.6; }
-            to   { transform: scale(1.1);  opacity: 1;   }
+            from {
+                transform: scale(0.85);
+                opacity: 0.6;
+            }
+
+            to {
+                transform: scale(1.1);
+                opacity: 1;
+            }
         }
 
         /* Estado: archivo listo */
         #edc-dropzone.file-ready {
             border-color: #10b981;
             background: #ecfdf5;
-            box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
         }
+
         #edc-dropzone.file-ready::before {
-            background: radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
             opacity: 1;
         }
 
@@ -330,13 +261,24 @@
         #edc-dropzone.file-error {
             border-color: #f43f5e;
             background: #fff1f2;
-            box-shadow: 0 0 0 4px rgba(244,63,94,0.1);
+            box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
             animation: shakeX 0.4s ease;
         }
+
         @keyframes shakeX {
-            0%,100%{ transform:translateX(0); }
-            25%{ transform:translateX(-8px); }
-            75%{ transform:translateX(8px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-8px);
+            }
+
+            75% {
+                transform: translateX(8px);
+            }
         }
 
         /* Barra de progreso de importación */
@@ -347,122 +289,641 @@
             border-radius: 4px;
             transition: width 0.5s ease;
         }
+
+        /* =========================================================
+           ESTILOS PARA TABS DE MODELO VERTICAL (EduConta SV)
+           ========================================================= */
+        .model-tab-btn-vertical {
+            background: transparent;
+            color: #64748b;
+            border: 1.5px solid transparent;
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .model-tab-btn-vertical:hover {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        .model-tab-btn-vertical.active {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #bae6fd;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.05);
+        }
+
+        .model-tab-btn-vertical.active .icon-wrap {
+            background: #0ea5e9 !important;
+            color: #ffffff !important;
+        }
+
+        /* =========================================================
+           DISEÑO DE DOS COLUMNAS RESPONSIVO (ESCRITORIO & MÓVIL)
+           ========================================================= */
+        /* ── LAYOUT PROYECTOS ── */
+        .proyectos-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            body.pt-28.lg\:pt-28 {
+                padding-top: 95px !important;
+                overflow: hidden !important;
+            }
+
+            #project-screen {
+                height: calc(100vh - 95px);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .proyectos-layout {
+                flex: 1;
+                height: 0;
+                min-height: 0;
+                overflow: visible;
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 2.5rem;
+            }
+
+            .proyectos-sidebar {
+                width: 320px !important;
+                height: calc(100% - 24px) !important;
+                min-height: auto !important;
+                position: static !important;
+                margin-top: 0 !important;
+            }
+
+            #main-content-area {
+                height: calc(100% + 175px) !important;
+                overflow-y: auto !important;
+                padding: 175px 24px 80px 24px !important;
+                margin: -175px -24px 0 -24px !important;
+            }
+        }
+
+        .proyectos-sidebar {
+            width: 100%;
+            padding: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Radio Cards de Selección de Modelo en Modal */
+        .model-opt-card {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .model-opt-card:hover {
+            border-color: #38bdf8;
+            background: #f8fafc;
+        }
+
+        .model-opt-card.selected {
+            border-color: #0ea5e9;
+            background: #f0f9ff;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .model-opt-card.selected .model-check-circle {
+            border-color: #0ea5e9;
+            background: #0ea5e9;
+        }
+
+        .model-opt-card.selected .w-10 {
+            background: #0ea5e9 !important;
+            color: #ffffff !important;
+        }
+
+        /* Hover styles are now handled by external styles.css and dark-mode.css */
+        /* Selección Múltiple (Long Press) */
+        .project-card {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .project-card.multi-selected::after {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            color: #0ea5e9;
+            font-size: 1.5rem;
+            background: white;
+            border-radius: 50%;
+            z-index: 10;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        [data-theme="dark"] .project-card.multi-selected::after {
+            background: #1e293b;
+        }
+
+        .project-card.multi-selected {
+            border-color: #0ea5e9;
+            background-color: #f0f9ff;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+            transform: scale(0.98);
+        }
+
+        [data-theme="dark"] .project-card.multi-selected {
+            background-color: rgba(14, 165, 233, 0.1);
+        }
+
+        .multi-select-bar {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: calc(100% - 2rem);
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.65) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow:
+                0 10px 30px -10px rgba(0, 0, 0, 0.15),
+                0 1px 1px rgba(255, 255, 255, 0.5) inset !important;
+        }
+
+        [data-theme="dark"] .multi-select-bar {
+            background: rgba(15, 23, 42, 0.65) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow:
+                0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                0 1px 1px rgba(255, 255, 255, 0.05) inset !important;
+        }
+
+        .multi-select-bar.show {
+            bottom: 24px;
+        }
+
+        /* Anular efectos hover cuando la selección múltiple está activa */
+        #project-grid.multi-select-active .project-card:hover {
+            transform: none !important;
+            box-shadow:
+                0 4px 24px rgba(15, 23, 42, 0.06),
+                0 1px 4px rgba(15, 23, 42, 0.04),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.8) !important;
+            border-color: var(--glass-border) !important;
+            background: var(--glass-bg) !important;
+        }
+
+        [data-theme="dark"] #project-grid.multi-select-active .project-card:hover {
+            border-color: var(--glass-border) !important;
+            background: var(--glass-bg) !important;
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.35),
+                inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Mantener estilos de tarjeta seleccionada incluso al hacer hover */
+        #project-grid.multi-select-active .project-card.multi-selected:hover {
+            transform: scale(0.98) !important;
+            border-color: #0ea5e9 !important;
+            background-color: #f0f9ff !important;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+        }
+
+        [data-theme="dark"] #project-grid.multi-select-active .project-card.multi-selected:hover {
+            background-color: rgba(14, 165, 233, 0.1) !important;
+            background-image: none !important;
+        }
     </style>
+    <script src="js/core/theme.js"></script>
 </head>
 
-<body class="pt-24 pb-12 relative">
-    <div id="global-preloader">
-        <div class="bg-volumetrico">
-            <div class="vol-celeste"></div>
-            <div class="vol-otro"></div>
+<body class="page-proyectos min-h-screen text-slate-800 antialiased overflow-x-hidden pb-20 lg:pb-0 pt-28 lg:pt-28">
+    <!-- PRELOADER CORPORATIVO EDUCONTA -->
+    <div id="global-preloader" class="theme-sky" role="status" aria-live="polite" aria-label="Cargando">
+        <div class="bg-volumetrico" aria-hidden="true">
+            <canvas id="volGL"></canvas>
+            <div class="vol-blob b1"></div>
+            <div class="vol-blob b2"></div>
+            <div class="vol-blob b3"></div>
+            <div class="vol-blob b4"></div>
+            <div class="vol-blob b5"></div>
+            <div class="vol-sheen"></div>
+            <div class="vol-glass"></div>
+            <div class="vol-glass pulse"></div>
+            <div class="vol-veil"></div>
         </div>
-
         <div class="loader-container">
-            <svg class="icon-svg" width="65" height="65" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g>
-                    <!-- Las barras tienen su altura final definida en HTML y se escalan por CSS -->
-                    <rect class="bar bar-1" x="18" y="55" width="16" height="22" rx="2" fill="#1e293b" />
-                    <rect class="bar bar-2" x="42" y="39" width="16" height="38" rx="2" fill="#334155" />
-                    <rect class="bar bar-3" x="66" y="19" width="16" height="58" rx="2" fill="#38bdf8" />
-                </g>
-                <rect class="base-line" x="12" y="77" width="76" height="5" rx="2.5" fill="#0f172a" />
-            </svg>
+            <div class="logo-wrap glow">
+                <!-- Grafica de Barras (Arriba en loop) -->
+                <svg class="icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glowGPre" x="-400%" y="-100%" width="900%" height="300%" color-interpolation-filters="sRGB">
+                            <feDropShadow class="fx" dx="0" dy="0" stdDeviation="1" style="flood-color:var(--gc)" result="a"/>
+                            <feDropShadow class="fx" in="a" dx="0" dy="0" stdDeviation="3" style="flood-color:var(--gc)"/>
+                        </filter>
+                    </defs>
+                    <rect class="bar bar-1" x="28.5" y="55" width="11" height="16" rx="1" fill="var(--b1)"/>
+                    <rect class="bar bar-2" x="44.5" y="42" width="11" height="29" rx="1" fill="var(--b2)"/>
+                    <g class="glow-g"><rect class="bar bar-3" x="60.5" y="27" width="11" height="44" rx="1" fill="var(--celeste-sv)"/></g>
+                    <rect class="base-line" x="20" y="70" width="60" height="5" rx="1" fill="var(--base)"/>
+                </svg>
 
-            <svg class="text-svg" viewBox="0 0 500 100" xmlns="http://www.w3.org/2000/svg">
-                <g font-family="sans-serif" font-size="78">
-                    <text x="0" y="75" fill="var(--loader-azul)" font-weight="900">E</text>
-                    <text x="50" y="75" fill="var(--loader-azul)" font-weight="900">d</text>
-                    <text x="95" y="75" fill="var(--loader-azul)" font-weight="900">u</text>
-                    <text x="155" y="75" fill="var(--loader-azul)" font-weight="500">C</text>
-                    <text x="210" y="75" fill="var(--loader-azul)" font-weight="500">o</text>
-                    <text x="255" y="75" fill="var(--loader-azul)" font-weight="500">n</text>
-                    <text x="302" y="75" fill="var(--loader-azul)" font-weight="500">t</text>
-                    <text x="330" y="75" fill="var(--loader-azul)" font-weight="500">a</text>
-                    <text x="390" y="75" fill="var(--loader-celeste)" font-weight="900">S</text>
-                    <text x="445" y="75" fill="var(--loader-celeste)" font-weight="900">V</text>
-                </g>
-            </svg>
+                <!-- Texto EduConta SV (Abajo, posicion exacta, sin animacion) -->
+                <svg class="text-svg" viewBox="0 0 472 100" xmlns="http://www.w3.org/2000/svg">
+                    <g font-family="'Plus Jakarta Sans', sans-serif" font-size="78">
+                        <text x="0" y="75" font-weight="800" fill="var(--azul-corporativo)">E</text>
+                        <text x="44.44" y="75" font-weight="800" fill="var(--azul-corporativo)">d</text>
+                        <text x="95.44" y="75" font-weight="800" fill="var(--azul-corporativo)">u</text>
+                        <text x="140.66" y="75" font-weight="300" fill="var(--azul-corporativo)">C</text>
+                        <text x="200.39" y="75" font-weight="300" fill="var(--azul-corporativo)">o</text>
+                        <text x="250.29" y="75" font-weight="300" fill="var(--azul-corporativo)">n</text>
+                        <text x="293.41" y="75" font-weight="300" fill="var(--azul-corporativo)">t</text>
+                        <text x="321.86" y="75" font-weight="300" fill="var(--azul-corporativo)">a</text>
+                        <g class="glow-g">
+                            <text x="365.05" y="75" font-weight="800" fill="var(--celeste-sv)">S</text>
+                            <text x="414.02" y="75" font-weight="800" fill="var(--celeste-sv)">V</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
 
-            <div class="loading-text">
-                Cargando entorno
-                <div class="dots">
-                    <span>.</span><span>.</span><span>.</span>
-                </div>
+            <div class="loading-text">Cargando entorno
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
             </div>
         </div>
     </div>
-    <script>
-        (function() {
-            const preloader = document.getElementById('global-preloader');
-            const hideLoader = () => {
-                if(preloader && !preloader.classList.contains('loaded')) {
-                    preloader.classList.add('loaded');
-                    setTimeout(() => preloader.remove(), 600);
-                }
-            };
-            window.addEventListener('DOMContentLoaded', hideLoader);
-            window.addEventListener('load', hideLoader);
-            setTimeout(hideLoader, 1500);
-        })();
-    </script>
-
-    <!-- ROOT DE COMPONENTES GLOBALES (Header, Modales, Toast) -->
+    <script src="js/core/preloader.js"></script>
     <div id="shared-components-root"></div>
 
     <!-- PANTALLA 2: GESTIÓN DE PROYECTOS -->
-    <main id="project-screen" class="max-w-5xl mx-auto px-6 md:px-8 mt-6 md:mt-12 no-print fade-in">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 md:mb-12 gap-4">
-            <div>
-                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Mis <span
-                        class="text-sky-500">Proyectos</span></h2>
-                <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Selecciona un archivo
-                    para trabajar</p>
+    <main id="project-screen" class="max-w-full mx-auto px-4 md:px-8 w-full no-print fade-in relative z-10">
+
+        <!-- CABECERA DE LA PÁGINA -->
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-2 gap-4 relative z-20">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h2
+                        class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight dark:text-white glow-title">
+                        Mis <span class="text-sky-500">Proyectos</span></h2>
+                    <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Selecciona un archivo
+                        para trabajar</p>
+                </div>
+                <!-- (indicador de nube eliminado) -->
             </div>
             <div class="flex gap-3 w-full sm:w-auto">
                 <button onclick="openImportEdcModal()"
-                    class="flex-1 sm:flex-none px-5 py-3 bg-sky-500 text-white rounded-[36px] font-bold text-xs uppercase hover:bg-sky-600 transition-all shadow-lg hover:-translate-y-1 flex items-center justify-center gap-2"
+                    class="glow-hover btn-bloom-sky flex-1 sm:flex-none px-5 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2"
                     title="Importar proyecto desde archivo .edc">
                     <i class="fas fa-file-import"></i> <span>Importar</span>
                 </button>
                 <button onclick="openNewProjectModal()"
-                    class="flex-1 sm:flex-none px-6 py-3 bg-slate-900 text-white rounded-[36px] font-bold text-xs uppercase hover:bg-slate-800 transition-all shadow-xl hover:-translate-y-1">
-                    <i class="fas fa-plus mr-2"></i> Nuevo Proyecto
+                    class="glow-hover btn-bloom-sky flex-1 sm:flex-none px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-[36px] font-bold text-xs uppercase transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-plus"></i> <span>Nuevo Proyecto</span>
                 </button>
             </div>
         </div>
-        <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div id="empty-projects"
-            class="hidden py-20 text-center border-2 border-dashed border-slate-200 rounded-[28px]">
-            <i class="fas fa-archive text-4xl text-slate-200 mb-4"></i>
-            <p class="text-slate-400 font-bold text-sm">No tienes proyectos guardados aún.</p>
+
+        <div class="proyectos-layout">
+            <!-- PANEL IZQUIERDO: MODELOS CONTABLES (SIDEBAR) FLOTANTE -->
+            <div class="hidden lg:flex flex-col shrink-0 proyectos-sidebar">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-3 mb-6">Modelos Contables
+                </h3>
+                <div class="flex flex-col gap-4 w-full relative" id="sidebar-btn-container">
+                    <!-- Píldora deslizante con efecto Glassmorphic y animación elástica -->
+                    <div id="sidebar-active-pill" class="absolute left-0 right-0 top-0 h-[84px] rounded-[20px] z-0 pointer-events-none origin-center transition-all duration-[225ms] ease-out"
+                        style="opacity: 0; transform: translateY(0px) scaleY(1) scaleX(1);"></div>
+
+                    <button id="tab-model-libros" data-idx="0" onclick="switchModelTab('libros')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-sky-600 font-bold transition-all text-left group active-tab">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-sky-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-book text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-sky-600">
+                                Libros</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-kardex" data-idx="1" onclick="switchModelTab('kardex')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-sky-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-sky-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-boxes-stacked text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-sky-600">
+                                Kardex</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-planillas" data-idx="2" onclick="switchModelTab('planillas')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-sky-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-sky-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-users-gear text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-sky-600">
+                                Planillas</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-tributario" data-idx="3" onclick="switchModelTab('tributario')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-indigo-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-indigo-600 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-file-invoice-dollar text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-indigo-600">
+                                Tributario / IVA</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-costos" data-idx="4" onclick="switchModelTab('costos')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-600 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-industry text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Costos Industriales</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-caja" data-idx="5" onclick="switchModelTab('caja')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-amber-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-amber-500 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-cash-register text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-amber-600">
+                                Caja y Tesorería</p>
+                        </div>
+                    </button>
+                    <button id="tab-model-finanzas" data-idx="6" onclick="switchModelTab('finanzas')"
+                        class="sidebar-tab-btn relative z-10 w-full h-[84px] flex items-center gap-4 px-5 rounded-[20px] text-slate-500 hover:text-emerald-600 font-bold transition-all text-left group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-[.active-tab]:bg-emerald-600 group-[.active-tab]:text-white transition-colors shrink-0 shadow-sm">
+                            <i class="fas fa-chart-line text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-[17px] leading-tight text-slate-700 truncate font-black group-[.active-tab]:text-emerald-600">
+                                Mat. Financiera</p>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- CONTENIDO DERECHO: PROYECTOS Y ACCIONES -->
+            <div class="flex-1 w-full pb-32 relative z-[5]" id="main-content-area">
+
+                <!-- PANEL MÓVIL DE MODELOS (VISIBLE SÓLO EN MÓVIL) -->
+                <div class="lg:hidden mb-6">
+                    <div
+                        class="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm flex gap-2 overflow-x-auto no-scrollbar">
+                        <button id="tab-model-libros-mobile" onclick="switchModelTab('libros')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-sky-50 border border-sky-200 text-sky-600 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-book"></i> Libros
+                        </button>
+                        <button id="tab-model-kardex-mobile" onclick="switchModelTab('kardex')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-boxes-stacked"></i> Kardex
+                        </button>
+                        <button id="tab-model-planillas-mobile" onclick="switchModelTab('planillas')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-users-gear"></i> Planillas
+                        </button>
+                        <button id="tab-model-tributario-mobile" onclick="switchModelTab('tributario')"
+                            class="flex-1 min-w-[130px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-file-invoice-dollar"></i> Tributario
+                        </button>
+                        <button id="tab-model-costos-mobile" onclick="switchModelTab('costos')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-industry"></i> Costos
+                        </button>
+                        <button id="tab-model-caja-mobile" onclick="switchModelTab('caja')"
+                            class="flex-1 min-w-[120px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-cash-register"></i> Caja
+                        </button>
+                        <button id="tab-model-finanzas-mobile" onclick="switchModelTab('finanzas')"
+                            class="flex-1 min-w-[130px] px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2">
+                            <i class="fas fa-chart-line"></i> Finanzas
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div id="project-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    </div>
+
+                    <div id="empty-projects"
+                        class="hidden py-20 text-center border-2 border-dashed border-slate-200 rounded-[28px] bg-white/50 backdrop-blur-sm shadow-sm mt-4 relative z-20">
+                        <i class="fas fa-archive text-4xl text-sky-500 mb-4"></i>
+                        <p class="text-slate-500 font-bold text-sm">No tienes proyectos guardados aún.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- MODAL DE PROYECTOS -->
-    <div id="project-modal" style="display: none;" class="fixed inset-0 z-[9999] items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-        <div class="glass-modal max-w-md w-full mx-4 bg-white p-8 rounded-3xl shadow-2xl relative">
-            <button onclick="closeProjectModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 focus:outline-none"><i class="fas fa-times text-xl"></i></button>
-            <div class="w-16 h-16 rounded-[36px] bg-sky-50 flex items-center justify-center mb-6 mx-auto"><i class="fas fa-folder-plus text-2xl text-sky-500"></i></div>
+    <div id="project-modal" class="educonta-modal-overlay">
+        <div class="educonta-modal-content max-w-md w-full relative p-8">
+            <button onclick="closeProjectModal()"
+                class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 focus:outline-none"><i
+                    class="fas fa-times text-xl"></i></button>
+            <div class="w-16 h-16 rounded-[36px] bg-sky-50 flex items-center justify-center mb-6 mx-auto"><i
+                    class="fas fa-folder-plus text-2xl text-sky-500"></i></div>
             <h4 id="proj-modal-title" class="text-2xl font-black text-slate-800 text-center mb-6">Nuevo Proyecto</h4>
             <div class="space-y-4">
                 <div>
                     <div class="flex justify-between items-end mb-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre de la Entidad</label>
-                        <button onclick="setRandomProjectName()" class="text-[9px] font-bold text-sky-500 hover:text-sky-600"><i class="fas fa-dice"></i> Aleatorio</button>
+                        <label id="proj-modal-entity-label"
+                            class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre de la
+                            Entidad</label>
+                        <button onclick="setRandomProjectName()"
+                            class="text-[9px] font-bold text-sky-500 hover:text-sky-600"><i class="fas fa-dice"></i>
+                            Aleatorio</button>
                     </div>
-                    <input type="text" id="proj-input-name" class="w-full bg-slate-50 border border-slate-200 rounded-[36px] px-4 py-3 text-sm font-bold text-slate-700 focus:border-sky-400 outline-none transition-all" placeholder="Nombre del proyecto...">
+                    <input type="text" id="proj-input-name"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-[36px] px-4 py-3 text-sm font-bold text-slate-700 focus:border-sky-400 outline-none transition-all"
+                        placeholder="Nombre del proyecto...">
+                </div>
+
+                <!-- SELECTOR DE MODELO DE PROYECTO -->
+                <div id="project-model-selector-block">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Modelo de
+                        Proyecto</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <!-- Opción Libros Contables -->
+                        <div id="model-opt-libros" onclick="selectProjectModel('libros')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-sky-500 bg-sky-50/50 cursor-pointer transition-all flex items-center gap-3 selected">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Libros
+                                    Contables</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Diario, Mayor y
+                                    Balances</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-sky-500 bg-sky-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-check text-[8px] text-white"></i>
+                            </div>
+                        </div>
+
+                        <!-- Opción Kardex -->
+                        <div id="model-opt-kardex" onclick="selectProjectModel('kardex')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-boxes-stacked"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Kardex
+                                    (Inventarios)</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Inventario PEPS, UEPS o
+                                    Promedio</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Planillas -->
+                        <div id="model-opt-planillas" onclick="selectProjectModel('planillas')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-users-gear"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Planilla de
+                                    Salarios</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Cálculo de ISSS, AFP y
+                                    Renta SV</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Tributario / IVA -->
+                        <div id="model-opt-tributario" onclick="selectProjectModel('tributario')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Tributario /
+                                    IVA</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Formularios F-07, F-14 y
+                                    Libros IVA</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Costos Industriales -->
+                        <div id="model-opt-costos" onclick="selectProjectModel('costos')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-industry"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Costos
+                                    Industriales</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Estado de Costos y
+                                    Órdenes de Trabajo</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Caja y Tesorería -->
+                        <div id="model-opt-caja" onclick="selectProjectModel('caja')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-cash-register"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Caja y Tesorería</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Arqueo de Fondos Fijos y Corte de Ventas</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                        <!-- Opción Matemática Financiera -->
+                        <div id="model-opt-finanzas" onclick="selectProjectModel('finanzas')"
+                            class="model-opt-card p-3 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-800 leading-tight">Matemática Financiera</span>
+                                <span class="block text-[10px] text-slate-400 leading-normal">Amortizaciones, Intereses y VAN/TIR (BTVAC 3.5)</span>
+                            </div>
+                            <div
+                                class="model-check-circle w-4 h-4 rounded-full border border-slate-300 bg-white flex items-center justify-center shrink-0">
+                            </div>
+                        </div>
+
+                    </div>
+                    <input type="hidden" id="proj-input-type" value="libros">
                 </div>
 
                 <!-- SELECTOR DE CATÁLOGO CUSTOM -->
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Catálogo de Cuentas</label>
+                <div id="catalog-selector-container">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Catálogo
+                        de Cuentas</label>
                     <div class="catalog-selector-wrap">
                         <div id="catalog-current-btn" class="catalog-current" onclick="toggleCatalogPanel()">
                             <span id="catalog-current-label" class="catalog-current-label">Catálogo Maestro</span>
                             <i class="fas fa-chevron-down catalog-current-arrow"></i>
                         </div>
                         <div id="catalog-options-panel" class="catalog-options-panel">
-                            <div class="catalog-option selected" data-value="MAESTRO" onclick="selectCatalog('MAESTRO','Catálogo Maestro')">
+                            <div class="catalog-option selected" data-value="MAESTRO"
+                                onclick="selectCatalog('MAESTRO','Catálogo Maestro')">
                                 <div class="catalog-option-icon"><i class="fas fa-book-open"></i></div>
                                 <div class="catalog-option-info">
                                     <span class="catalog-option-name">Catálogo Maestro</span>
@@ -470,7 +931,8 @@
                                 </div>
                                 <span class="catalog-option-badge">MAESTRO</span>
                             </div>
-                            <div class="catalog-option" data-value="BANCOS" onclick="selectCatalog('BANCOS','Bancos y Seguros')">
+                            <div class="catalog-option" data-value="BANCOS"
+                                onclick="selectCatalog('BANCOS','Bancos y Seguros')">
                                 <div class="catalog-option-icon"><i class="fas fa-landmark"></i></div>
                                 <div class="catalog-option-info">
                                     <span class="catalog-option-name">Bancos y Seguros</span>
@@ -478,7 +940,8 @@
                                 </div>
                                 <span class="catalog-option-badge">BANCOS</span>
                             </div>
-                            <div class="catalog-option" data-value="NICS_GRAL" onclick="selectCatalog('NICS_GRAL','Sector Agrícola')">
+                            <div class="catalog-option" data-value="NICS_GRAL"
+                                onclick="selectCatalog('NICS_GRAL','Sector Agrícola')">
                                 <div class="catalog-option-icon"><i class="fas fa-seedling"></i></div>
                                 <div class="catalog-option-info">
                                     <span class="catalog-option-name">Sector Agrícola</span>
@@ -486,11 +949,13 @@
                                 </div>
                                 <span class="catalog-option-badge">NICS</span>
                             </div>
-                            <div class="catalog-option" data-value="SAFI" onclick="selectCatalog('SAFI','Gubernamental SAFI')">
+                            <div class="catalog-option" data-value="SAFI"
+                                onclick="selectCatalog('SAFI','Gubernamental SAFI')">
                                 <div class="catalog-option-icon"><i class="fas fa-university"></i></div>
                                 <div class="catalog-option-info">
                                     <span class="catalog-option-name">Gubernamental SAFI</span>
-                                    <span class="catalog-option-desc">Sistema de Administración Financiera Integrado</span>
+                                    <span class="catalog-option-desc">Sistema de Administración Financiera
+                                        Integrado</span>
                                 </div>
                                 <span class="catalog-option-badge">SAFI</span>
                             </div>
@@ -500,36 +965,40 @@
                 </div>
             </div>
             <div class="flex gap-3 mt-8">
-                <button onclick="closeProjectModal()" class="flex-1 px-4 py-3 rounded-[36px] bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
-                <button onclick="saveProjectFromModal()" class="flex-1 px-4 py-3 rounded-[36px] bg-sky-500 text-white font-bold text-xs uppercase hover:bg-sky-600 transition-colors shadow-lg shadow-sky-200">Guardar</button>
+                <button onclick="closeProjectModal()"
+                    class="flex-1 px-4 py-3 rounded-[36px] bg-slate-100 text-slate-500 font-bold text-xs uppercase hover:bg-slate-200 transition-colors">Cancelar</button>
+                <button onclick="saveProjectFromModal()"
+                    class="glow-hover btn-bloom-sky flex-1 px-4 py-3 rounded-[36px] bg-sky-500 text-white font-bold text-xs uppercase hover:bg-sky-600 transition-colors shadow-lg ambient-glow soft-glow"><span
+                        class="soft-glow-text" data-text="Guardar">Guardar</span></button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE IMPORTACIÓN .edc -->
-    <div id="import-edc-modal">
-        <div class="import-modal-box glass-modal max-w-md w-full mx-4 relative" style="padding: 2rem; overflow-y: auto; max-height: 90vh;">
+    <div id="import-edc-modal" class="educonta-modal-overlay">
+        <div class="import-modal-box educonta-modal-content max-w-md w-full relative"
+            style="padding: 2rem; overflow-y: auto; max-height: 90vh;">
             <!-- Cabecera -->
-            <button onclick="closeImportEdcModal()" class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-all focus:outline-none">
+            <button onclick="closeImportEdcModal()"
+                class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-all focus:outline-none">
                 <i class="fas fa-times text-lg"></i>
             </button>
-            <div class="w-16 h-16 rounded-[36px] flex items-center justify-center mb-5 mx-auto" style="background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%); box-shadow: 0 8px 24px -4px rgba(99,102,241,0.35);">
+            <div class="w-16 h-16 rounded-[36px] flex items-center justify-center mb-5 mx-auto"
+                style="background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%); box-shadow: 0 8px 24px -4px rgba(99,102,241,0.35);">
                 <i class="fas fa-shield-alt text-2xl text-white"></i>
             </div>
             <h4 class="text-2xl font-black text-slate-800 text-center mb-1">Importar Proyecto</h4>
-            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest text-center mb-6">Archivo .edc de EduConta SV</p>
+            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest text-center mb-6">Archivo .edc de
+                EduConta SV</p>
 
             <!-- Barra de progreso oculta -->
-            <div class="w-full bg-slate-100 rounded-full mb-4 overflow-hidden" id="import-progress-wrap" style="height:4px; display:none;">
+            <div class="w-full bg-slate-100 rounded-full mb-4 overflow-hidden" id="import-progress-wrap"
+                style="height:4px; display:none;">
                 <div id="import-progress-bar"></div>
             </div>
 
             <!-- Dropzone -->
-            <div id="edc-dropzone"
-                onclick="document.getElementById('edc-file-input').click()"
-                ondragover="edcDragOver(event)"
-                ondragleave="edcDragLeave(event)"
-                ondrop="edcDrop(event)">
+            <div id="edc-dropzone" onclick="document.getElementById('edc-file-input').click()"
+                ondragover="edcDragOver(event)" ondragleave="edcDragLeave(event)" ondrop="edcDrop(event)">
 
                 <!-- Icono central -->
                 <div id="edc-dropzone-icon" class="mb-4 flex justify-center">
@@ -559,7 +1028,8 @@
 
             <!-- Botón confirmar (visible solo cuando hay archivo listo) -->
             <div id="import-confirm-area" class="hidden mt-5">
-                <div id="import-file-badge" class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 mb-4">
+                <div id="import-file-badge"
+                    class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 mb-4">
                     <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
                         <i class="fas fa-file-shield text-emerald-500"></i>
                     </div>
@@ -567,25 +1037,54 @@
                         <p id="import-file-name" class="text-xs font-black text-slate-700 truncate">archivo.edc</p>
                         <p id="import-file-meta" class="text-[10px] text-slate-400">Listo para importar</p>
                     </div>
-                    <button onclick="resetDropzone()" class="text-slate-300 hover:text-rose-400 transition-colors shrink-0">
+                    <button onclick="resetDropzone()"
+                        class="text-slate-300 hover:text-rose-400 transition-colors shrink-0">
                         <i class="fas fa-times-circle"></i>
                     </button>
                 </div>
                 <button id="btn-confirmar-importacion" onclick="confirmarImportacionEdc()"
-                    class="w-full py-3 rounded-[36px] text-white font-black text-sm uppercase tracking-wide hover:opacity-90 transition-all"
+                    class="w-full py-3 rounded-[36px] text-white font-black text-sm uppercase tracking-wide hover:opacity-90 transition-all ambient-glow soft-glow"
                     style="background: linear-gradient(90deg, #0ea5e9 0%, #6366f1 100%); box-shadow: 0 8px 20px -4px rgba(14,165,233,0.4);">
-                    <i class="fas fa-check-circle mr-2"></i> Importar y Crear Proyecto
+                    <i class="fas fa-check-circle mr-2"></i> <span class="soft-glow-text"
+                        data-text="Importar y Crear Proyecto">Importar y Crear Proyecto</span>
                 </button>
             </div>
         </div>
     </div>
 
 
+    <script src="js/core/security.js"></script>
     <script src="js/core/supabase.js"></script>
     <script src="js/core/db.js"></script>
-    <script src="js/core/auth.js"></script>
-    <script src="js/core/components.js"></script>
-    <script src="js/pages/proyectos.js"></script>
+    <script src="js/core/auth.js?v=2.3"></script>
+    <script src="js/core/components.js?v=2.4"></script>
+    <script src="js/core/custom-select-date.js"></script>
+    <script src="js/pages/proyectos.js?v=1.0.5"></script>
+
+    <!-- BARRA DE SELECCIÓN MÚLTIPLE (LONG PRESS) -->
+    <div id="multi-select-bar"
+        class="multi-select-bar flex items-center justify-between bg-white dark:bg-slate-800 shadow-2xl rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center text-sky-500">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div>
+                <p id="multi-select-count" class="font-black text-slate-800 dark:text-white text-sm">0 seleccionados</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modo Selección</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="clearMultiSelection()"
+                class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                Cancelar
+            </button>
+            <button onclick="deleteMultiSelected()"
+                class="px-5 py-2 rounded-xl text-xs font-black text-white bg-rose-500 hover:bg-rose-600 shadow-lg hover:shadow-rose-500/30 transition-all flex items-center gap-2 ambient-glow soft-glow">
+                <i class="fas fa-trash-alt"></i> <span class="soft-glow-text" data-text="Eliminar">Eliminar</span>
+            </button>
+        </div>
+    </div>
 
     <!-- ESPECÍFICO DE PROYECTOS -->
     <script>
@@ -594,16 +1093,56 @@
             if (typeof window.injectSharedUI === 'function') {
                 window.injectSharedUI('shared-components-root');
             }
-            
+
             // Mostrar botón Volver en Navbar que viene de components.js
             setTimeout(() => {
                 const btnVolver = document.getElementById('btn-volver');
-                if (btnVolver) {
+                if (btnVolver && !window.isAuditMode) {
                     btnVolver.classList.remove('hidden');
                 }
             }, 50);
+
+            // Suavizado de scroll inercial para el contenedor de tarjetas (desplazamientos más cortos y fluidos)
+            const contentArea = document.getElementById('main-content-area');
+            if (contentArea) {
+                let targetScrollTop = contentArea.scrollTop;
+                let currentScrollTop = contentArea.scrollTop;
+                let isMoving = false;
+
+                contentArea.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaY) > 0 && !e.ctrlKey) {
+                        e.preventDefault();
+                        if (!isMoving) {
+                            targetScrollTop = contentArea.scrollTop;
+                            currentScrollTop = contentArea.scrollTop;
+                        }
+                        // Desplazamiento más corto (factor 0.5) con la misma velocidad de animación
+                        targetScrollTop = Math.max(0, Math.min(contentArea.scrollHeight - contentArea.clientHeight, targetScrollTop + e.deltaY * 0.5));
+
+                        if (!isMoving) {
+                            isMoving = true;
+                            requestAnimationFrame(updateScroll);
+                        }
+                    }
+                }, { passive: false });
+
+                function updateScroll() {
+                    const diff = targetScrollTop - currentScrollTop;
+                    if (Math.abs(diff) > 0.5) {
+                        currentScrollTop += diff * 0.25; // Interpolación suave de resorte (reacción más rápida)
+                        contentArea.scrollTop = currentScrollTop;
+                        requestAnimationFrame(updateScroll);
+                    } else {
+                        contentArea.scrollTop = targetScrollTop;
+                        currentScrollTop = targetScrollTop;
+                        isMoving = false;
+                    }
+                }
+            }
         });
     </script>
 </body>
 
 </html>
+
+
