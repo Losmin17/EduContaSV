@@ -434,15 +434,33 @@ window.loadSupportTickets = async function(showSpinner = true) {
     try {
         const GOOGLE_URL = typeof GOOGLE_SCRIPT_URL !== 'undefined' ? GOOGLE_SCRIPT_URL : "https://script.google.com/macros/s/AKfycbxW4BP3_pNQWBuOqdpJnvT8p_Lc3f2sos9j8vWLHZ3ByWzJjKE4dVx2hukgXjqQXMQtDA/exec";
         
-        const response = await fetch(GOOGLE_URL, {
+        // Evitar caché de 404 de sesiones previas en Chrome y agregar timestamp único
+        const sep = GOOGLE_URL.includes('?') ? '&' : '?';
+        const fetchUrl = `${GOOGLE_URL}${sep}_t=${Date.now()}`;
+
+        const response = await fetch(fetchUrl, {
             method: 'GET',
-            mode: 'cors'
+            mode: 'cors',
+            credentials: 'omit', // Omite cookies de Google para evitar el conflicto de cuentas múltiples (404)
+            redirect: 'follow',
+            cache: 'no-store'
         });
         
-        const resData = await response.json();
+        const rawText = await response.text();
+        let resData = null;
+        try {
+            resData = JSON.parse(rawText);
+        } catch (parseErr) {
+            // Si Google responde con una página HTML (ej. error 404 de "No se pudo abrir el archivo" o login)
+            if (rawText.trim().startsWith('<') || response.status === 404 || response.status === 403) {
+                const isMultiAccount = rawText.includes("No se pudo abrir") || rawText.includes("unable to open") || response.status === 404;
+                throw new Error(isMultiAccount ? "GOOGLE_MULTI_ACCOUNT_CONFLICT" : "GOOGLE_HTML_ERROR");
+            }
+            throw new Error(`Respuesta no válida del servidor: ${parseErr.message}`);
+        }
         
-        if (resData.status !== 'success') {
-            throw new Error(resData.message || "Error devuelto por el servidor de Google");
+        if (!response.ok || resData.status !== 'success') {
+            throw new Error(resData.message || `Error del servidor de Google (HTTP ${response.status})`);
         }
         
         const tickets = resData.tickets || [];
@@ -523,13 +541,46 @@ window.loadSupportTickets = async function(showSpinner = true) {
         
     } catch (err) {
         console.error("Error al cargar reportes:", err);
-        body.innerHTML = `
-            <div class="text-center py-20 text-rose-400 font-bold">
-                <i class="fas fa-exclamation-triangle text-3xl mb-4 text-rose-500"></i>
-                <p class="text-xs">Error de conexión al cargar reportes: ${escHtml(err.message)}</p>
-                <p class="text-[10px] text-slate-500 mt-2 font-normal">Verifica la implementación del Apps Script.</p>
-            </div>
-        `;
+        
+        if (err.message === "GOOGLE_MULTI_ACCOUNT_CONFLICT") {
+            body.innerHTML = `
+                <div class="text-center py-12 px-6">
+                    <div class="w-12 h-12 mx-auto mb-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl shadow-lg shadow-amber-500/10">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h4 class="text-xs font-black text-white uppercase tracking-wider mb-1.5">Conflicto de Sesión Google Detectado</h4>
+                    <p class="text-[11px] text-slate-400 max-w-md mx-auto mb-4 leading-relaxed">
+                        Google bloqueó la redirección con un error 404 porque detectó <strong class="text-amber-300 font-bold">múltiples cuentas de Google activas</strong> en este navegador.
+                    </p>
+                    <div class="bg-black/40 border border-white/5 rounded-2xl p-4 text-left max-w-md mx-auto mb-4 text-[10px] text-slate-300 space-y-2">
+                        <div class="flex items-start gap-2">
+                            <span class="text-sky-400 font-bold">1.</span>
+                            <span>Prueba abrir el Panel en una <strong class="text-white">Ventana de Incógnito</strong> o perfil limpio de Chrome.</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-sky-400 font-bold">2.</span>
+                            <span>En Apps Script, confirma que la implementación esté en: <em>"Quién tiene acceso: Cualquier persona"</em>.</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center gap-2.5">
+                        <button onclick="window.loadSupportTickets()" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-black font-extrabold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-sky-500/20">
+                            <i class="fas fa-sync-alt text-[10px]"></i> Reintentar
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            body.innerHTML = `
+                <div class="text-center py-16 px-6 text-rose-400">
+                    <i class="fas fa-exclamation-triangle text-3xl mb-3 text-rose-500"></i>
+                    <p class="text-xs font-bold mb-1">Error al conectar con la bandeja de soporte</p>
+                    <p class="text-[11px] text-slate-400 max-w-md mx-auto mb-4 font-normal">${escHtml(err.message)}</p>
+                    <button onclick="window.loadSupportTickets()" class="px-4 py-2 bg-slate-900 border border-[#2d2d30] text-slate-200 hover:text-white hover:bg-slate-800 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 mx-auto">
+                        <i class="fas fa-sync-alt text-[10px]"></i> Reintentar
+                    </button>
+                </div>
+            `;
+        }
     }
 };
 
@@ -695,15 +746,26 @@ window.resolveTicket = async function(rowId) {
     
     try {
         const GOOGLE_URL = typeof GOOGLE_SCRIPT_URL !== 'undefined' ? GOOGLE_SCRIPT_URL : "https://script.google.com/macros/s/AKfycbxW4BP3_pNQWBuOqdpJnvT8p_Lc3f2sos9j8vWLHZ3ByWzJjKE4dVx2hukgXjqQXMQtDA/exec";
+        const sep = GOOGLE_URL.includes('?') ? '&' : '?';
+        const resolveUrl = `${GOOGLE_URL}${sep}action=resolve&row=${rowId}&_t=${Date.now()}`;
         
-        const response = await fetch(`${GOOGLE_URL}?action=resolve&row=${rowId}`, {
+        const response = await fetch(resolveUrl, {
             method: 'GET',
-            mode: 'cors'
+            mode: 'cors',
+            credentials: 'omit',
+            redirect: 'follow',
+            cache: 'no-store'
         });
         
-        const resData = await response.json();
+        const rawText = await response.text();
+        let resData = null;
+        try {
+            resData = JSON.parse(rawText);
+        } catch (e) {
+            throw new Error("Respuesta inválida de Google Apps Script. Conflicto de cuentas de Google o servicio inaccesible.");
+        }
         
-        if (resData.status === 'success') {
+        if (resData && resData.status === 'success') {
             const ticket = window.supportTicketsCache.find(t => t.id === rowId);
             if (ticket) ticket.estado = 'Resuelto';
             
@@ -714,7 +776,7 @@ window.resolveTicket = async function(rowId) {
             }
             window.loadSupportTickets(false); // Recargar lista silenciosamente
         } else {
-            throw new Error(resData.message || "Error al actualizar la fila");
+            throw new Error((resData && resData.message) || "Error al actualizar la fila");
         }
     } catch (err) {
         console.error("Error al resolver ticket:", err);

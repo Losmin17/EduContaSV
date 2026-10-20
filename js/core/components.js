@@ -1661,6 +1661,7 @@ window.submitMultiStepForm = async function() {
         await fetch(GOOGLE_URL, {
             method: 'POST',
             mode: 'no-cors',
+            credentials: 'omit',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });

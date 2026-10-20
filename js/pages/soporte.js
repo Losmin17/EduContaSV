@@ -59,6 +59,7 @@ async function handleSupportSubmit(e) {
         await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
+            credentials: 'omit',
             headers: {
                 'Content-Type': 'text/plain'
             },
