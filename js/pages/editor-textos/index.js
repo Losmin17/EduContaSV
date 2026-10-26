@@ -108,9 +108,8 @@ window.toggleDocSidebarDrawer = function(force) {
     }
 };
 
-// ─── Control de Pestañas de la Cinta Ribbon (Inicio / Insertar / Vista) con Animación de Burbuja ────
+// ─── Control de Pestañas de la Cinta Ribbon (Inicio / Insertar / Vista) con Deslizador de Alto Rendimiento ────
 let currentRibbonTabIndex = 0;
-let ribbonTabSnapTimeout = null;
 window.currentActiveRibbonTab = 'inicio';
 
 window.updateRibbonBubble = function(tabName, instant = false) {
@@ -125,48 +124,29 @@ window.updateRibbonBubble = function(tabName, instant = false) {
         return;
     }
 
-    if (ribbonTabSnapTimeout) {
-        clearTimeout(ribbonTabSnapTimeout);
-        ribbonTabSnapTimeout = null;
-    }
-
     const targetIndex = tabs.indexOf(tabName);
-    const distance = (targetIndex >= 0 && currentRibbonTabIndex >= 0)
-        ? Math.abs(targetIndex - currentRibbonTabIndex)
-        : 0;
-    const stretch = (!instant && distance > 0) ? (1 + Math.min(distance * 0.15, 0.35)) : 1;
-    const isInstant = instant || distance === 0;
 
-    if (isInstant) {
+    if (instant) {
         pill.style.transition = 'none';
-    }
-
-    pill.style.width = `${btn.offsetWidth}px`;
-    pill.style.opacity = '1';
-
-    if (!isInstant && distance > 0) {
-        // Efecto elástico squish/stretch característico de la burbuja de EduConta SV
-        pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(${stretch}) scaleY(0.9)`;
-        ribbonTabSnapTimeout = setTimeout(() => {
-            pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(1) scaleY(1)`;
-            ribbonTabSnapTimeout = null;
-        }, 180);
-    } else {
-        pill.style.transform = `translateX(${btn.offsetLeft}px) scaleX(1) scaleY(1)`;
-    }
-
-    if (isInstant) {
+        pill.style.width = `${btn.offsetWidth}px`;
+        pill.style.transform = `translateX(${btn.offsetLeft}px)`;
+        pill.style.opacity = '1';
         void pill.offsetWidth;
         requestAnimationFrame(() => {
             pill.style.transition = '';
         });
+        if (targetIndex >= 0) currentRibbonTabIndex = targetIndex;
+        window.currentActiveRibbonTab = tabName;
+        return;
     }
+
+    pill.style.width = `${btn.offsetWidth}px`;
+    pill.style.transform = `translateX(${btn.offsetLeft}px)`;
+    pill.style.opacity = '1';
 
     if (targetIndex >= 0) currentRibbonTabIndex = targetIndex;
     window.currentActiveRibbonTab = tabName;
 };
-
-let ribbonTabSwitchTimeout = null;
 
 window.switchRibbonTab = function(tabName) {
     const tabs = ['inicio', 'insertar', 'vista'];
@@ -176,29 +156,31 @@ window.switchRibbonTab = function(tabName) {
     const isCollapsed = document.body.classList.contains('ribbon-shelf-collapsed');
 
     // Si ya está activa y la barra no está colapsada, no hay nada que cambiar
-    if (isAlreadyActive && !isCollapsed && !ribbonTabSwitchTimeout) {
+    if (isAlreadyActive && !isCollapsed) {
         return;
     }
-
-    // Cancelar cualquier timeout anterior si el usuario hace clics rápidos
-    if (ribbonTabSwitchTimeout) {
-        clearTimeout(ribbonTabSwitchTimeout);
-        ribbonTabSwitchTimeout = null;
-    }
-
-    const ribbon = document.querySelector('.toolbar-ribbon');
 
     // Actualizar botones de la píldora inmediatamente para feedback táctil instantáneo
     tabs.forEach(t => {
         const btn = document.getElementById(`ribbon-tab-btn-${t}`);
+        const pane = document.getElementById(`shelf-tab-${t}`);
         const isActive = (t === tabName);
         if (btn) {
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
         }
+        if (pane) {
+            if (isActive) {
+                pane.classList.remove('hidden');
+                pane.classList.add('flex');
+            } else {
+                pane.classList.remove('flex');
+                pane.classList.add('hidden');
+            }
+        }
     });
 
-    // Mover burbuja indicadora elásticamente al nuevo botón
+    // Mover burbuja indicadora suavemente y sin retrasos al nuevo botón
     window.updateRibbonBubble(tabName, false);
 
     // Si la cinta de herramientas estaba colapsada y el usuario hace clic en una pestaña, la expandimos
@@ -206,57 +188,10 @@ window.switchRibbonTab = function(tabName) {
         window.toggleRibbonShelf(true);
     }
 
-    // Si no hay elemento ribbon o ya estaba activa (pero colapsada), solo mostramos directamente
-    if (!ribbon) {
-        tabs.forEach(t => {
-            const pane = document.getElementById(`shelf-tab-${t}`);
-            if (pane) {
-                pane.classList.toggle('hidden', t !== tabName);
-                pane.classList.toggle('flex', t === tabName);
-            }
-        });
-        if (tabName === 'vista' && window.PageLayoutManager?.updateSheetThemeUI) {
-            window.PageLayoutManager.updateSheetThemeUI();
-        }
-        return;
+    // Actualizar controles si se pasa a la pestaña Disposición & Vista
+    if (tabName === 'vista' && window.PageLayoutManager?.updateSheetThemeUI) {
+        window.PageLayoutManager.updateSheetThemeUI();
     }
-
-    // 1. Salen todos a la vez
-    ribbon.classList.remove('anim-enter');
-    ribbon.classList.add('anim-exit');
-
-    // 2. Tras completar la salida (220ms), mostrar el nuevo contenido y entrar juntos
-    ribbonTabSwitchTimeout = setTimeout(() => {
-        tabs.forEach(t => {
-            const pane = document.getElementById(`shelf-tab-${t}`);
-            const isActive = (t === tabName);
-            if (pane) {
-                if (isActive) {
-                    pane.classList.remove('hidden');
-                    pane.classList.add('flex');
-                } else {
-                    pane.classList.remove('flex');
-                    pane.classList.add('hidden');
-                }
-            }
-        });
-
-        // Entran todos juntos con la curva elástica
-        ribbon.classList.remove('anim-exit');
-        ribbon.classList.add('anim-enter');
-
-        // Limpiar anim-enter al terminar la animación para dejar el DOM limpio
-        ribbon.addEventListener('animationend', () => {
-            ribbon.classList.remove('anim-enter');
-        }, { once: true });
-
-        // Actualizar controles si se pasa a la pestaña Disposición & Vista
-        if (tabName === 'vista' && window.PageLayoutManager?.updateSheetThemeUI) {
-            window.PageLayoutManager.updateSheetThemeUI();
-        }
-
-        ribbonTabSwitchTimeout = null;
-    }, 220);
 };
 
 // ─── Alternar Colapso de la Cinta de Herramientas (Modo Zen / Compacto) ────
@@ -303,10 +238,8 @@ const initTextEditorSubsystems = () => {
     PageLayoutManager.initSheetTheme();
     PageLayoutManager.applyZoom();
     SmoothScrollManager.init();
-    setTimeout(() => {
-        PageLayoutManager.updateZoomBubble(true);
-        window.updateRibbonBubble(window.currentActiveRibbonTab || 'inicio', true);
-    }, 60);
+    PageLayoutManager.updateZoomBubble(true);
+    window.updateRibbonBubble(window.currentActiveRibbonTab || 'inicio', true);
 };
 
 if (document.readyState === 'loading') {
